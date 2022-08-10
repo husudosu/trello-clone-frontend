@@ -6,24 +6,29 @@
             <q-btn style="margin-left: 10px" color="secondary" @click="onDeleteBoardClicked">Delete board</q-btn>
             <q-btn style="margin-left: 10px" color="secondary" @click="onNewListClicked">New list</q-btn>
         </nav>
-        <div class="lists">
-            <board-list v-for="list in board?.lists" :key="list.id" :onMove="onMove" :onChange="onChange"
-                :onEnd="onSortableMoveEnd" :boardList="list">
-            </board-list>
-        </div>
+        <!-- Dragabble object for reordering lists-->
+        <draggable class="lists" :list="board?.lists" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
+            :delay="500">
+            <!-- Board list object and reorder handling of cards.-->
+            <template #item="{ element }">
+                <board-list :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
+                </board-list>
+            </template>
+        </draggable>
     </div>
 </template>
 
 <script lang="ts" setup>
 
 import store from "@/store/index";
-import { computed } from "vue";
+import { computed, nextTick } from "vue";
 import BoardList from "@/components/BoardList.vue";
 
 import { patchCard } from "@/api/card";
 import { updateCardsOrder } from '@/api/boardList';
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
+import draggable from 'vuedraggable';
 
 // Card details modal stuff.
 const board = computed(() => store.state.board.board);
@@ -32,13 +37,27 @@ const router = useRouter();
 
 
 let cardId: number | undefined;
-let moving = false;
+let cardMoving = false;
+
+let boardlistId: number | undefined;
+let boardlistMoving = false;
+
+/*
+    Dragabble object events for board lists
+*/
+const onBoardListSortableMoveEnd = async (ev: any) => {
+    console.log("Ok");
+};
 
 
-const onSortableMoveEnd = async (ev: any) => {
-    if (moving) {
-        const boardFromId: number = parseInt(ev.from.id.split("-")[1]);
-        const boardToId: number = parseInt(ev.to.id.split("-")[1]);
+/*
+    Draggable object events for cards
+    FIXME: Structrue wise not so ideal to store these methods here.
+*/
+const onCardSortableMoveEnd = async (ev: any) => {
+    if (cardMoving) {
+        const boardFromId: number = parseInt(ev.from.id.split("boardlistCards-")[1]);
+        const boardToId: number = parseInt(ev.to.id.split("boardlistCards-")[1]);
 
         if (boardFromId !== boardToId && cardId !== undefined) {
             // Change list id of card.
@@ -54,18 +73,14 @@ const onSortableMoveEnd = async (ev: any) => {
         if (listTo !== undefined) {
             await updateCardsOrder(listTo);
         }
-        moving = false;
+        cardMoving = false;
     }
 };
 
-const onMove = async (ev: any) => {
-    moving = true;
+const onCardMove = async (ev: any) => {
+    cardMoving = true;
     cardId = ev.draggedContext.element.id;
     // Checks if on same list 
-};
-
-const onChange = async (ev: any) => {
-    console.log(ev);
 };
 
 const loadBoard = (boardId: number) => {
@@ -85,7 +100,13 @@ const onDeleteBoardClicked = () => {
 };
 
 const onNewListClicked = () => {
+    console.log(document.body.scrollWidth);
     store.commit.board.addNewList();
+    // Scroll to right side of screen
+    nextTick(() => {
+        console.log(document.body.scrollWidth);
+        window.scrollTo(document.body.scrollWidth, 0);
+    });
 };
 
 onBeforeRouteUpdate((to, from) => {

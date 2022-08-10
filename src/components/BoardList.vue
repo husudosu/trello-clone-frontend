@@ -2,15 +2,15 @@
     <div class="list">
         <header @dblclick="editListTitle = !editListTitle">
             <template v-if="editListTitle">
-                <q-input v-model="boardList.title" label="Name" @keyup.enter="onListUpdate"></q-input>
+                <q-input v-model="boardList.title" label="Name" @keyup.enter="onListUpdate" autofocus></q-input>
             </template>
             <template v-else>
                 {{ boardList.title }}
             </template>
         </header>
         <ul>
-            <draggable :id="'boardlist-' + boardList?.id" class="list-group" :list="boardList.cards" group="board-list"
-                @change="onChange" itemKey="id" @end="onEnd" :move="onMove" draggable=".item" style="height: 100%"
+            <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" :list="boardList.cards"
+                group="board-list" itemKey="id" @end="onEnd" :move="onMove" draggable=".item" style="height: 100%"
                 :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id">
                 <template #item="{ element }">
                     <li class="item" @click="onCardClick(element)">
@@ -18,7 +18,8 @@
                             {{ element.title }}
                         </template>
                         <template v-else>
-                            <q-input v-model="element.title" label="Card title" @keyup.enter="onSaveCard(element)">
+                            <q-input v-model="element.title" label="Card title" @keyup.enter="onSaveCard(element)"
+                                @blur="onSaveCard(element)" autofocus>
                             </q-input>
                         </template>
                     </li>
@@ -36,19 +37,16 @@ import draggable from 'vuedraggable';
 import store from "@/store";
 type OnMove = (ev: any) => void;
 type OnEnd = (ev: any) => void;
-type OnChange = (ev: any) => void;
 
 interface Props {
     boardList: BoardList;
     onMove: OnMove;
     onEnd: OnEnd;
-    onChange: OnChange;
 }
 
 const props = defineProps<Props>();
 
 const editListTitle = ref(false);
-const newCardTitle = ref<string>();
 
 const boardList = ref(props.boardList);
 
@@ -65,7 +63,16 @@ const onAddCardClick = () => {
 
 const onSaveCard = (card: Card) => {
     if (boardList.value.id) {
-        store.dispatch.board.saveCard({ boardListId: boardList.value.id, card });
+        if (card.title && card.title.length > 0) {
+            // Save card into db
+            console.log("Save card");
+            store.dispatch.board.saveCard({ boardListId: boardList.value.id, card });
+        }
+        else {
+            // Remove draft card
+            console.log("Remove draft card");
+            store.commit.board.removeCard({ boardListId: boardList.value.id, card });
+        }
     }
 };
 
@@ -85,3 +92,21 @@ if (!boardList.value.title) {
     editListTitle.value = true;
 }
 </script>
+
+<style>
+.item {
+    /* Disabling  text selection for cards */
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Safari */
+    -khtml-user-select: none;
+    /* Konqueror HTML */
+    -moz-user-select: none;
+    /* Old versions of Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+</style>

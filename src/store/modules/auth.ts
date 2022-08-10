@@ -24,10 +24,12 @@ export default {
         },
     },
     actions: {
-        async doLogin({ commit }: any, payload: UserLogin) {
+        async doLogin({ commit, dispatch }: any, payload: UserLogin) {
             const data = await login(payload);
             commit("setUser", jwt_decode(data.access_token));
             commit("setLoggedIn", true);
+            // Load accesable boards.
+            dispatch("board/loadBoards", {}, { root: true });
         },
         async doLogout({ commit }: any) {
             await logout();

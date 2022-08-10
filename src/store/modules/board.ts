@@ -3,6 +3,7 @@ import { patchBoardList, postBoardList } from "@/api/boardList";
 import { postCard } from "@/api/card";
 import { Board, BoardList, Card } from "@/api/types";
 
+
 type InitialState = {
     boards: Board[];
     board: null | Board;
@@ -85,6 +86,21 @@ export default {
                         // Overwrite last item of board list card entry
                         state.board.lists[index].cards[state.board.lists[index].cards.length - 1] = payload.card;
                     }
+                }
+            }
+        },
+        removeCard(state: InitialState, payload: { boardListId: number; card: Card; }) {
+            if (state.board !== null) {
+                const listIndex = state.board.lists.findIndex((el) => el.id == payload.boardListId);
+                if (payload.card.id) {
+                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == payload.card.id);
+                    if (cardIndex > -1) {
+                        state.board.lists[listIndex].cards.splice(cardIndex, 1);
+                    }
+                }
+                else {
+                    // If card id is undefined, remove draft item aka. last  item of list
+                    state.board.lists[listIndex].cards.splice(state.board.lists[listIndex].cards.length - 1, 1);
                 }
             }
         }
