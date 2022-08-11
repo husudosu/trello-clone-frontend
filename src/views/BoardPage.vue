@@ -11,8 +11,8 @@
             :touchStartThreshold="100" :delay="500" @end="onBoardListSortableMoveEnd">
             <!-- Board list object and reorder handling of cards.-->
             <template #item="{ element }">
-                <board-list :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
-                </board-list>
+                <board-list-component :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
+                </board-list-component>
             </template>
         </draggable>
     </div>
@@ -20,16 +20,19 @@
 
 <script lang="ts" setup>
 
-import store from "@/store/index";
 import { computed, nextTick, ref } from "vue";
-import BoardList from "@/components/BoardList.vue";
+import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 
+import draggable from 'vuedraggable';
+
+import store from "@/store/index";
 import { patchCard } from "@/api/card";
 import { updateCardsOrder } from '@/api/boardList';
 import { updateBoardListsOrder } from "@/api/board";
+
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
-import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
-import draggable from 'vuedraggable';
+import BoardListComponent from '../components/BoardListComponent.vue';
+
 
 // Card details modal stuff.
 const board = computed(() => store.state.board.board);

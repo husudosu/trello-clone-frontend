@@ -2,7 +2,8 @@
     <div class="list">
         <header @dblclick="editListTitle = !editListTitle">
             <template v-if="editListTitle">
-                <q-input v-model="boardList.title" label="Name" @keyup.enter="onListUpdate" autofocus></q-input>
+                <q-input v-model="boardList.title" label="Name" @keyup.enter="onListSave" @blur="onListSave" autofocus>
+                </q-input>
             </template>
             <template v-else>
                 {{ boardList.title }}
@@ -35,6 +36,7 @@ import { BoardList, Card } from '@/api/types';
 import { defineProps, ref } from 'vue';
 import draggable from 'vuedraggable';
 import store from "@/store";
+import { updateBoardListsOrder } from '@/api/board';
 type OnMove = (ev: any) => void;
 type OnEnd = (ev: any) => void;
 
@@ -50,9 +52,16 @@ const editListTitle = ref(false);
 
 const boardList = ref(props.boardList);
 
-const onListUpdate = () => {
-    store.dispatch.board.saveBoardList(boardList.value)
-        .finally(() => editListTitle.value = false);
+const onListSave = () => {
+    if (boardList.value.title && boardList.value.title.length > 0) {
+        store.dispatch.board.saveBoardList(boardList.value)
+            .finally(() => {
+                editListTitle.value = false;
+            });
+    }
+    else {
+        store.commit.board.removeList(boardList.value);
+    }
 };
 
 const onAddCardClick = () => {

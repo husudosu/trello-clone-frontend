@@ -1,4 +1,4 @@
-import { getBoard, getBoards, postBoard, deleteBoard } from "@/api/board";
+import { getBoard, getBoards, postBoard, deleteBoard, updateBoardListsOrder } from "@/api/board";
 import { patchBoardList, postBoardList } from "@/api/boardList";
 import { postCard } from "@/api/card";
 import { Board, BoardList, Card } from "@/api/types";
@@ -60,6 +60,21 @@ export default {
                 const index = state.board.lists.findIndex((el) => el.id == boardList.id);
                 if (index > -1) {
                     state.board.lists[index] = boardList;
+                }
+            }
+        },
+        removeList(state: InitialState, boardList: BoardList) {
+            if (state.board !== null) {
+                if (boardList.id) {
+                    // Delete existing
+                    const listIndex = state.board.lists.findIndex((el) => el.id == boardList.id);
+                    if (listIndex > -1) {
+                        state.board.lists.splice(listIndex, 1);
+                    }
+                }
+                else {
+                    // Delete draft
+                    state.board.lists.splice(state.board.lists.length - 1, 1);
                 }
             }
         },
@@ -137,6 +152,9 @@ export default {
                 // Create new list                
                 const data = await postBoardList(state.board.id, list);
                 commit("saveNewList", data);
+
+                // Update order of boardlists
+                await updateBoardListsOrder(state.board);
             }
         },
         async saveCard({ commit }: any, payload: { boardListId: number; card: Card; }) {
