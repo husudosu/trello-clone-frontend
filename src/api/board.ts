@@ -19,3 +19,8 @@ export const postBoard = async (board: Partial<Board>) => {
 export const deleteBoard = async (boardId: number) => {
     await API.delete(`/board/${boardId}`);
 };
+
+export const updateBoardListsOrder = async (board: Board) => {
+    const order = board.lists.map((el) => el.id);
+    await API.patch(`/board/${board.id}/boardlists-order`, order);
+};

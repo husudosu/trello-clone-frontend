@@ -8,7 +8,7 @@
         </nav>
         <!-- Dragabble object for reordering lists-->
         <draggable class="lists" :list="board?.lists" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
-            :delay="500">
+            :delay="500" @end="onBoardListSortableMoveEnd">
             <!-- Board list object and reorder handling of cards.-->
             <template #item="{ element }">
                 <board-list :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
@@ -26,6 +26,7 @@ import BoardList from "@/components/BoardList.vue";
 
 import { patchCard } from "@/api/card";
 import { updateCardsOrder } from '@/api/boardList';
+import { updateBoardListsOrder } from "@/api/board";
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import draggable from 'vuedraggable';
@@ -39,14 +40,13 @@ const router = useRouter();
 let cardId: number | undefined;
 let cardMoving = false;
 
-let boardlistId: number | undefined;
-let boardlistMoving = false;
-
 /*
     Dragabble object events for board lists
 */
 const onBoardListSortableMoveEnd = async (ev: any) => {
-    console.log("Ok");
+    if (board.value != null) {
+        updateBoardListsOrder(board.value);
+    }
 };
 
 
