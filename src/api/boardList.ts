@@ -6,21 +6,8 @@ export interface Order {
 }
 
 export const updateCardsOrder = async (boardList: BoardList) => {
-    // Remove non-essential stuff for order
-    const orderData = [];
-    if (boardList.cards !== undefined) {
-        for (const item of boardList.cards) {
-            // Only order existing items.
-            if (item.id !== undefined) {
-                orderData.push({
-                    id: item.id,
-                    position: item.position
-                });
-            }
-        }
-        const { data } = await API.patch(`/list/${boardList.id}/cards-order`, orderData);
-        return data;
-    }
+    const orderData = boardList.cards.map((el) => el.id);
+    await API.patch(`/list/${boardList.id}/cards-order`, orderData);
 };
 
 export const postBoardList = async (boardId: number, boardList: BoardList) => {

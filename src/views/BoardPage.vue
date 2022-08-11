@@ -1,5 +1,5 @@
 <template>
-    <div class="ui">
+    <div class="ui" ref="boardWrapper">
         <card-details-dialog></card-details-dialog>
         <nav class="navbar board">
             {{ board?.title }}
@@ -7,8 +7,8 @@
             <q-btn style="margin-left: 10px" color="secondary" @click="onNewListClicked">New list</q-btn>
         </nav>
         <!-- Dragabble object for reordering lists-->
-        <draggable class="lists" :list="board?.lists" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
-            :delay="500" @end="onBoardListSortableMoveEnd">
+        <draggable class="lists" ref="listsWrapper" :list="board?.lists" itemKey="id" :delayOnTouchOnly="true"
+            :touchStartThreshold="100" :delay="500" @end="onBoardListSortableMoveEnd">
             <!-- Board list object and reorder handling of cards.-->
             <template #item="{ element }">
                 <board-list :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
@@ -21,7 +21,7 @@
 <script lang="ts" setup>
 
 import store from "@/store/index";
-import { computed, nextTick } from "vue";
+import { computed, nextTick, ref } from "vue";
 import BoardList from "@/components/BoardList.vue";
 
 import { patchCard } from "@/api/card";
@@ -35,6 +35,7 @@ import draggable from 'vuedraggable';
 const board = computed(() => store.state.board.board);
 const route = useRoute();
 const router = useRouter();
+const listsWrapper = ref();
 
 
 let cardId: number | undefined;
@@ -43,12 +44,11 @@ let cardMoving = false;
 /*
     Dragabble object events for board lists
 */
-const onBoardListSortableMoveEnd = async (ev: any) => {
+const onBoardListSortableMoveEnd = async () => {
     if (board.value != null) {
         updateBoardListsOrder(board.value);
     }
 };
-
 
 /*
     Draggable object events for cards
@@ -80,7 +80,6 @@ const onCardSortableMoveEnd = async (ev: any) => {
 const onCardMove = async (ev: any) => {
     cardMoving = true;
     cardId = ev.draggedContext.element.id;
-    // Checks if on same list 
 };
 
 const loadBoard = (boardId: number) => {
@@ -100,12 +99,10 @@ const onDeleteBoardClicked = () => {
 };
 
 const onNewListClicked = () => {
-    console.log(document.body.scrollWidth);
     store.commit.board.addNewList();
-    // Scroll to right side of screen
+    // This will scroll the end of div.
     nextTick(() => {
-        console.log(document.body.scrollWidth);
-        window.scrollTo(document.body.scrollWidth, 0);
+        listsWrapper.value.targetDomElement.scroll(listsWrapper.value.targetDomElement.scrollWidth, 0);
     });
 };
 
