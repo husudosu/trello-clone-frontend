@@ -66,6 +66,24 @@ export interface UserBasicInfo {
     id: number;
     name: string;
     avatar_url?: string;
+    username: string;
+}
+
+/* 
+    id = sqla.Column(sqla.Integer, primary_key=True)
+    activity_id = sqla.Column(sqla.Integer, sqla.ForeignKey("card_activity.id"))
+
+    from_list_id = sqla.Column(sqla.Integer, sqla.ForeignKey("list.id"))
+    to_list_id = sqla.Column(sqla.Integer, sqla.ForeignKey("list.id"))
+
+*/
+export interface CardListChange {
+    id: number;
+    activity_id: number;
+    from_list_id: number;
+    to_list_id: number;
+    from_list: Partial<BoardList>;
+    to_list: Partial<BoardList>;
 }
 
 export interface CardActivity {
@@ -76,6 +94,7 @@ export interface CardActivity {
     entity_id?: number;
     event?: number;
     comment?: CardComment;
+    list_change?: CardListChange;
     user?: UserBasicInfo;
 }
 
@@ -94,4 +113,10 @@ export interface RegisterPayload {
     password: string,
     name?: string,
     timezone: string,
+}
+
+export enum CardActivityEvent {
+    CARD_ASSIGN_TO_LIST = 1,
+    CARD_MOVE_TO_LIST = 2,
+    CARD_COMMENT = 3,
 }

@@ -7,6 +7,14 @@
             </template>
             <template v-else>
                 {{ boardList.title }}
+                <q-btn flat round icon="more_horiz" />
+                <q-menu v-model="showMenu">
+                    <q-list style="min-width: 100px">
+                        <q-item clickable @click="onDeleteBoardList">
+                            <q-item-section>Deltete list</q-item-section>
+                        </q-item>
+                    </q-list>
+                </q-menu>
             </template>
         </header>
         <ul>
@@ -36,7 +44,7 @@ import { BoardList, Card } from '@/api/types';
 import { defineProps, ref } from 'vue';
 import draggable from 'vuedraggable';
 import store from "@/store";
-import { updateBoardListsOrder } from '@/api/board';
+
 type OnMove = (ev: any) => void;
 type OnEnd = (ev: any) => void;
 
@@ -49,6 +57,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const editListTitle = ref(false);
+const showMenu = ref(false);
 
 const boardList = ref(props.boardList);
 
@@ -96,6 +105,11 @@ const onCardClick = (item: Card) => {
     }
 };
 
+const onDeleteBoardList = () => {
+    if (confirm("Are you sure about deleting list?")) {
+        store.dispatch.board.removeBoardList(boardList.value);
+    }
+};
 
 if (!boardList.value.title) {
     editListTitle.value = true;

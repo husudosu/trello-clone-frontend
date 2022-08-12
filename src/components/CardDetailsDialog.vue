@@ -33,14 +33,25 @@
                                 <q-item>
                                     <q-item-section top avatar>
                                         <q-avatar rounded>
-                                            <img :src="activity?.user?.avatar_url" />
+                                            <img src="@/assets/avatar-placeholder.png" />
                                         </q-avatar>
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label>{{ activity?.user?.name }}</q-item-label>
+                                        <q-item-label>{{ activity?.user?.name }} ({{ activity?.user?.username }})
+                                        </q-item-label>
                                         <q-item-label caption>
-                                            {{ activity?.comment?.comment }}
+
+                                            <template v-if="activity?.event == CardActivityEvent.CARD_COMMENT">
+                                                {{ activity?.comment?.comment }}
+                                            </template>
+                                            <template
+                                                v-else-if="activity?.event == CardActivityEvent.CARD_MOVE_TO_LIST">Moved
+                                                from
+                                                <b>{{ activity.list_change?.from_list?.title || "N/A" }} </b> to <b>{{
+                                                        activity.list_change?.to_list?.title || "N/A"
+                                                }}</b>
+                                            </template>
                                         </q-item-label>
                                     </q-item-section>
 
@@ -69,7 +80,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import store from "@/store";
-import { CardComment } from "@/api/types";
+import { CardComment, CardActivityEvent } from "@/api/types";
 
 const card = computed(() => store.state.card.card);
 const cardModalVisible = computed({

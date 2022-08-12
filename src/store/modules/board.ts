@@ -1,5 +1,5 @@
 import { getBoard, getBoards, postBoard, deleteBoard, updateBoardListsOrder } from "@/api/board";
-import { patchBoardList, postBoardList } from "@/api/boardList";
+import { deleteBoardList, patchBoardList, postBoardList } from "@/api/boardList";
 import { postCard } from "@/api/card";
 import { Board, BoardList, Card } from "@/api/types";
 
@@ -156,6 +156,11 @@ export default {
                 // Update order of boardlists
                 await updateBoardListsOrder(state.board);
             }
+        },
+        async removeBoardList({ commit }: any, list: BoardList) {
+            if (list.id)
+                await deleteBoardList(list.id);
+            commit("removeList", list);
         },
         async saveCard({ commit }: any, payload: { boardListId: number; card: Card; }) {
             const data = await postCard(payload.boardListId, payload.card);

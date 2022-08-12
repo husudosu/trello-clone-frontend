@@ -19,3 +19,7 @@ export const patchBoardList = async (boardListid: number, boardList: BoardList) 
     const { data } = await API.patch<BoardList>(`/list/${boardListid}`, boardList);
     return data;
 };
+
+export const deleteBoardList = async (boardListId: number) => {
+    return await API.delete(`/list/${boardListId}`);
+};
