@@ -3,7 +3,15 @@
         <q-layout view="hHh lpR fFf" container class="bg-white">
             <q-header class="bg-primary">
                 <q-toolbar>
-                    <q-toolbar-title>{{ card?.title }}</q-toolbar-title>
+                    <q-toolbar-title @dblclick="editCardTitle = !editCardTitle">
+                        <template v-if="!editCardTitle">
+                            {{ card?.title }}
+                        </template>
+                        <template v-else>
+                            <q-input v-model="card.title" @blur="onTitleEdit" @keydown.enter="onTitleEdit" autofocus>
+                            </q-input>
+                        </template>
+                    </q-toolbar-title>
                     <q-btn flat @click="rightDrawerVisible = !rightDrawerVisible" round dense icon="settings" />
                     <q-btn flat v-close-popup round dense icon="close" />
                 </q-toolbar>
@@ -95,7 +103,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import store from "@/store";
-import { CardActivityEvent } from "@/api/types";
+import { Card, CardActivityEvent } from "@/api/types";
 import { patchCard } from '@/api/card';
 
 const card = computed(() => store.state.card.card);
@@ -119,6 +127,7 @@ const rightDrawerVisible = ref(false);
 
 const newComment = ref("");
 const editCardDescription = ref(false);
+const editCardTitle = ref(false);
 
 
 const onNewComment = async (e: any) => {
@@ -132,6 +141,14 @@ const onDescriptionEdit = async (e: any) => {
     if (e.ctrlKey && card.value && card.value.id && card.value.description) {
         editCardDescription.value = false;
         patchCard(card.value.id, { description: card.value.description });
+    }
+};
+
+const onTitleEdit = async () => {
+    if (card.value && card.value.title && card.value.id) {
+        editCardTitle.value = false;
+        const updatedCard: Card = await patchCard(card.value.id, { title: card.value.title });
+        store.commit.board.updateCard({ boardListId: card.value.list_id, card: updatedCard });
     }
 };
 

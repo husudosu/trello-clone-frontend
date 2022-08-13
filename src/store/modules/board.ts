@@ -118,6 +118,18 @@ export default {
                     state.board.lists[listIndex].cards.splice(state.board.lists[listIndex].cards.length - 1, 1);
                 }
             }
+        },
+        updateCard(state: InitialState, payload: { boardListId: number; card: Card; }) {
+            if (state.board !== null) {
+                const listIndex = state.board.lists.findIndex((el) => el.id == payload.boardListId);
+                if (listIndex > -1) {
+                    // Find card  and update it
+                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == payload.card.id);
+                    if (cardIndex > -1) {
+                        state.board.lists[listIndex].cards[cardIndex] = payload.card;
+                    }
+                }
+            }
         }
     },
     actions: {

@@ -70,10 +70,9 @@ export default {
             const commentActivity = await postCardComment(state.card.id, { comment: payload });
             commit("addComment", commentActivity);
         },
-        async deleteCardFromAPI({ commit, state }: any, card: Card) {
+        async deleteCardFromAPI({ commit }: any, card: Card) {
             // Close dialog
             commit("setVisible", false);
-            console.log(card);
             if (card.id) {
                 await deleteCard(card.id);
                 commit("board/removeCard", { boardListId: card.list_id, card }, { root: true });
