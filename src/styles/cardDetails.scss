@@ -1,3 +1,8 @@
 .card-description {
     min-height: 100px;
+    white-space: pre-wrap;
+}
+
+.card-description textarea {
+    margin: 10px;
 }

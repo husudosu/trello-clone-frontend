@@ -21,7 +21,7 @@ export const postCard = async (boardListId: number, card: Card) => {
     return data;
 };
 
-export const patchCard = async (cardId: number, updatedCard: Card) => {
+export const patchCard = async (cardId: number, updatedCard: Partial<Card>) => {
     const { data } = await API.patch<Card>(`/card/${cardId}`, updatedCard);
     return data;
 };
@@ -29,4 +29,13 @@ export const patchCard = async (cardId: number, updatedCard: Card) => {
 export const moveCard = async (cardId: number, params: MoveCardParams) => {
     const { data } = await API.patch<Card>(`/card/${cardId}`, params);
     return data;
+};
+
+export const getCardActivities = async (cardId: number) => {
+    const { data } = await API.get<CardActivity[]>(`/card/${cardId}/activities`);
+    return data;
+};
+
+export const deleteCard = async (cardId: number) => {
+    await API.delete(`/card/${cardId}`);
 };

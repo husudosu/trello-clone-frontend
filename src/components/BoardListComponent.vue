@@ -96,11 +96,9 @@ const onSaveCard = (card: Card) => {
 
 const onCardClick = (item: Card) => {
     if (item.id) {
-        store.dispatch.card.loadCard({ cardId: item.id }).then(() => {
+        store.dispatch.card.loadCard(item.id).then(() => {
             store.commit.card.setVisible(true);
-        }).catch((err) => {
-            console.log("Cannot load card:");
-            console.log(err);
+            store.dispatch.card.loadCardActivities();
         });
     }
 };

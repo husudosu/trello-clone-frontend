@@ -17,17 +17,27 @@
                     <q-btn align="between" class="full-width" icon="label" dense>Labels</q-btn>
                     <q-btn align="between" class="full-width" icon="checklist" dense>Checklist</q-btn>
                     <q-btn align="between" class="full-width" icon="schedule" dense>Due date</q-btn>
+                    <q-btn align="between" class="full-width" icon="delete" dense @click="onDeleteClicked">Delete
+                    </q-btn>
                 </div>
             </q-drawer>
             <q-page-container>
                 <q-page padding>
                     <span class="text-h6">Description</span>
-                    <div class="qa-pa-md q-list--bordered card-description">
-                        {{ card?.description }}
+                    <div class="qa-pa-md q-list--bordered card-description"
+                        @dblclick="editCardDescription = !editCardDescription">
+                        <template v-if="!editCardDescription">
+                            {{ card?.description }}
+                        </template>
+                        <template v-else>
+                            <q-input v-model="card.description" type="textarea" @keydown.enter="onDescriptionEdit"
+                                autofocus>
+                            </q-input>
+                        </template>
                     </div>
 
                     <span class="text-h6">Activity</span>
-                    <div class="card-comments">
+                    <div class="card-comments" v-if="!activitiesLoading">
                         <q-list padding bordered>
                             <div v-for="activity in card?.activities" :key="activity.id">
                                 <q-item>
@@ -43,12 +53,14 @@
                                         <q-item-label caption>
 
                                             <template v-if="activity?.event == CardActivityEvent.CARD_COMMENT">
-                                                {{ activity?.comment?.comment }}
+                                                <span style="white-space: pre-wrap;">{{ activity?.comment?.comment
+                                                }}</span>
                                             </template>
                                             <template
                                                 v-else-if="activity?.event == CardActivityEvent.CARD_MOVE_TO_LIST">Moved
                                                 from
-                                                <b>{{ activity.list_change?.from_list?.title || "N/A" }} </b> to <b>{{
+                                                <b>{{ activity.list_change?.from_list?.title || "N/A" }} </b> to
+                                                <b>{{
                                                         activity.list_change?.to_list?.title || "N/A"
                                                 }}</b>
                                             </template>
@@ -65,10 +77,13 @@
                                 <q-separator spaced inset="item" />
                             </div>
                             <div class="q-pa-md" style="width:100%;">
-                                <q-input v-model="newComment.comment" type="textarea" placeholder="New comment..." />
-                                <q-btn @click="onNewComment">Save</q-btn>
+                                <q-input v-model="newComment" type="textarea" placeholder="New comment..." autofocus
+                                    @keydown.enter="onNewComment" />
                             </div>
                         </q-list>
+                    </div>
+                    <div v-else>
+                        <q-spinner-comment size="5em" />
                     </div>
                 </q-page>
             </q-page-container>
@@ -80,7 +95,8 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import store from "@/store";
-import { CardComment, CardActivityEvent } from "@/api/types";
+import { CardActivityEvent } from "@/api/types";
+import { patchCard } from '@/api/card';
 
 const card = computed(() => store.state.card.card);
 const cardModalVisible = computed({
@@ -89,18 +105,46 @@ const cardModalVisible = computed({
     },
     set(newValue) {
         store.commit.card.setVisible(newValue);
+        // clear fields
+        if (!newValue) {
+            editCardDescription.value = false;
+            newComment.value = "";
+        }
     }
 });
+
+const activitiesLoading = computed(() => store.state.card.activitiesLoading);
 const rightDrawerVisible = ref(false);
 
-const newComment = ref<Partial<CardComment>>({ comment: undefined });
 
-const onNewComment = async () => {
-    console.log("New comment");
-    if (newComment.value !== undefined)
-        store.dispatch.card.addCardComment(newComment.value).then(() => newComment.value.comment = undefined);
+const newComment = ref("");
+const editCardDescription = ref(false);
 
+
+const onNewComment = async (e: any) => {
+    if (e.ctrlKey) {
+        if (newComment.value !== undefined)
+            store.dispatch.card.addCardComment(newComment.value).then(() => newComment.value = "");
+    }
 };
+
+const onDescriptionEdit = async (e: any) => {
+    if (e.ctrlKey && card.value && card.value.id && card.value.description) {
+        editCardDescription.value = false;
+        patchCard(card.value.id, { description: card.value.description });
+    }
+};
+
+const onDeleteClicked = () => {
+    console.log("Delete");
+    if (confirm("Are you sure about deleting card?")) {
+        if (card.value != undefined) {
+            store.dispatch.card.deleteCardFromAPI(card.value);
+        }
+    }
+};
+
+
 
 </script>
 
