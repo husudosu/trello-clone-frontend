@@ -7,14 +7,15 @@
             </template>
             <template v-else>
                 {{ boardList.title }}
-                <q-btn flat round icon="more_horiz" />
-                <q-menu v-model="showMenu">
-                    <q-list style="min-width: 100px">
-                        <q-item clickable @click="onDeleteBoardList">
-                            <q-item-section>Deltete list</q-item-section>
-                        </q-item>
-                    </q-list>
-                </q-menu>
+                <q-btn flat round icon="more_horiz">
+                    <q-menu v-model="showMenu">
+                        <q-list style="min-width: 100px">
+                            <q-item clickable @click="onDeleteBoardList">
+                                <q-item-section>Deltete list</q-item-section>
+                            </q-item>
+                        </q-list>
+                    </q-menu>
+                </q-btn>
             </template>
         </header>
         <ul>
