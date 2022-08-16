@@ -33,6 +33,27 @@ export interface Board {
     background_color?: string;
 }
 
+
+export interface BoardRolePermission {
+    id: number;
+    name: string;
+    allow: boolean;
+}
+
+export interface BoardRole {
+    id: number;
+    name: string;
+    permissions: BoardRolePermission[];
+}
+
+export interface BoardClaims {
+    id: number;
+    board_id: number;
+    is_owner: boolean;
+    user_id: number;
+    role: BoardRole;
+}
+
 export interface Card {
     id?: number;
     list_id: number;

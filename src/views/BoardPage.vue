@@ -86,11 +86,12 @@ const onCardMove = async (ev: any) => {
 };
 
 const loadBoard = (boardId: number) => {
-    store.dispatch.board.loadBoard({ boardId }).catch((err: any) => {
-        if (err.response.status === 404) {
-            router.push({ name: '404' });
-        }
-    });
+    store.dispatch.board.loadBoard({ boardId })
+        .catch((err: any) => {
+            if (err.response.status === 404) {
+                router.push({ name: '404' });
+            }
+        });
 
 };
 

@@ -1,5 +1,5 @@
 import { API } from ".";
-import { Board } from "./types";
+import { Board, BoardClaims } from "./types";
 
 export const getBoards = async () => {
     const { data } = await API.get<Board[]>("board");
@@ -23,4 +23,9 @@ export const deleteBoard = async (boardId: number) => {
 export const updateBoardListsOrder = async (board: Board) => {
     const order = board.lists.map((el) => el.id);
     await API.patch(`/board/${board.id}/boardlists-order`, order);
+};
+
+export const getBoardClaims = async (boardId: number) => {
+    const { data } = await API.get<BoardClaims>(`/board/${boardId}/user-claims`);
+    return data;
 };

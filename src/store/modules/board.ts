@@ -1,12 +1,13 @@
-import { getBoard, getBoards, postBoard, deleteBoard, updateBoardListsOrder } from "@/api/board";
+import { getBoard, getBoards, postBoard, deleteBoard, updateBoardListsOrder, getBoardClaims } from "@/api/board";
 import { deleteBoardList, patchBoardList, postBoardList } from "@/api/boardList";
 import { postCard } from "@/api/card";
-import { Board, BoardList, Card } from "@/api/types";
+import { Board, BoardClaims, BoardList, Card } from "@/api/types";
 
 
 type InitialState = {
     boards: Board[];
     board: null | Board;
+    claims: null | BoardClaims;
 };
 
 export default {
@@ -14,11 +15,19 @@ export default {
     state: {
         board: null,
         boards: [],
-        lists: []
+        lists: [],
+        claims: null
     } as InitialState,
     getters: {
         boardLists: (state: InitialState) => {
             return state.board?.lists;
+        },
+        hasPermission: (state: InitialState) => (permission: string) => {
+            if (state.claims) {
+                const obj = state.claims.role.permissions.find(p => p.name == permission);
+                return obj?.allow == undefined ? false : obj?.allow;
+            }
+            return false;
         }
     },
     mutations: {
@@ -36,6 +45,9 @@ export default {
             if (itemIndex > -1) {
                 state.boards.splice(itemIndex, 1);
             }
+        },
+        setBoardClaims(state: InitialState, claims: BoardClaims) {
+            state.claims = claims;
         },
         addNewList(state: InitialState) {
             // Creates only a placeholder for new list.
@@ -133,10 +145,12 @@ export default {
         }
     },
     actions: {
-        async loadBoard({ commit }: any, payload: { boardId: number; }) {
+        async loadBoard({ commit, dispatch }: any, payload: { boardId: number; }) {
             const board = await getBoard(payload.boardId);
             if (board) {
+                // Load board claims too!
                 commit("setBoard", board);
+                await dispatch("loadBoardClaims");
             }
             else {
                 console.log("Board issue");
@@ -145,6 +159,10 @@ export default {
         async loadBoards({ commit }: any) {
             const data = await getBoards();
             commit("setBoards", data);
+        },
+        async loadBoardClaims({ commit, state }: any) {
+            const data = await getBoardClaims(state.board.id);
+            commit("setBoardClaims", data);
         },
         async createBoard({ commit }: any, payload: Partial<Board>) {
             const data = await postBoard(payload);
