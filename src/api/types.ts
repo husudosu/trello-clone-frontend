@@ -136,6 +136,14 @@ export interface RegisterPayload {
     timezone: string,
 }
 
+export interface BoardAllowedUser {
+    id: number;
+    use_id: number;
+    board_id: number;
+    board_role_id: number;
+    is_owner: boolean;
+}
+
 export enum CardActivityEvent {
     CARD_ASSIGN_TO_LIST = 1,
     CARD_MOVE_TO_LIST = 2,

@@ -1,10 +1,31 @@
 <template>
     <div class="ui" ref="boardWrapper">
+        <!-- Car details -->
         <card-details-dialog></card-details-dialog>
+        <!-- Add member dialog -->
+        <q-dialog v-model="showAddMemberDialog">
+            <q-card style="width: 400px;">
+                <q-card-section>
+                    <q-toolbar color="primary">
+                        <q-toolbar-title>Add member</q-toolbar-title>
+                        <q-btn flat round dense icon="close" v-close-popup />
+                    </q-toolbar>
+                </q-card-section>
+                <form @submit.prevent.stop="onAddMemberSubmit" class="q-gutter-md">
+                    <q-card-section>
+                    </q-card-section>
+                    <q-card-actions class="form_actions" align="right">
+                        <q-btn type="submit" color="primary" class="full-width">Add member</q-btn>
+                    </q-card-actions>
+                </form>
+
+            </q-card>
+        </q-dialog>
         <nav class="navbar board">
             {{ board?.title }}
             <q-btn style="margin-left: 10px" color="secondary" @click="onDeleteBoardClicked">Delete board</q-btn>
             <q-btn style="margin-left: 10px" color="secondary" @click="onNewListClicked">New list</q-btn>
+            <q-btn style="margin-left: 10px" color="secondary" @click="onAddMemberClicked">Add member</q-btn>
         </nav>
         <!-- Dragabble object for reordering lists-->
         <draggable class="lists" ref="listsWrapper" :list="board?.lists" itemKey="id" :delayOnTouchOnly="true"
@@ -40,6 +61,7 @@ const route = useRoute();
 const router = useRouter();
 const listsWrapper = ref();
 
+const showAddMemberDialog = ref(false);
 
 let cardId: number | undefined;
 let cardMoving = false;
@@ -108,6 +130,15 @@ const onNewListClicked = () => {
     nextTick(() => {
         listsWrapper.value.targetDomElement.scroll(listsWrapper.value.targetDomElement.scrollWidth, 0);
     });
+};
+
+const onAddMemberClicked = () => {
+    console.log("Add member");
+    showAddMemberDialog.value = true;
+};
+
+const onAddMemberSubmit = () => {
+    console.log("submit");
 };
 
 onBeforeRouteUpdate((to, from) => {
