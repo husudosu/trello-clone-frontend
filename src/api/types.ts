@@ -138,7 +138,7 @@ export interface RegisterPayload {
 
 export interface BoardAllowedUser {
     id: number;
-    use_id: number;
+    user_id: number;
     board_id: number;
     board_role_id: number;
     is_owner: boolean;
