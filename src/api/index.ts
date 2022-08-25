@@ -16,6 +16,7 @@ const config: AxiosRequestConfig = {
 };
 export const API: AxiosInstance = axios.create(config);
 
+// TODO: Handle refresh-token
 API.interceptors.request.use((config: AxiosRequestConfig) => {
     const csrf_access_token: string | undefined = getCookie("csrf_access_token");
     if (config.headers === undefined)

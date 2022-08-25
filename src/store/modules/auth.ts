@@ -1,5 +1,3 @@
-import jwt_decode from "jwt-decode";
-
 import { getClaims, login, logout } from "@/api/user";
 import { User, UserLogin } from "@/api/types";
 
@@ -25,8 +23,9 @@ export default {
     },
     actions: {
         async doLogin({ commit, dispatch }: any, payload: UserLogin) {
-            const data = await login(payload);
-            commit("setUser", jwt_decode(data.access_token));
+            await login(payload);
+            // commit("setUser", jwt_decode(data.access_token));
+            await dispatch("getUserClaims");
             commit("setLoggedIn", true);
             // Load accesable boards.
             dispatch("board/loadBoards", {}, { root: true });
@@ -35,11 +34,6 @@ export default {
             await logout();
             commit("setLoggedIn", false);
             commit("setUser", null);
-            // deleteCookie("csrf_refresh_token");
-            // deleteCookie("refresh_token_cookie");
-            // deleteCookie("csrf_access_token");
-            // deleteCookie("access_token");
-            // deleteCookie("access_token_cookie");
         },
         async getUserClaims({ commit }: any) {
             const data = await getClaims();

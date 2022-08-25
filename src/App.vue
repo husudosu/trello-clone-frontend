@@ -16,5 +16,9 @@ import EmptyLayout from "./layouts/EmptyLayout.vue";
 import UserAreaLayout from "./layouts/UserAreaLayout.vue";
 
 const loggedIn = computed(() => store.state.auth.loggedIn);
-store.dispatch.board.loadBoards();
+store.dispatch.auth.getUserClaims()
+  .then(() => {
+    store.dispatch.board.loadBoards();
+  });
+
 </script>

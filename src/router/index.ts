@@ -53,16 +53,4 @@ const router = createRouter({
   routes
 });
 
-import store from "@/store";
-
-router.beforeEach((to, from, next) => {
-  if (!to.meta.only_anonymous) {
-    store.dispatch.auth.getUserClaims().then(() => {
-      next();
-    });
-  }
-  else {
-    next();
-  }
-});
 export default router;
