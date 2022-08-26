@@ -144,6 +144,16 @@ export interface BoardAllowedUser {
     is_owner: boolean;
 }
 
+export interface AddBoardMemberType {
+    board_role_id: number;
+    user_id: number;
+}
+
+export interface RemoveBoardMemberType {
+    user_id: number;
+}
+
+
 export enum CardActivityEvent {
     CARD_ASSIGN_TO_LIST = 1,
     CARD_MOVE_TO_LIST = 2,

@@ -25,3 +25,8 @@ export const register = async (payload: RegisterPayload) => {
     const { data } = await API.post("/auth/register", payload);
     return data;
 };
+
+export const findUser = async (username: string) => {
+    const { data } = await API.post<User>("/auth/find-user", { username });
+    return data;
+};

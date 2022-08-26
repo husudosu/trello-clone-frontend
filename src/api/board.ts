@@ -1,5 +1,5 @@
 import { API } from ".";
-import { Board, BoardClaims } from "./types";
+import { Board, BoardClaims, BoardRole, AddBoardMemberType, BoardAllowedUser } from "./types";
 
 export const getBoards = async () => {
     const { data } = await API.get<Board[]>("board");
@@ -27,5 +27,15 @@ export const updateBoardListsOrder = async (board: Board) => {
 
 export const getBoardClaims = async (boardId: number) => {
     const { data } = await API.get<BoardClaims>(`/board/${boardId}/user-claims`);
+    return data;
+};
+
+export const getBoardRoles = async (boardId: number) => {
+    const { data } = await API.get<BoardRole[]>(`/board/${boardId}/roles`);
+    return data;
+};
+
+export const addBoardMember = async (boardId: number, member: AddBoardMemberType) => {
+    const { data } = await API.post<BoardAllowedUser>(`/board/${boardId}/member`, member);
     return data;
 };

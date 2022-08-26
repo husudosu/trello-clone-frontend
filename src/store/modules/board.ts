@@ -1,13 +1,14 @@
-import { getBoard, getBoards, postBoard, deleteBoard, updateBoardListsOrder, getBoardClaims } from "@/api/board";
+import { getBoard, getBoards, postBoard, deleteBoard, updateBoardListsOrder, getBoardClaims, getBoardRoles } from "@/api/board";
 import { deleteBoardList, patchBoardList, postBoardList } from "@/api/boardList";
 import { postCard } from "@/api/card";
-import { Board, BoardClaims, BoardList, Card } from "@/api/types";
+import { Board, BoardClaims, BoardList, BoardRole, Card } from "@/api/types";
 
 
 type InitialState = {
     boards: Board[];
     board: null | Board;
     claims: null | BoardClaims;
+    roles: BoardRole[];
 };
 
 export default {
@@ -15,8 +16,8 @@ export default {
     state: {
         board: null,
         boards: [],
-        lists: [],
-        claims: null
+        claims: null,
+        roles: []
     } as InitialState,
     getters: {
         boardLists: (state: InitialState) => {
@@ -142,6 +143,9 @@ export default {
                     }
                 }
             }
+        },
+        setBoardRoles(state: InitialState, roles: BoardRole[]) {
+            state.roles = roles;
         }
     },
     actions: {
@@ -151,6 +155,8 @@ export default {
                 // Load board claims too!
                 commit("setBoard", board);
                 await dispatch("loadBoardClaims");
+                // Finaly load board roles too
+                await dispatch("loadBoardRoles");
             }
             else {
                 console.log("Board issue");
@@ -163,6 +169,10 @@ export default {
         async loadBoardClaims({ commit, state }: any) {
             const data = await getBoardClaims(state.board.id);
             commit("setBoardClaims", data);
+        },
+        async loadBoardRoles({ commit, state }: any) {
+            const data = await getBoardRoles(state.board.id);
+            commit("setBoardRoles", data);
         },
         async createBoard({ commit }: any, payload: Partial<Board>) {
             const data = await postBoard(payload);
