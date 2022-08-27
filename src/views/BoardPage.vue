@@ -3,29 +3,6 @@
         <!-- Car details -->
         <card-details-dialog></card-details-dialog>
         <!-- Add member dialog -->
-        <q-dialog v-model="showAddMemberDialog">
-            <q-card style="width: 400px;">
-                <q-card-section>
-                    <q-toolbar color="primary">
-                        <q-toolbar-title>Add member</q-toolbar-title>
-                        <q-btn flat round dense icon="close" v-close-popup />
-                    </q-toolbar>
-                </q-card-section>
-                <form @submit.prevent.stop="onAddMemberSubmit" class="q-gutter-md">
-                    <q-card-section>
-                        <q-input v-model="addMemberFormUsername" label="User *" hint="Username or Email"
-                            :rules="[validateUser]" debounce="500" />
-                        <q-select v-model="addMemberForm.board_role_id" label="Role *" hint="Role" :options="boardRoles"
-                            option-value="id" option-label="name" emit-value map-options>
-                        </q-select>
-                    </q-card-section>
-                    <q-card-actions class="form_actions" align="right">
-                        <q-btn type="submit" color="primary" class="full-width">Add member</q-btn>
-                    </q-card-actions>
-                </form>
-
-            </q-card>
-        </q-dialog>
         <nav class="navbar board">
             {{ board?.title }}
             <q-btn style="margin-left: 10px" color="secondary" @click="onDeleteBoardClicked">Delete board</q-btn>
@@ -37,44 +14,35 @@
             :touchStartThreshold="100" :delay="500" @end="onBoardListSortableMoveEnd">
             <!-- Board list object and reorder handling of cards.-->
             <template #item="{ element }">
-                <board-list-component :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
-                </board-list-component>
+                <list-component :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
+                </list-component>
             </template>
         </draggable>
     </div>
 </template>
 
 <script lang="ts" setup>
-
 import { computed, nextTick, ref } from "vue";
 import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
-
+import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
 
 import store from "@/store/index";
 import { patchCard } from "@/api/card";
 import { updateCardsOrder } from '@/api/boardList';
-import { updateBoardListsOrder, addBoardMember } from "@/api/board";
-import { findUser } from "@/api/user";
+import { updateBoardListsOrder } from "@/api/board";
 
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
-import BoardListComponent from '../components/BoardListComponent.vue';
+import ListComponent from '@/components/Board/ListComponent.vue';
+import AddMemberDialog from "@/components/Board/AddMemberDialog.vue";
 
+const $q = useQuasar();
 
 // Card details modal stuff.
 const board = computed(() => store.state.board.board);
 const route = useRoute();
 const router = useRouter();
 const listsWrapper = ref();
-
-
-const showAddMemberDialog = ref(false);
-const addMemberForm = ref({
-    user_id: null,
-    board_role_id: null,
-});
-const addMemberFormUsername = ref("");
-const boardRoles = computed(() => store.state.board.roles);
 
 let cardId: number | undefined;
 let cardMoving = false;
@@ -146,18 +114,9 @@ const onNewListClicked = () => {
 };
 
 const onAddMemberClicked = () => {
-    console.log("Add member");
-    showAddMemberDialog.value = true;
-};
-
-const onAddMemberSubmit = () => {
-    console.log("submit");
-    if (store.state.board.board) {
-        if (typeof addMemberForm.value.board_role_id === "number" && typeof addMemberForm.value.user_id === "number") {
-            addBoardMember(store.state.board.board.id, addMemberForm.value);
-            showAddMemberDialog.value = false;
-        }
-    }
+    $q.dialog({
+        component: AddMemberDialog,
+    });
 };
 
 onBeforeRouteUpdate((to, from) => {
@@ -170,20 +129,6 @@ if (typeof route.params.boardId === "string") {
     loadBoard(parseInt(route.params.boardId));
 }
 
-/*
-Add board member validators
-*/
-
-const validateUser = (val: any) => {
-    return new Promise((resolve, reject) => {
-        findUser(val).then((data) => {
-            addMemberForm.value.user_id = data.id;
-            resolve(true);
-        }).catch(() => {
-            resolve("User not found");
-        });
-    });
-};
 </script>
 <style lang="scss">
 @import "../styles/board.scss";
