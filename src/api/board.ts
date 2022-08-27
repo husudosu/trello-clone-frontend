@@ -39,3 +39,8 @@ export const addBoardMember = async (boardId: number, member: AddBoardMemberType
     const { data } = await API.post<BoardAllowedUser>(`/board/${boardId}/member`, member);
     return data;
 };
+
+export const getBoardMember = async (boardId: number, userId: number) => {
+    const { data } = await API.post(`/board/${boardId}/find-member`, { user_id: userId });
+    return data;
+};
