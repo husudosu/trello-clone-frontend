@@ -44,3 +44,18 @@ export const getBoardMember = async (boardId: number, userId: number) => {
     const { data } = await API.post(`/board/${boardId}/find-member`, { user_id: userId });
     return data;
 };
+
+export const getBoardMembers = async (boardId: number) => {
+    const { data } = await API.get<BoardAllowedUser[]>(`/board/${boardId}/member`);
+    return data;
+};
+
+export const deleteBoardMember = async (boardId: number, userId: number) => {
+    const { data } = await API.delete(`/board/${boardId}/member/${userId}`);
+    return data;
+};
+
+export const updateBoardMemberRole = async (boardId: number, userId: number, boardRoleId: number) => {
+    const { data } = await API.patch(`/board/${boardId}/member/${userId}`, { board_role_id: boardRoleId });
+    return data;
+};

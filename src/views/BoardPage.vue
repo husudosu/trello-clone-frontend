@@ -7,6 +7,7 @@
             {{ board?.title }}
             <q-btn style="margin-left: 10px" color="secondary" @click="onDeleteBoardClicked">Delete board</q-btn>
             <q-btn style="margin-left: 10px" color="secondary" @click="onNewListClicked">New list</q-btn>
+            <q-btn style="margin-left: 10px" color="secondary" @click="onMembersClicked">Members</q-btn>
             <q-btn style="margin-left: 10px" color="secondary" @click="onAddMemberClicked">Add member</q-btn>
         </nav>
         <!-- Dragabble object for reordering lists-->
@@ -35,6 +36,7 @@ import { updateBoardListsOrder } from "@/api/board";
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import ListComponent from '@/components/Board/ListComponent.vue';
 import AddMemberDialog from "@/components/Board/AddMemberDialog.vue";
+import MembersDialog from "@/components/Board/MembersDialog.vue";
 
 const $q = useQuasar();
 
@@ -117,6 +119,13 @@ const onAddMemberClicked = () => {
     $q.dialog({
         component: AddMemberDialog,
     });
+};
+
+const onMembersClicked = () => {
+    $q.dialog({
+        component: MembersDialog,
+    });
+
 };
 
 onBeforeRouteUpdate((to, from) => {

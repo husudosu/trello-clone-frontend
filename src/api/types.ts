@@ -142,6 +142,8 @@ export interface BoardAllowedUser {
     board_id: number;
     board_role_id: number;
     is_owner: boolean;
+    role: BoardRole;
+    user: UserBasicInfo;
 }
 
 export interface AddBoardMemberType {
