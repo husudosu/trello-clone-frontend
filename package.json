@@ -13,6 +13,8 @@
     "core-js": "^3.8.3",
     "direct-vuex": "^1.0.0-rc3",
     "jwt-decode": "^3.1.2",
+    "moment": "^2.29.4",
+    "moment-timezone": "^0.5.37",
     "quasar": "^2.0.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",

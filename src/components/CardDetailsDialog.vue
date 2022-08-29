@@ -6,7 +6,7 @@
                     <q-toolbar-title
                         @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardTitle = !editCardTitle : false">
                         <template v-if="!editCardTitle">
-                            {{ card?.title }}
+                            {{  card?.title  }}
                         </template>
                         <template v-else>
                             <q-input v-model="card.title" @blur="onTitleEdit" @keydown.enter="onTitleEdit" autofocus>
@@ -37,7 +37,7 @@
                     <div class="qa-pa-md q-list--bordered card-description"
                         @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardDescription = !editCardDescription : false">
                         <template v-if="!editCardDescription">
-                            {{ card?.description }}
+                            {{  card?.description  }}
                         </template>
                         <template v-else>
                             <q-input v-model="card.description" type="textarea" @keydown.enter="onDescriptionEdit"
@@ -58,29 +58,31 @@
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label>{{ activity?.user?.name }} ({{ activity?.user?.username }})
+                                        <q-item-label>{{  activity?.user?.name  }} ({{  activity?.user?.username  }})
                                         </q-item-label>
                                         <q-item-label caption>
 
                                             <template v-if="activity?.event == CardActivityEvent.CARD_COMMENT">
-                                                <span style="white-space: pre-wrap;">{{ activity?.comment?.comment
-                                                }}</span>
+                                                <span style="white-space: pre-wrap;">{{  activity?.comment?.comment 
+                                                    }}</span>
                                             </template>
                                             <template
                                                 v-else-if="activity?.event == CardActivityEvent.CARD_MOVE_TO_LIST">Moved
                                                 from
-                                                <b>{{ activity.list_change?.from_list?.title || "N/A" }} </b> to
+                                                <b>{{  activity.list_change?.from_list?.title || "N/A"  }} </b> to
                                                 <b>{{
-                                                        activity.list_change?.to_list?.title || "N/A"
-                                                }}</b>
+                                                     activity.list_change?.to_list?.title || "N/A" 
+                                                    }}</b>
                                             </template>
                                         </q-item-label>
                                     </q-item-section>
 
                                     <q-item-section side top>
-                                        <q-item-label caption>{{ activity.activity_on || `Updated
+                                        <!-- <q-item-label caption>{{ activity.activity_on || `Updated
                                                                                     (${activity?.comment?.updated})`
                                         }}
+                                        </q-item-label> -->
+                                        <q-item-label caption>{{  activity.activity_on.format("YYYY-MM-DD HH:mm:ss")  }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>

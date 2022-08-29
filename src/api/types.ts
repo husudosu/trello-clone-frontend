@@ -1,3 +1,5 @@
+import moment from "moment-timezone";
+
 
 export interface UserLogin {
     username: string;
@@ -14,6 +16,7 @@ export interface User {
     avatar_url?: string;
     email: string;
     registered_date?: string;
+    timezone: string;
 }
 
 export interface BoardList {
@@ -89,6 +92,7 @@ export interface UserBasicInfo {
     name: string;
     avatar_url?: string;
     username: string;
+    timezone: string;
 }
 
 /* 
@@ -112,7 +116,7 @@ export interface CardActivity {
     id: number;
     card_id: number;
     user_id: number;
-    activity_on: string;
+    activity_on: moment.Moment;
     entity_id?: number;
     event?: number;
     comment?: CardComment;
@@ -125,8 +129,8 @@ export interface CardComment {
     user_id?: number;
     card_id: number;
     comment: string | undefined;
-    created?: string;
-    updated?: string;
+    created?: moment.Moment;
+    updated?: moment.Moment;
 }
 
 export interface RegisterPayload {

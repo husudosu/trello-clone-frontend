@@ -1,5 +1,8 @@
+import moment from "moment-timezone";
+
 import { API } from ".";
 import { Card, CardActivity, CardComment } from "./types";
+import store from "@/store";
 export interface MoveCardParams {
     list_id: number;
     position: number;
@@ -33,6 +36,15 @@ export const moveCard = async (cardId: number, params: MoveCardParams) => {
 
 export const getCardActivities = async (cardId: number) => {
     const { data } = await API.get<CardActivity[]>(`/card/${cardId}/activities`);
+
+    // FIXME: Probably it's a bad thing to convert dates here to moment, need better solution!
+    data.forEach((el) => {
+        el.activity_on = moment.utc(el.activity_on).tz(store.state.auth.user?.timezone || "N/A");
+        if (el.comment) {
+            el.comment.created = moment.utc(el.comment.created).tz(store.state.auth.user?.timezone || "N/A");
+            el.comment.updated = moment.utc(el.comment.updated).tz(store.state.auth.user?.timezone || "N/A");
+        }
+    });
     return data;
 };
 
