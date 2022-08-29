@@ -43,6 +43,7 @@ export interface BoardRolePermission {
 export interface BoardRole {
     id: number;
     name: string;
+    is_admin: boolean;
     permissions: BoardRolePermission[];
 }
 
@@ -160,4 +161,16 @@ export enum CardActivityEvent {
     CARD_ASSIGN_TO_LIST = 1,
     CARD_MOVE_TO_LIST = 2,
     CARD_COMMENT = 3,
+}
+
+
+export enum BoardPermission {
+    CARD_EDIT = "card.edit",
+    CARD_COMMENT = "card.comment",
+    CARD_DELETE = "card.delete",
+    LIST_CREATE = "list.create",
+    LIST_EDIT = "list.edit",
+    LIST_DELETE = "list.delete",
+    BOARD_UPDATE = "board.update",
+    BOARD_DELETE = "board.delete",
 }

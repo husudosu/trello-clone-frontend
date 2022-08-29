@@ -3,7 +3,8 @@
         <q-layout view="hHh lpR fFf" container class="bg-white">
             <q-header class="bg-primary">
                 <q-toolbar>
-                    <q-toolbar-title @dblclick="editCardTitle = !editCardTitle">
+                    <q-toolbar-title
+                        @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardTitle = !editCardTitle : false">
                         <template v-if="!editCardTitle">
                             {{ card?.title }}
                         </template>
@@ -25,7 +26,8 @@
                     <q-btn align="between" class="full-width" icon="label" dense>Labels</q-btn>
                     <q-btn align="between" class="full-width" icon="checklist" dense>Checklist</q-btn>
                     <q-btn align="between" class="full-width" icon="schedule" dense>Due date</q-btn>
-                    <q-btn align="between" class="full-width" icon="delete" dense @click="onDeleteClicked">Delete
+                    <q-btn align="between" class="full-width" icon="delete" dense @click="onDeleteClicked"
+                        :disable="!hasPermission(BoardPermission.CARD_EDIT)">Delete
                     </q-btn>
                 </div>
             </q-drawer>
@@ -33,7 +35,7 @@
                 <q-page padding>
                     <span class="text-h6">Description</span>
                     <div class="qa-pa-md q-list--bordered card-description"
-                        @dblclick="editCardDescription = !editCardDescription">
+                        @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardDescription = !editCardDescription : false">
                         <template v-if="!editCardDescription">
                             {{ card?.description }}
                         </template>
@@ -86,7 +88,8 @@
                             </div>
                             <div class="q-pa-md" style="width:100%;">
                                 <q-input v-model="newComment" type="textarea" placeholder="New comment..." autofocus
-                                    @keydown.enter="onNewComment" />
+                                    @keydown.enter="onNewComment"
+                                    :disable="!hasPermission(BoardPermission.CARD_COMMENT)" />
                             </div>
                         </q-list>
                     </div>
@@ -103,8 +106,10 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import store from "@/store";
-import { Card, CardActivityEvent } from "@/api/types";
+import { Card, CardActivityEvent, BoardPermission } from "@/api/types";
 import { patchCard } from '@/api/card';
+
+const hasPermission = store.getters.board.hasPermission;
 
 const card = computed(() => store.state.card.card);
 const cardModalVisible = computed({

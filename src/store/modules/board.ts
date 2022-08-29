@@ -1,7 +1,7 @@
 import { getBoard, getBoards, postBoard, deleteBoard, updateBoardListsOrder, getBoardClaims, getBoardRoles } from "@/api/board";
 import { deleteBoardList, patchBoardList, postBoardList } from "@/api/boardList";
 import { postCard } from "@/api/card";
-import { Board, BoardClaims, BoardList, BoardRole, Card } from "@/api/types";
+import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission } from "@/api/types";
 
 
 type InitialState = {
@@ -23,12 +23,21 @@ export default {
         boardLists: (state: InitialState) => {
             return state.board?.lists;
         },
-        hasPermission: (state: InitialState) => (permission: string) => {
+        hasPermission: (state: InitialState) => (permission: BoardPermission) => {
             if (state.claims) {
                 const obj = state.claims.role.permissions.find(p => p.name == permission);
                 return obj?.allow == undefined ? false : obj?.allow;
             }
             return false;
+        },
+        isAdmin: (state: InitialState) => {
+            if (state.claims)
+                return state.claims.role.is_admin;
+        },
+        boardUser: (state: InitialState) => {
+            if (state.claims) {
+                return state.claims;
+            }
         }
     },
     mutations: {

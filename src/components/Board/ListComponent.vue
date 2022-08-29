@@ -10,7 +10,8 @@
                 <q-btn flat round icon="more_horiz">
                     <q-menu v-model="showMenu">
                         <q-list style="min-width: 100px">
-                            <q-item clickable @click="onDeleteBoardList">
+                            <q-item clickable @click="onDeleteBoardList"
+                                :disable="!hasPermission(BoardPermission.LIST_DELETE)">
                                 <q-item-section>Deltete list</q-item-section>
                             </q-item>
                         </q-list>
@@ -41,7 +42,7 @@
 </template>
 
 <script lang="ts" setup>
-import { BoardList, Card } from '@/api/types';
+import { BoardList, Card, BoardPermission } from '@/api/types';
 import { defineProps, ref } from 'vue';
 import draggable from 'vuedraggable';
 import store from "@/store";
@@ -56,6 +57,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const hasPermission = store.getters.board.hasPermission;
 
 const editListTitle = ref(false);
 const showMenu = ref(false);
@@ -75,7 +77,7 @@ const onListSave = () => {
 };
 
 const onAddCardClick = () => {
-    if (boardList.value.id) {
+    if (hasPermission(BoardPermission.CARD_EDIT) && boardList.value.id) {
         store.commit.board.addCard(boardList.value.id);
     }
 };
@@ -84,12 +86,10 @@ const onSaveCard = (card: Card) => {
     if (boardList.value.id) {
         if (card.title && card.title.length > 0) {
             // Save card into db
-            console.log("Save card");
             store.dispatch.board.saveCard({ boardListId: boardList.value.id, card });
         }
         else {
             // Remove draft card
-            console.log("Remove draft card");
             store.commit.board.removeCard({ boardListId: boardList.value.id, card });
         }
     }

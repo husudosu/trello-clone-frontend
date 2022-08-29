@@ -5,10 +5,13 @@
         <!-- Add member dialog -->
         <nav class="navbar board">
             {{ board?.title }}
-            <q-btn style="margin-left: 10px" color="secondary" @click="onDeleteBoardClicked">Delete board</q-btn>
-            <q-btn style="margin-left: 10px" color="secondary" @click="onNewListClicked">New list</q-btn>
+            <q-btn style="margin-left: 10px" color="secondary" @click="onDeleteBoardClicked"
+                v-if="hasPermission(BoardPermission.BOARD_DELETE)">Delete board</q-btn>
+            <q-btn style="margin-left: 10px" color="secondary" @click="onNewListClicked"
+                v-if="hasPermission(BoardPermission.LIST_CREATE)">New list</q-btn>
             <q-btn style="margin-left: 10px" color="secondary" @click="onMembersClicked">Members</q-btn>
-            <q-btn style="margin-left: 10px" color="secondary" @click="onAddMemberClicked">Add member</q-btn>
+            <q-btn style="margin-left: 10px" color="secondary" @click="onAddMemberClicked" v-if="isAdmin">Add member
+            </q-btn>
         </nav>
         <!-- Dragabble object for reordering lists-->
         <draggable class="lists" ref="listsWrapper" :list="board?.lists" itemKey="id" :delayOnTouchOnly="true"
@@ -32,6 +35,7 @@ import store from "@/store/index";
 import { patchCard } from "@/api/card";
 import { updateCardsOrder } from '@/api/boardList';
 import { updateBoardListsOrder } from "@/api/board";
+import { BoardPermission } from "@/api/types";
 
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import ListComponent from '@/components/Board/ListComponent.vue';
@@ -42,6 +46,9 @@ const $q = useQuasar();
 
 // Card details modal stuff.
 const board = computed(() => store.state.board.board);
+const hasPermission = store.getters.board.hasPermission;
+const isAdmin = computed(() => store.getters.board.isAdmin);
+
 const route = useRoute();
 const router = useRouter();
 const listsWrapper = ref();

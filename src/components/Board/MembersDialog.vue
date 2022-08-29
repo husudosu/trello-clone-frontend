@@ -23,12 +23,14 @@
                             <div class="text-grey-8 q-gutter-xs row">
                                 <q-select style="width: 150px;" item-aligned v-model="member.role" label="Role"
                                     :options="boardRoles" option-value="id" option-label="name" map-options dense
-                                    @update:model-value="onRoleChange($event, member)">
+                                    @update:model-value="onRoleChange($event, member)"
+                                    :disable="!isAdmin || boardUser?.user_id === member.user_id">
                                     <template v-slot:selected-item="scope">
                                         <span class="ellipsis">{{ scope.opt.name }}</span>
                                     </template>
                                 </q-select>
-                                <q-btn class="gt-xs" flat dense round icon="delete" @click="onDeleteClicked(member)">
+                                <q-btn class="gt-xs" flat dense round icon="delete" @click="onDeleteClicked(member)"
+                                    :disable="!isAdmin || boardUser?.user_id === member.user_id">
                                 </q-btn>
                             </div>
                         </q-item-section>
@@ -47,6 +49,8 @@ import store from "@/store/index";
 import { BoardAllowedUser, BoardRole } from "@/api/types";
 
 const boardRoles = computed(() => store.state.board.roles);
+const boardUser = computed(() => store.getters.board.boardUser);
+const isAdmin = computed(() => store.getters.board.isAdmin);
 defineEmits([
     ...useDialogPluginComponent.emits
 ]);
