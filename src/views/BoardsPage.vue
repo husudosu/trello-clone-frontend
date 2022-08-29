@@ -24,10 +24,10 @@
         </q-dialog>
         <!-- Board list code -->
         <ul class="flex q-gutter-md wrap content-center q-pa-md">
-            <li class="flex shadow-1 board" v-for="board in boards" :key="board.id" @click="onBoardClick(board.id)">
-                {{ board.title }}
+            <li class="flex shadow-1 boardCard" v-for="board in boards" :key="board.id" @click="onBoardClick(board.id)">
+                {{  board.title  }}
             </li>
-            <li class="flex shadow-1 board text-weight-bold" @click="showBoardDialog = true">Create new board</li>
+            <li class="flex shadow-1 boardCard text-weight-bold" @click="showBoardDialog = true">Create new board</li>
         </ul>
     </div>
 </template>
@@ -67,7 +67,7 @@ const onBoardSave = () => {
 </script>
 
 <style>
-.board {
+.boardCard {
     list-style-type: none;
     height: 100px;
     width: 150px;

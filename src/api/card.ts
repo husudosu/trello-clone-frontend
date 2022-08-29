@@ -16,6 +16,13 @@ export const getCard = async (cardId: number) => {
 
 export const postCardComment = async (cardId: number, comment: Partial<CardComment>) => {
     const { data } = await API.post<CardActivity>(`/card/${cardId}/comment`, comment);
+
+    // FIXME: Probably it's a bad thing to convert dates here to moment, need better solution!
+    data.activity_on = moment.utc(data.activity_on).tz(store.state.auth.user?.timezone || "N/A");
+    if (data.comment) {
+        data.comment.created = moment.utc(data.comment.created).tz(store.state.auth.user?.timezone || "N/A");
+        data.comment.updated = moment.utc(data.comment.updated).tz(store.state.auth.user?.timezone || "N/A");
+    }
     return data;
 };
 

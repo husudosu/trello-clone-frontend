@@ -78,11 +78,13 @@
                                     </q-item-section>
 
                                     <q-item-section side top>
-                                        <!-- <q-item-label caption>{{ activity.activity_on || `Updated
-                                                                                    (${activity?.comment?.updated})`
-                                        }}
-                                        </q-item-label> -->
-                                        <q-item-label caption>{{  activity.activity_on.format("YYYY-MM-DD HH:mm:ss")  }}
+                                        <q-item-label caption>
+                                            {{
+                                             activity.comment?.updated?.isValid() ?
+                                             "Updated: " + activity.comment?.updated?.format("YYYY-MM-DD HH:mm:ss")
+                                             : activity.activity_on.format("YYYY-MM-DD HH:mm:ss")
+
+                                            }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
