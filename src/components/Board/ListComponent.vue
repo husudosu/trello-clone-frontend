@@ -46,7 +46,14 @@
 import { BoardList, Card, BoardPermission } from '@/api/types';
 import { defineProps, ref, nextTick } from 'vue';
 import draggable from 'vuedraggable';
+
 import store from "@/store";
+/* TODO: Implement events of VueDraggable, Vue3 version off draggable is not contains event types
+Vue v2 sortable.js:
+https://github.com/SortableJS/Vue.Draggable/blob/master/src/vuedraggable.d.ts
+Vue v3 sortable.js:
+https://github.com/SortableJS/vue.draggable.next/blob/master/types/vuedraggable.d.ts
+*/
 
 type OnMove = (ev: any) => void;
 type OnEnd = (ev: any) => void;

@@ -84,6 +84,7 @@
                                              "Updated: " + activity.comment?.updated?.format("YYYY-MM-DD HH:mm:ss")
                                              : activity.activity_on.format("YYYY-MM-DD HH:mm:ss")
 
+
                                             }}
                                         </q-item-label>
                                     </q-item-section>
@@ -139,14 +140,14 @@ const editCardDescription = ref(false);
 const editCardTitle = ref(false);
 
 
-const onNewComment = async (e: any) => {
+const onNewComment = async (e: KeyboardEvent) => {
     if (e.ctrlKey) {
         if (newComment.value !== undefined)
             store.dispatch.card.addCardComment(newComment.value).then(() => newComment.value = "");
     }
 };
 
-const onDescriptionEdit = async (e: any) => {
+const onDescriptionEdit = async (e: KeyboardEvent) => {
     if (e.ctrlKey && card.value && card.value.id && card.value.description) {
         editCardDescription.value = false;
         patchCard(card.value.id, { description: card.value.description });

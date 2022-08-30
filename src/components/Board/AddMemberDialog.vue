@@ -40,6 +40,7 @@ defineEmits([
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent();
 
+// FIXME: Fix types here!
 const addMemberForm = ref({
     user_id: null as any,
     board_role_id: null as any,
@@ -62,8 +63,8 @@ const onAddMemberSubmit = () => {
 Validates if user exists
 if exists puts user id into addMemberForm
 */
-const validateUser = (val: any): Promise<any> => {
-    return new Promise((resolve, reject) => {
+const validateUser = (val: string): Promise<string | boolean> => {
+    return new Promise((resolve) => {
         if (val.length > 0) {
             findUser(val).then((data) => {
                 addMemberForm.value.user_id = data.id;
