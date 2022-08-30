@@ -105,6 +105,9 @@ body {
     overflow-y: auto;
 
     li {
+      //Handling of multi-line strings
+      white-space: pre-wrap;
+
       background-color: #fff;
       padding: $gap;
 

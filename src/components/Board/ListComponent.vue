@@ -19,9 +19,9 @@
                 </q-btn>
             </template>
         </header>
-        <ul>
+        <ul ref="cardsWrapper">
             <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" :list="boardList.cards"
-                group="board-cards" itemKey="id" @end="onEnd" :move="onMove" draggable=".listCard" style="height: 100%"
+                group="board-cards" itemKey="id" @end="onEnd" :move="onMove" draggable=".listCard"
                 :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id">
                 <template #item="{ element }">
                     <li class="listCard" @click="onCardClick(element)">
@@ -29,8 +29,9 @@
                             {{  element.title  }}
                         </template>
                         <template v-else>
-                            <q-input v-model="element.title" label="Card title" @keyup.enter="onSaveCard(element)"
-                                @blur="onSaveCard(element)" autofocus>
+                            <q-input v-model="element.title" type="textarea" label="Card title"
+                                @keyup.enter="onCardTitleKeyUp($event, element)" @blur="saveCard(element)" autofocus
+                                autogrow>
                             </q-input>
                         </template>
                     </li>
@@ -43,7 +44,7 @@
 
 <script lang="ts" setup>
 import { BoardList, Card, BoardPermission } from '@/api/types';
-import { defineProps, ref } from 'vue';
+import { defineProps, ref, nextTick } from 'vue';
 import draggable from 'vuedraggable';
 import store from "@/store";
 
@@ -58,6 +59,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const hasPermission = store.getters.board.hasPermission;
+const cardsWrapper = ref();
 
 const editListTitle = ref(false);
 const showMenu = ref(false);
@@ -87,13 +89,15 @@ const onAddCardClick = () => {
     */
 
     if (hasPermission(BoardPermission.CARD_EDIT) && boardList.value.id) {
-        console.log("Add new card");
+        console.log("Add new blank card");
         store.commit.board.addCard(boardList.value.id);
+        nextTick(() => {
+            cardsWrapper.value.scroll(0, cardsWrapper.value.scrollHeight);
+        });
     }
 };
 
-const onSaveCard = (card: Card) => {
-    console.log("Save card");
+const saveCard = (card: Card) => {
     if (boardList.value.id) {
         if (card.title && card.title.length > 0) {
             // Save card into db
@@ -104,6 +108,10 @@ const onSaveCard = (card: Card) => {
             store.commit.board.removeCard({ boardListId: boardList.value.id, card });
         }
     }
+};
+
+const onCardTitleKeyUp = (ev: KeyboardEvent, card: Card) => {
+    if (ev.ctrlKey) saveCard(card);
 };
 
 const onCardClick = (item: Card) => {
