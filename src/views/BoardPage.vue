@@ -4,7 +4,7 @@
         <card-details-dialog></card-details-dialog>
         <!-- Add member dialog -->
         <nav class="navbar board">
-            {{ board?.title }}
+            {{  board?.title  }}
             <q-btn style="margin-left: 10px" color="secondary" @click="onDeleteBoardClicked"
                 v-if="hasPermission(BoardPermission.BOARD_DELETE)">Delete board</q-btn>
             <q-btn style="margin-left: 10px" color="secondary" @click="onNewListClicked"
@@ -15,7 +15,8 @@
         </nav>
         <!-- Dragabble object for reordering lists-->
         <draggable class="lists" ref="listsWrapper" :list="board?.lists" itemKey="id" :delayOnTouchOnly="true"
-            :touchStartThreshold="100" :delay="500" @end="onBoardListSortableMoveEnd">
+            :touchStartThreshold="100" :delay="500" @end="onBoardListSortableMoveEnd" draggable=".list"
+            group="board-list">
             <!-- Board list object and reorder handling of cards.-->
             <template #item="{ element }">
                 <list-component :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
@@ -27,7 +28,7 @@
 
 <script lang="ts" setup>
 import { computed, nextTick, ref } from "vue";
-import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
+import { onBeforeRouteUpdate, useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
 
@@ -134,8 +135,12 @@ const onMembersClicked = () => {
     });
 
 };
+onBeforeRouteLeave(() => {
+    store.commit.board.unLoadBoard();
+});
 
 onBeforeRouteUpdate((to, from) => {
+    store.commit.board.unLoadBoard();
     if (to.params.boardId !== from.params.boardId && typeof to.params.boardId === "string") {
         loadBoard(parseInt(to.params.boardId));
     }

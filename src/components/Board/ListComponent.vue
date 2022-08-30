@@ -6,7 +6,7 @@
                 </q-input>
             </template>
             <template v-else>
-                {{ boardList.title }}
+                {{  boardList.title  }}
                 <q-btn flat round icon="more_horiz">
                     <q-menu v-model="showMenu">
                         <q-list style="min-width: 100px">
@@ -21,12 +21,12 @@
         </header>
         <ul>
             <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" :list="boardList.cards"
-                group="board-list" itemKey="id" @end="onEnd" :move="onMove" draggable=".item" style="height: 100%"
+                group="board-cards" itemKey="id" @end="onEnd" :move="onMove" draggable=".listCard" style="height: 100%"
                 :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id">
                 <template #item="{ element }">
-                    <li class="item" @click="onCardClick(element)">
+                    <li class="listCard" @click="onCardClick(element)">
                         <template v-if="element.id">
-                            {{ element.title }}
+                            {{  element.title  }}
                         </template>
                         <template v-else>
                             <q-input v-model="element.title" label="Card title" @keyup.enter="onSaveCard(element)"
@@ -77,12 +77,23 @@ const onListSave = () => {
 };
 
 const onAddCardClick = () => {
+    /* FIXME: Blank card not appears if switching board page from other site.
+    The blank card is created on boardlist, but the text input not appearing.
+    F5 or hot-reload on board page is solves the problem.
+
+    Update:
+        - Now navigating works, the solution was to implement an unload method which runs everytime when route changes
+        - Now the issue appears only when hot-reloading if you change BoardPage.
+    */
+
     if (hasPermission(BoardPermission.CARD_EDIT) && boardList.value.id) {
+        console.log("Add new card");
         store.commit.board.addCard(boardList.value.id);
     }
 };
 
 const onSaveCard = (card: Card) => {
+    console.log("Save card");
     if (boardList.value.id) {
         if (card.title && card.title.length > 0) {
             // Save card into db
@@ -114,21 +125,3 @@ if (!boardList.value.title) {
     editListTitle.value = true;
 }
 </script>
-
-<style>
-.item {
-    /* Disabling  text selection for cards */
-    -webkit-touch-callout: none;
-    /* iOS Safari */
-    -webkit-user-select: none;
-    /* Safari */
-    -khtml-user-select: none;
-    /* Konqueror HTML */
-    -moz-user-select: none;
-    /* Old versions of Firefox */
-    -ms-user-select: none;
-    /* Internet Explorer/Edge */
-    user-select: none;
-    /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
-}
-</style>

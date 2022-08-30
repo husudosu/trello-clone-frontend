@@ -155,6 +155,12 @@ export default {
         },
         setBoardRoles(state: InitialState, roles: BoardRole[]) {
             state.roles = roles;
+        },
+        unLoadBoard(state: InitialState) {
+            console.log("Unload");
+            state.board = null;
+            state.claims = null;
+            state.roles = [];
         }
     },
     actions: {

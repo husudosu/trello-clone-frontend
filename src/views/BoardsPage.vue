@@ -66,7 +66,7 @@ const onBoardSave = () => {
 };
 </script>
 
-<style>
+<style scoped>
 .boardCard {
     list-style-type: none;
     height: 100px;
