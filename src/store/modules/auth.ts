@@ -1,44 +1,48 @@
+import { ActionContext } from "vuex";
+import { State } from "../index";
+
 import { getClaims, login, logout } from "@/api/user";
 import { User, UserLogin } from "@/api/types";
 
-type InitialState = {
+export interface AuthState {
     user: null | User;
     loggedIn: boolean;
-};
+}
+
+type Context = ActionContext<AuthState, State>;
 
 export default {
     namespaced: true as const,
     state: {
         user: null,
         loggedIn: false
-    } as InitialState,
+    } as AuthState,
     getters: {},
     mutations: {
-        setUser(state: InitialState, user: User | null) {
+        setUser(state: AuthState, user: User | null) {
             state.user = user;
         },
-        setLoggedIn(state: InitialState, value: boolean) {
+        setLoggedIn(state: AuthState, value: boolean) {
             state.loggedIn = value;
         },
     },
     actions: {
-        async doLogin({ commit, dispatch }: any, payload: UserLogin) {
+        async doLogin(context: Context, payload: UserLogin) {
             await login(payload);
-            // commit("setUser", jwt_decode(data.access_token));
-            await dispatch("getUserClaims");
-            commit("setLoggedIn", true);
+            await context.dispatch("getUserClaims");
+            context.commit("setLoggedIn", true);
             // Load accesable boards.
-            dispatch("board/loadBoards", {}, { root: true });
+            context.dispatch("board/loadBoards", {}, { root: true });
         },
-        async doLogout({ commit }: any) {
+        async doLogout(context: Context) {
             await logout();
-            commit("setLoggedIn", false);
-            commit("setUser", null);
+            context.commit("setLoggedIn", false);
+            context.commit("setUser", null);
         },
-        async getUserClaims({ commit }: any) {
+        async getUserClaims(context: Context) {
             const data = await getClaims();
-            commit("setLoggedIn", true);
-            commit("setUser", data);
+            context.commit("setLoggedIn", true);
+            context.commit("setUser", data);
         }
     },
 

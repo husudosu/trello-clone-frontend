@@ -33,6 +33,8 @@
                                 @keyup.enter="onCardTitleKeyUp($event, element)" @blur="saveCard(element)" autofocus
                                 autogrow>
                             </q-input>
+                            <q-btn @click="saveCard(element)" style="margin-top: 10px" size="sm" color="primary">Save
+                            </q-btn>
                         </template>
                     </li>
                 </template>

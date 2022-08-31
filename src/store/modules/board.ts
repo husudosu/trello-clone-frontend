@@ -1,15 +1,19 @@
+import { ActionContext } from "vuex";
+import { State } from "../index";
+
 import { getBoard, getBoards, postBoard, deleteBoard, updateBoardListsOrder, getBoardClaims, getBoardRoles } from "@/api/board";
 import { deleteBoardList, patchBoardList, postBoardList } from "@/api/boardList";
 import { postCard } from "@/api/card";
 import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission } from "@/api/types";
 
-
-type InitialState = {
+export interface BoardState {
     boards: Board[];
     board: null | Board;
     claims: null | BoardClaims;
     roles: BoardRole[];
-};
+}
+
+type Context = ActionContext<BoardState, State>;
 
 export default {
     namespaced: true as const,
@@ -18,48 +22,48 @@ export default {
         boards: [],
         claims: null,
         roles: []
-    } as InitialState,
+    } as BoardState,
     getters: {
-        boardLists: (state: InitialState) => {
+        boardLists: (state: BoardState) => {
             return state.board?.lists;
         },
-        hasPermission: (state: InitialState) => (permission: BoardPermission) => {
+        hasPermission: (state: BoardState) => (permission: BoardPermission) => {
             if (state.claims) {
                 const obj = state.claims.role.permissions.find(p => p.name == permission);
                 return obj?.allow == undefined ? false : obj?.allow;
             }
             return false;
         },
-        isAdmin: (state: InitialState) => {
+        isAdmin: (state: BoardState) => {
             if (state.claims)
                 return state.claims.role.is_admin;
         },
-        boardUser: (state: InitialState) => {
+        boardUser: (state: BoardState) => {
             if (state.claims) {
                 return state.claims;
             }
         }
     },
     mutations: {
-        setBoard(state: InitialState, board: Board) {
+        setBoard(state: BoardState, board: Board) {
             state.board = board;
         },
-        setBoards(state: InitialState, board: Board[]) {
+        setBoards(state: BoardState, board: Board[]) {
             state.boards = board;
         },
-        addBoard(state: InitialState, board: Board) {
+        addBoard(state: BoardState, board: Board) {
             state.boards.push(board);
         },
-        removeBoard(state: InitialState, boardId: number) {
+        removeBoard(state: BoardState, boardId: number) {
             const itemIndex: number = state.boards.findIndex((el) => el.id == boardId);
             if (itemIndex > -1) {
                 state.boards.splice(itemIndex, 1);
             }
         },
-        setBoardClaims(state: InitialState, claims: BoardClaims) {
+        setBoardClaims(state: BoardState, claims: BoardClaims) {
             state.claims = claims;
         },
-        addNewList(state: InitialState) {
+        addNewList(state: BoardState) {
             // Creates only a placeholder for new list.
             if (state.board) {
                 state.board.lists.push({
@@ -70,13 +74,13 @@ export default {
                 });
             }
         },
-        saveNewList(state: InitialState, boardList: BoardList) {
+        saveNewList(state: BoardState, boardList: BoardList) {
             // Overwrite last list of board
             if (state.board !== null) {
                 state.board.lists[state.board.lists.length - 1] = boardList;
             }
         },
-        saveExistingList(state: InitialState, boardList: BoardList) {
+        saveExistingList(state: BoardState, boardList: BoardList) {
             if (state.board !== null) {
                 // Find board and overwrite it in store
                 const index = state.board.lists.findIndex((el) => el.id == boardList.id);
@@ -85,7 +89,7 @@ export default {
                 }
             }
         },
-        removeList(state: InitialState, boardList: BoardList) {
+        removeList(state: BoardState, boardList: BoardList) {
             if (state.board !== null) {
                 if (boardList.id) {
                     // Delete existing
@@ -100,7 +104,7 @@ export default {
                 }
             }
         },
-        addCard(state: InitialState, listId: number) {
+        addCard(state: BoardState, listId: number) {
             // Adds a placeholder card to list.
 
             // Find list first
@@ -114,7 +118,7 @@ export default {
                 }
             }
         },
-        saveNewCard(state: InitialState, payload: { boardListId: number; card: Card; }) {
+        saveNewCard(state: BoardState, payload: { boardListId: number; card: Card; }) {
             if (state.board !== null) {
                 // Find list
                 const index = state.board.lists.findIndex((el) => el.id == payload.boardListId);
@@ -126,7 +130,7 @@ export default {
                 }
             }
         },
-        removeCard(state: InitialState, payload: { boardListId: number; card: Card; }) {
+        removeCard(state: BoardState, payload: { boardListId: number; card: Card; }) {
             if (state.board !== null) {
                 const listIndex = state.board.lists.findIndex((el) => el.id == payload.boardListId);
                 if (payload.card.id) {
@@ -141,7 +145,7 @@ export default {
                 }
             }
         },
-        updateCard(state: InitialState, payload: { boardListId: number; card: Card; }) {
+        updateCard(state: BoardState, payload: { boardListId: number; card: Card; }) {
             if (state.board !== null) {
                 const listIndex = state.board.lists.findIndex((el) => el.id == payload.boardListId);
                 if (listIndex > -1) {
@@ -153,10 +157,10 @@ export default {
                 }
             }
         },
-        setBoardRoles(state: InitialState, roles: BoardRole[]) {
+        setBoardRoles(state: BoardState, roles: BoardRole[]) {
             state.roles = roles;
         },
-        unLoadBoard(state: InitialState) {
+        unLoadBoard(state: BoardState) {
             console.log("Unload");
             state.board = null;
             state.claims = null;
@@ -164,62 +168,68 @@ export default {
         }
     },
     actions: {
-        async loadBoard({ commit, dispatch }: any, payload: { boardId: number; }) {
+        async loadBoard(context: Context, payload: { boardId: number; }) {
             const board = await getBoard(payload.boardId);
             if (board) {
                 // Load board claims too!
-                commit("setBoard", board);
-                await dispatch("loadBoardClaims");
+                context.commit("setBoard", board);
+                await context.dispatch("loadBoardClaims");
                 // Finaly load board roles too
-                await dispatch("loadBoardRoles");
+                await context.dispatch("loadBoardRoles");
             }
             else {
                 console.log("Board issue");
             }
         },
-        async loadBoards({ commit }: any) {
+        async loadBoards(context: Context) {
             const data = await getBoards();
-            commit("setBoards", data);
+            context.commit("setBoards", data);
         },
-        async loadBoardClaims({ commit, state }: any) {
-            const data = await getBoardClaims(state.board.id);
-            commit("setBoardClaims", data);
+        async loadBoardClaims(context: Context) {
+            if (context.state.board) {
+                const data = await getBoardClaims(context.state.board.id);
+                context.commit("setBoardClaims", data);
+            }
         },
-        async loadBoardRoles({ commit, state }: any) {
-            const data = await getBoardRoles(state.board.id);
-            commit("setBoardRoles", data);
+        async loadBoardRoles(context: Context) {
+            if (context.state.board) {
+                const data = await getBoardRoles(context.state.board.id);
+                context.commit("setBoardRoles", data);
+            }
         },
-        async createBoard({ commit }: any, payload: Partial<Board>) {
+        async createBoard(context: Context, payload: Partial<Board>) {
             const data = await postBoard(payload);
-            commit("addBoard", data);
+            context.commit("addBoard", data);
             return data;
         },
-        async removeBoard({ commit }: any, boardId: number) {
+        async removeBoard(context: Context, boardId: number) {
             await deleteBoard(boardId);
-            commit("removeBoard", boardId);
+            context.commit("removeBoard", boardId);
         },
-        async saveBoardList({ commit, state }: any, list: BoardList) {
+        async saveBoardList(context: Context, list: BoardList) {
             if (list.id !== undefined) {
                 // Update existing list
                 const data = await patchBoardList(list.id, list);
-                commit("saveExistingList", data);
+                context.commit("saveExistingList", data);
             } else {
-                // Create new list                
-                const data = await postBoardList(state.board.id, list);
-                commit("saveNewList", data);
+                // Create new list
+                if (context.state.board) {
+                    const data = await postBoardList(context.state.board.id, list);
+                    context.commit("saveNewList", data);
 
-                // Update order of boardlists
-                await updateBoardListsOrder(state.board);
+                    // Update order of boardlists
+                    await updateBoardListsOrder(context.state.board);
+                }
             }
         },
-        async removeBoardList({ commit }: any, list: BoardList) {
+        async removeBoardList(context: Context, list: BoardList) {
             if (list.id)
                 await deleteBoardList(list.id);
-            commit("removeList", list);
+            context.commit("removeList", list);
         },
-        async saveCard({ commit }: any, payload: { boardListId: number; card: Card; }) {
+        async saveCard(context: Context, payload: { boardListId: number; card: Card; }) {
             const data = await postCard(payload.boardListId, payload.card);
-            commit("saveNewCard", { boardListId: payload.boardListId, card: data });
+            context.commit("saveNewCard", { boardListId: payload.boardListId, card: data });
         }
     }
 };

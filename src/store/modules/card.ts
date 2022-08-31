@@ -1,12 +1,17 @@
-import { Card, CardActivity, CardComment } from "@/api/types";
+import { ActionContext } from "vuex";
+import { State } from "../index";
+
+import { Card, CardActivity } from "@/api/types";
 import { deleteCard, getCard, getCardActivities, postCardComment } from "@/api/card";
 
-type InitialState = {
+export interface CardState {
     visible: boolean;
     card: null | Card;
     cardLoading: boolean;
     activitiesLoading: boolean;
-};
+}
+
+type Context = ActionContext<CardState, State>;
 
 export default {
     namespaced: true as const,
@@ -15,67 +20,72 @@ export default {
         card: null,
         cardLoading: false,
         activitiesLoading: false,
-    } as InitialState,
+    } as CardState,
     getters: {},
     mutations: {
-        setVisible(state: InitialState, value: boolean) {
+        setVisible(state: CardState, value: boolean) {
             state.visible = value;
         },
-        setCard(state: InitialState, value: Card) {
+        setCard(state: CardState, value: Card) {
             state.card = value;
         },
-        setCardActivities(state: InitialState, value: CardActivity[]) {
+        setCardActivities(state: CardState, value: CardActivity[]) {
             if (state.card != undefined) {
                 state.card.activities = value;
             }
         },
-        setActivitiesLoading(state: InitialState, value: boolean) {
+        setActivitiesLoading(state: CardState, value: boolean) {
             state.activitiesLoading = value;
         },
-        setCardLoading(state: InitialState, value: boolean) {
+        setCardLoading(state: CardState, value: boolean) {
             state.cardLoading = value;
         },
-        addComment(state: InitialState, activity: CardActivity) {
+        addComment(state: CardState, activity: CardActivity) {
             state.card?.activities?.unshift(activity);
         }
     },
     actions: {
-        async loadCard({ commit }: any, cardId: number) {
+        async loadCard(context: Context, cardId: number) {
             try {
-                commit("setCardLoading", true);
+                context.commit("setCardLoading", true);
                 const card: Card = await getCard(cardId);
-                commit("setCard", card);
+                context.commit("setCard", card);
             }
             catch (err) {
                 console.log(err);
             }
             finally {
-                commit("setCardLoading", false);
+                context.commit("setCardLoading", false);
             }
         },
-        async loadCardActivities({ commit, state }: any) {
+        async loadCardActivities(context: Context) {
             try {
-                commit("setActivitiesLoading", true);
-                const activities: CardActivity[] = await getCardActivities(state.card.id);
-                commit("setCardActivities", activities);
+                // FIXME: Card always has id if saved on db fix type!
+                if (context.state.card && context.state.card.id) {
+                    context.commit("setActivitiesLoading", true);
+                    const activities: CardActivity[] = await getCardActivities(context.state.card.id);
+                    context.commit("setCardActivities", activities);
+                }
             }
             catch (err) {
                 console.log(err);
             }
             finally {
-                commit("setActivitiesLoading", false);
+                context.commit("setActivitiesLoading", false);
             }
         },
-        async addCardComment({ commit, state }: any, payload: string) {
-            const commentActivity = await postCardComment(state.card.id, { comment: payload });
-            commit("addComment", commentActivity);
+        async addCardComment(context: Context, payload: string) {
+            if (context.state.card && context.state.card.id) {
+                const commentActivity = await postCardComment(context.state.card.id, { comment: payload });
+                context.commit("addComment", commentActivity);
+            }
         },
-        async deleteCardFromAPI({ commit }: any, card: Card) {
+        async deleteCardFromAPI(context: Context, card: Card) {
             // Close dialog
-            commit("setVisible", false);
+            context.commit("setVisible", false);
             if (card.id) {
                 await deleteCard(card.id);
-                commit("board/removeCard", { boardListId: card.list_id, card }, { root: true });
+                context.commit("board/removeCard", { boardListId: card.list_id, card }, { root: true });
             }
 
         }
