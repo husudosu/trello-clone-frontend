@@ -1,15 +1,14 @@
 import moment from "moment-timezone";
 
-
+// TODO: Create draft types, for example draft card
 export interface UserLogin {
     username: string;
     password: string;
     remember_me?: boolean;
 }
 
-
 export interface User {
-    id: number;
+    id: Readonly<number>;
     username: string;
     name?: string;
     roles: Array<string>;
@@ -20,7 +19,7 @@ export interface User {
 }
 
 export interface BoardList {
-    id?: number;
+    id?: Readonly<number>;
     board_id: number;
     title: string;
     position: number;
@@ -28,7 +27,7 @@ export interface BoardList {
 }
 
 export interface Board {
-    id: number;
+    id: Readonly<number>;
     owner_id: number;
     title: string;
     lists: BoardList[];
@@ -38,20 +37,20 @@ export interface Board {
 
 
 export interface BoardRolePermission {
-    id: number;
+    id: Readonly<number>;
     name: string;
     allow: boolean;
 }
 
 export interface BoardRole {
-    id: number;
+    id: Readonly<number>;
     name: string;
     is_admin: boolean;
     permissions: BoardRolePermission[];
 }
 
 export interface BoardClaims {
-    id: number;
+    id: Readonly<number>;
     board_id: number;
     is_owner: boolean;
     user_id: number;
@@ -59,7 +58,7 @@ export interface BoardClaims {
 }
 
 export interface Card {
-    id?: number;
+    id?: Readonly<number>;
     list_id: number;
     owner_id?: number;
     title?: string;
@@ -69,42 +68,17 @@ export interface Card {
     activities?: CardActivity[];
 }
 
-/*
-    id = fields.Integer(dump_only=True)
-    card_id = fields.Integer()
-    user_id = fields.Integer()
-    activity_on = fields.DateTime()
-    entity_id = fields.Integer()
-    event = fields.Integer(dump_only=True)
-
-    comment = fields.Nested(CardCommentSchema, dump_only=True)
-    member = fields.Nested(CardMemberSchema, dump_only=True)
-
-    user = fields.Nested(
-        UserSchema(only=("name", "email", "avatar_url",)),
-        dump_only=True
-    )
-
-*/
 
 export interface UserBasicInfo {
-    id: number;
+    id: Readonly<number>;
     name: string;
     avatar_url?: string;
     username: string;
     timezone: string;
 }
 
-/* 
-    id = sqla.Column(sqla.Integer, primary_key=True)
-    activity_id = sqla.Column(sqla.Integer, sqla.ForeignKey("card_activity.id"))
-
-    from_list_id = sqla.Column(sqla.Integer, sqla.ForeignKey("list.id"))
-    to_list_id = sqla.Column(sqla.Integer, sqla.ForeignKey("list.id"))
-
-*/
 export interface CardListChange {
-    id: number;
+    id: Readonly<number>;
     activity_id: number;
     from_list_id: number;
     to_list_id: number;
@@ -113,7 +87,7 @@ export interface CardListChange {
 }
 
 export interface CardActivity {
-    id: number;
+    id: Readonly<number>;
     card_id: number;
     user_id: number;
     activity_on: moment.Moment;
@@ -125,7 +99,7 @@ export interface CardActivity {
 }
 
 export interface CardComment {
-    id?: number;
+    id?: Readonly<number>;
     user_id?: number;
     card_id: number;
     comment: string | undefined;
@@ -142,7 +116,7 @@ export interface RegisterPayload {
 }
 
 export interface BoardAllowedUser {
-    id: number;
+    id: Readonly<number>;
     user_id: number;
     board_id: number;
     board_role_id: number;
