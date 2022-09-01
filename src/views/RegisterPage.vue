@@ -66,7 +66,7 @@
 
 <script lang="ts" setup>
 import { RegisterPayload } from "@/api/types";
-import { register } from "@/api/user";
+import { UserAPI } from "@/api/user";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
@@ -102,7 +102,7 @@ const reg = ref<RegisterPayload>({
 const onRegisterClicked = async () => {
     try {
         validationErrors.value = {};
-        await register(reg.value);
+        await UserAPI.register(reg.value);
         router.push({ name: "login" });
     }
     catch (err: any) {

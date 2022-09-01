@@ -71,10 +71,16 @@ body {
   }
 }
 
+.listWrapper {
+  height: calc(100% - #{$gap} - #{$scrollbar-thickness});
+}
+
 .list {
   width: $list-width;
-  height: calc(100% - #{$gap} - #{$scrollbar-thickness});
-
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  // height: calc(100% - #{$gap} - #{$scrollbar-thickness});
   > * {
     background-color: $list-bg-color;
     color: #333;

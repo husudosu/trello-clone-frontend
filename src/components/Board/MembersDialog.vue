@@ -44,7 +44,7 @@
 <script lang="ts" setup>
 import { ref, defineEmits, computed } from "vue";
 import { useDialogPluginComponent } from 'quasar';
-import { getBoardMembers, deleteBoardMember, updateBoardMemberRole } from "@/api/board";
+import { BoardAPI } from "@/api/board";
 import store from "@/store/index";
 import { BoardAllowedUser, BoardRole } from "@/api/types";
 
@@ -59,19 +59,19 @@ const { dialogRef, onDialogHide, onDialogCancel } = useDialogPluginComponent();
 const boardMembers = ref<BoardAllowedUser[]>([]);
 
 if (store.state.board.board) {
-    getBoardMembers(store.state.board.board.id).then((data) => {
+    BoardAPI.getBoardMembers(store.state.board.board.id).then((data) => {
         boardMembers.value = data;
     });
 }
 
 const onRoleChange = async (role: BoardRole, member: BoardAllowedUser) => {
-    updateBoardMemberRole(member.board_id, member.user_id, role.id);
+    BoardAPI.updateBoardMemberRole(member.board_id, member.user_id, role.id);
 };
 
 const onDeleteClicked = async (member: BoardAllowedUser) => {
     if (confirm("Are you sure?")) {
         try {
-            deleteBoardMember(member.board_id, member.user_id);
+            BoardAPI.deleteBoardMember(member.board_id, member.user_id);
         }
         catch (err) {
             console.log(err);

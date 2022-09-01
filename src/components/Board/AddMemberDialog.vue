@@ -31,8 +31,8 @@ import { ref, computed, defineEmits } from "vue";
 import { useDialogPluginComponent } from 'quasar';
 import store from "@/store/index";
 
-import { findUser } from "@/api/user";
-import { addBoardMember, getBoardMember } from "@/api/board";
+import { UserAPI } from "@/api/user";
+import { BoardAPI } from "@/api/board";
 
 defineEmits([
     ...useDialogPluginComponent.emits
@@ -53,7 +53,7 @@ const form = ref();
 const onAddMemberSubmit = () => {
     form.value.validate().then((success: boolean) => {
         if (success && store.state.board.board) {
-            addBoardMember(store.state.board.board.id, addMemberForm.value);
+            BoardAPI.addBoardMember(store.state.board.board.id, addMemberForm.value);
             onDialogOK();
         }
     });
@@ -66,11 +66,11 @@ if exists puts user id into addMemberForm
 const validateUser = (val: string): Promise<string | boolean> => {
     return new Promise((resolve) => {
         if (val.length > 0) {
-            findUser(val).then((data) => {
+            UserAPI.findUser(val).then((data) => {
                 addMemberForm.value.user_id = data.id;
                 if (store.state.board.board) {
                     // If board member returns 404 we good to go!
-                    getBoardMember(store.state.board.board.id, data.id).then(() => {
+                    BoardAPI.getBoardMember(store.state.board.board.id, data.id).then(() => {
                         resolve("Member already exists!");
                     }).catch(() => resolve(true));
                 }

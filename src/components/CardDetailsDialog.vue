@@ -6,7 +6,7 @@
                     <q-toolbar-title
                         @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardTitle = !editCardTitle : false">
                         <template v-if="!editCardTitle">
-                            {{  card?.title  }}
+                            {{ card?.title }}
                         </template>
                         <template v-else>
                             <q-input v-model="card.title" @blur="onTitleEdit" @keydown.enter="onTitleEdit" autofocus>
@@ -37,7 +37,7 @@
                     <div class="qa-pa-md q-list--bordered card-description"
                         @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardDescription = !editCardDescription : false">
                         <template v-if="!editCardDescription">
-                            {{  card?.description  }}
+                            {{ card?.description }}
                         </template>
                         <template v-else>
                             <q-input v-model="card.description" type="textarea" @keydown.enter="onDescriptionEdit"
@@ -58,21 +58,21 @@
                                     </q-item-section>
 
                                     <q-item-section>
-                                        <q-item-label>{{  activity?.user?.name  }} ({{  activity?.user?.username  }})
+                                        <q-item-label>{{ activity?.user?.name }} ({{ activity?.user?.username }})
                                         </q-item-label>
                                         <q-item-label caption>
 
                                             <template v-if="activity?.event == CardActivityEvent.CARD_COMMENT">
-                                                <span style="white-space: pre-wrap;">{{  activity?.comment?.comment 
-                                                    }}</span>
+                                                <span style="white-space: pre-wrap;">{{ activity?.comment?.comment
+                                                }}</span>
                                             </template>
                                             <template
                                                 v-else-if="activity?.event == CardActivityEvent.CARD_MOVE_TO_LIST">Moved
                                                 from
-                                                <b>{{  activity.list_change?.from_list?.title || "N/A"  }} </b> to
+                                                <b>{{ activity.list_change?.from_list?.title || "N/A" }} </b> to
                                                 <b>{{
-                                                     activity.list_change?.to_list?.title || "N/A" 
-                                                    }}</b>
+                                                        activity.list_change?.to_list?.title || "N/A"
+                                                }}</b>
                                             </template>
                                         </q-item-label>
                                     </q-item-section>
@@ -80,11 +80,11 @@
                                     <q-item-section side top>
                                         <q-item-label caption>
                                             {{
-                                             activity.comment?.updated?.isValid() ?
-                                             "Updated: " + activity.comment?.updated?.format("YYYY-MM-DD HH:mm:ss")
-                                             : activity.activity_on.format("YYYY-MM-DD HH:mm:ss")
-
-
+                                                    activity.comment?.updated?.isValid() ?
+                                                        "Updated: " + activity.comment?.updated?.format("YYYY-MM-DD HH:mm:ss")
+                                                        : activity.activity_on.format("YYYY-MM-DD HH:mm:ss")
+                                            
+                                            
                                             }}
                                         </q-item-label>
                                     </q-item-section>
@@ -112,7 +112,7 @@
 import { computed, ref } from 'vue';
 import store from "@/store";
 import { Card, CardActivityEvent, BoardPermission } from "@/api/types";
-import { patchCard } from '@/api/card';
+import { CardAPI } from '@/api/card';
 
 const hasPermission = store.getters.board.hasPermission;
 
@@ -150,14 +150,14 @@ const onNewComment = async (e: KeyboardEvent) => {
 const onDescriptionEdit = async (e: KeyboardEvent) => {
     if (e.ctrlKey && card.value && card.value.id && card.value.description) {
         editCardDescription.value = false;
-        patchCard(card.value.id, { description: card.value.description });
+        CardAPI.patchCard(card.value.id, { description: card.value.description });
     }
 };
 
 const onTitleEdit = async () => {
     if (card.value && card.value.title && card.value.id) {
         editCardTitle.value = false;
-        const updatedCard: Card = await patchCard(card.value.id, { title: card.value.title });
+        const updatedCard: Card = await CardAPI.patchCard(card.value.id, { title: card.value.title });
         store.commit.board.updateCard({ boardListId: card.value.list_id, card: updatedCard });
     }
 };

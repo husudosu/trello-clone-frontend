@@ -38,7 +38,7 @@ import { useRoute } from "vue-router";
 import store from '@/store';
 
 import { User } from "@/api/types";
-import { getUser } from "@/api/user";
+import { UserAPI } from "@/api/user";
 
 const route = useRoute();
 
@@ -47,7 +47,7 @@ const currentUser = ref(store.state.auth.user);
 
 const loadUser = async () => {
     if (typeof route.params.userId === 'string') {
-        user.value = await getUser(parseInt(route.params.userId));
+        user.value = await UserAPI.getUser(parseInt(route.params.userId));
     }
 };
 

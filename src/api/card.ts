@@ -8,53 +8,47 @@ export interface MoveCardParams {
     position: number;
 }
 
-
-export const getCard = async (cardId: number) => {
-    const { data } = await API.get<Card>(`/card/${cardId}`);
-    return data;
-};
-
-export const postCardComment = async (cardId: number, comment: Partial<CardComment>) => {
-    const { data } = await API.post<CardActivity>(`/card/${cardId}/comment`, comment);
-
-    // FIXME: Probably it's a bad thing to convert dates here to moment, need better solution!
-    data.activity_on = moment.utc(data.activity_on).tz(store.state.auth.user?.timezone || "UTC");
-    if (data.comment) {
-        data.comment.created = moment.utc(data.comment.created).tz(store.state.auth.user?.timezone || "UTC");
-        data.comment.updated = moment.utc(data.comment.updated).tz(store.state.auth.user?.timezone || "UTC");
-    }
-    return data;
-};
-
-export const postCard = async (boardListId: number, card: Card) => {
-    const { data } = await API.post<Card>(`/list/${boardListId}/card`, card);
-    return data;
-};
-
-export const patchCard = async (cardId: number, updatedCard: Partial<Card>) => {
-    const { data } = await API.patch<Card>(`/card/${cardId}`, updatedCard);
-    return data;
-};
-
-export const moveCard = async (cardId: number, params: MoveCardParams) => {
-    const { data } = await API.patch<Card>(`/card/${cardId}`, params);
-    return data;
-};
-
-export const getCardActivities = async (cardId: number) => {
-    const { data } = await API.get<CardActivity[]>(`/card/${cardId}/activities`);
-
-    // FIXME: Probably it's a bad thing to convert dates here to moment, need better solution!
-    data.forEach((el) => {
-        el.activity_on = moment.utc(el.activity_on).tz(store.state.auth.user?.timezone || "UTC");
-        if (el.comment) {
-            el.comment.created = moment.utc(el.comment.created).tz(store.state.auth.user?.timezone || "UTC");
-            el.comment.updated = moment.utc(el.comment.updated).tz(store.state.auth.user?.timezone || "UTC");
+export const CardAPI = {
+    getCard: async (cardId: number): Promise<Card> => {
+        const { data } = await API.get<Card>(`/card/${cardId}`);
+        return data;
+    },
+    postCard: async (boardListId: number, card: Card) => {
+        const { data } = await API.post<Card>(`/list/${boardListId}/card`, card);
+        return data;
+    },
+    patchCard: async (cardId: number, updatedCard: Partial<Card>) => {
+        const { data } = await API.patch<Card>(`/card/${cardId}`, updatedCard);
+        return data;
+    },
+    moveCard: async (cardId: number, params: MoveCardParams) => {
+        const { data } = await API.patch<Card>(`/card/${cardId}`, params);
+        return data;
+    },
+    deleteCard: async (cardId: number) => {
+        await API.delete(`/card/${cardId}`);
+    },
+    postCardComment: async (cardId: number, comment: Partial<CardComment>): Promise<CardActivity> => {
+        const { data } = await API.post<CardActivity>(`/card/${cardId}/comment`, comment);
+        // FIXME: Probably it's a bad thing to convert dates here to moment, need better solution!
+        data.activity_on = moment.utc(data.activity_on).tz(store.state.auth.user?.timezone || "UTC");
+        if (data.comment) {
+            data.comment.created = moment.utc(data.comment.created).tz(store.state.auth.user?.timezone || "UTC");
+            data.comment.updated = moment.utc(data.comment.updated).tz(store.state.auth.user?.timezone || "UTC");
         }
-    });
-    return data;
-};
+        return data;
+    },
+    getCardActivities: async (cardId: number) => {
+        const { data } = await API.get<CardActivity[]>(`/card/${cardId}/activities`);
 
-export const deleteCard = async (cardId: number) => {
-    await API.delete(`/card/${cardId}`);
+        // FIXME: Probably it's a bad thing to convert dates here to moment, need better solution!
+        data.forEach((el) => {
+            el.activity_on = moment.utc(el.activity_on).tz(store.state.auth.user?.timezone || "UTC");
+            if (el.comment) {
+                el.comment.created = moment.utc(el.comment.created).tz(store.state.auth.user?.timezone || "UTC");
+                el.comment.updated = moment.utc(el.comment.updated).tz(store.state.auth.user?.timezone || "UTC");
+            }
+        });
+        return data;
+    }
 };

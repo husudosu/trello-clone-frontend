@@ -1,12 +1,12 @@
 <template>
     <div class="list">
-        <header @dblclick="editListTitle = !editListTitle">
+        <header @dblclick="editListTitle = !editListTitle" class="listHeader">
             <template v-if="editListTitle">
                 <q-input v-model="boardList.title" label="Name" @keyup.enter="onListSave" @blur="onListSave" autofocus>
                 </q-input>
             </template>
             <template v-else>
-                {{  boardList.title  }}
+                {{ boardList.title }}
                 <q-btn flat round icon="more_horiz">
                     <q-menu v-model="showMenu">
                         <q-list style="min-width: 100px">
@@ -26,7 +26,7 @@
                 <template #item="{ element }">
                     <li class="listCard" @click="onCardClick(element)">
                         <template v-if="element.id">
-                            {{  element.title  }}
+                            {{ element.title }}
                         </template>
                         <template v-else>
                             <q-input v-model="element.title" type="textarea" label="Card title"

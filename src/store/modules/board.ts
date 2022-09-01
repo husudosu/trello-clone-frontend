@@ -1,9 +1,9 @@
 import { ActionContext } from "vuex";
 import { State } from "../index";
 
-import { getBoard, getBoards, postBoard, deleteBoard, updateBoardListsOrder, getBoardClaims, getBoardRoles } from "@/api/board";
-import { deleteBoardList, patchBoardList, postBoardList } from "@/api/boardList";
-import { postCard } from "@/api/card";
+import { BoardAPI } from "@/api/board";
+import { BoardListAPI } from "@/api/boardList";
+import { CardAPI } from "@/api/card";
 import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission } from "@/api/types";
 
 export interface BoardState {
@@ -169,7 +169,7 @@ export default {
     },
     actions: {
         async loadBoard(context: Context, payload: { boardId: number; }) {
-            const board = await getBoard(payload.boardId);
+            const board = await BoardAPI.getBoard(payload.boardId);
             if (board) {
                 // Load board claims too!
                 context.commit("setBoard", board);
@@ -182,53 +182,53 @@ export default {
             }
         },
         async loadBoards(context: Context) {
-            const data = await getBoards();
+            const data = await BoardAPI.getBoards();
             context.commit("setBoards", data);
         },
         async loadBoardClaims(context: Context) {
             if (context.state.board) {
-                const data = await getBoardClaims(context.state.board.id);
+                const data = await BoardAPI.getBoardClaims(context.state.board.id);
                 context.commit("setBoardClaims", data);
             }
         },
         async loadBoardRoles(context: Context) {
             if (context.state.board) {
-                const data = await getBoardRoles(context.state.board.id);
+                const data = await BoardAPI.getBoardRoles(context.state.board.id);
                 context.commit("setBoardRoles", data);
             }
         },
         async createBoard(context: Context, payload: Partial<Board>) {
-            const data = await postBoard(payload);
+            const data = await BoardAPI.postBoard(payload);
             context.commit("addBoard", data);
             return data;
         },
         async removeBoard(context: Context, boardId: number) {
-            await deleteBoard(boardId);
+            await BoardAPI.deleteBoard(boardId);
             context.commit("removeBoard", boardId);
         },
         async saveBoardList(context: Context, list: BoardList) {
             if (list.id !== undefined) {
                 // Update existing list
-                const data = await patchBoardList(list.id, list);
+                const data = await BoardListAPI.patchBoardList(list.id, list);
                 context.commit("saveExistingList", data);
             } else {
                 // Create new list
                 if (context.state.board) {
-                    const data = await postBoardList(context.state.board.id, list);
+                    const data = await BoardListAPI.postBoardList(context.state.board.id, list);
                     context.commit("saveNewList", data);
 
                     // Update order of boardlists
-                    await updateBoardListsOrder(context.state.board);
+                    await BoardAPI.updateBoardListsOrder(context.state.board);
                 }
             }
         },
         async removeBoardList(context: Context, list: BoardList) {
             if (list.id)
-                await deleteBoardList(list.id);
+                await BoardListAPI.deleteBoardList(list.id);
             context.commit("removeList", list);
         },
         async saveCard(context: Context, payload: { boardListId: number; card: Card; }) {
-            const data = await postCard(payload.boardListId, payload.card);
+            const data = await CardAPI.postCard(payload.boardListId, payload.card);
             context.commit("saveNewCard", { boardListId: payload.boardListId, card: data });
         }
     }

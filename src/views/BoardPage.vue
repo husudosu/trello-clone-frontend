@@ -4,7 +4,7 @@
         <card-details-dialog></card-details-dialog>
         <!-- Add member dialog -->
         <nav class="navbar board">
-            {{  board?.title  }}
+            {{ board?.title }}
             <q-btn style="margin-left: 10px" color="secondary" @click="onDeleteBoardClicked"
                 v-if="hasPermission(BoardPermission.BOARD_DELETE)">Delete board</q-btn>
             <q-btn style="margin-left: 10px" color="secondary" @click="onNewListClicked"
@@ -14,12 +14,14 @@
             </q-btn>
         </nav>
         <!-- Dragabble object for reordering lists-->
+
         <draggable class="lists" ref="listsWrapper" :list="board?.lists" itemKey="id" :delayOnTouchOnly="true"
-            :touchStartThreshold="100" :delay="500" @end="onBoardListSortableMoveEnd" draggable=".list"
-            group="board-list">
+            :touchStartThreshold="100" :delay="500" @end="onBoardListSortableMoveEnd" group="board-list"
+            draggable=".list">
             <!-- Board list object and reorder handling of cards.-->
             <template #item="{ element }">
-                <list-component :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
+                <list-component class="list" :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element"
+                    :data-draggable="true">
                 </list-component>
             </template>
         </draggable>
@@ -33,9 +35,9 @@ import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
 
 import store from "@/store/index";
-import { patchCard } from "@/api/card";
-import { updateCardsOrder } from '@/api/boardList';
-import { updateBoardListsOrder } from "@/api/board";
+import { CardAPI } from "@/api/card";
+import { BoardListAPI } from '@/api/boardList';
+import { BoardAPI } from "@/api/board";
 import { BoardPermission } from "@/api/types";
 
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
@@ -62,7 +64,7 @@ let cardMoving = false;
 */
 const onBoardListSortableMoveEnd = async () => {
     if (board.value != null) {
-        updateBoardListsOrder(board.value);
+        BoardAPI.updateBoardListsOrder(board.value);
     }
 };
 
@@ -77,17 +79,17 @@ const onCardSortableMoveEnd = async (ev: any) => {
 
         if (boardFromId !== boardToId && cardId !== undefined) {
             // Change list id of card.
-            await patchCard(cardId, { list_id: boardToId });
+            await CardAPI.patchCard(cardId, { list_id: boardToId });
             // BoardList changed so need to update both fromList and toList
             const listFrom = board.value?.lists.find((el) => el.id == boardFromId);
             if (listFrom !== undefined) {
-                await updateCardsOrder(listFrom);
+                await BoardListAPI.updateCardsOrder(listFrom);
             }
         }
 
         const listTo = board.value?.lists.find((el) => el.id == boardToId);
         if (listTo !== undefined) {
-            await updateCardsOrder(listTo);
+            await BoardListAPI.updateCardsOrder(listTo);
         }
         cardMoving = false;
     }
@@ -100,7 +102,7 @@ const onCardMove = async (ev: any) => {
 
 const loadBoard = (boardId: number) => {
     store.dispatch.board.loadBoard({ boardId })
-        .catch((err: any) => {
+        .catch((err) => {
             if (err.response.status === 404) {
                 router.push({ name: '404' });
             }

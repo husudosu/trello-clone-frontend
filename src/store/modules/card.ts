@@ -2,7 +2,7 @@ import { ActionContext } from "vuex";
 import { State } from "../index";
 
 import { Card, CardActivity } from "@/api/types";
-import { deleteCard, getCard, getCardActivities, postCardComment } from "@/api/card";
+import { CardAPI } from "@/api/card";
 
 export interface CardState {
     visible: boolean;
@@ -48,7 +48,7 @@ export default {
         async loadCard(context: Context, cardId: number) {
             try {
                 context.commit("setCardLoading", true);
-                const card: Card = await getCard(cardId);
+                const card: Card = await CardAPI.getCard(cardId);
                 context.commit("setCard", card);
             }
             catch (err) {
@@ -63,7 +63,7 @@ export default {
                 // FIXME: Card always has id if saved on db fix type!
                 if (context.state.card && context.state.card.id) {
                     context.commit("setActivitiesLoading", true);
-                    const activities: CardActivity[] = await getCardActivities(context.state.card.id);
+                    const activities: CardActivity[] = await CardAPI.getCardActivities(context.state.card.id);
                     context.commit("setCardActivities", activities);
                 }
             }
@@ -76,7 +76,7 @@ export default {
         },
         async addCardComment(context: Context, payload: string) {
             if (context.state.card && context.state.card.id) {
-                const commentActivity = await postCardComment(context.state.card.id, { comment: payload });
+                const commentActivity = await CardAPI.postCardComment(context.state.card.id, { comment: payload });
                 context.commit("addComment", commentActivity);
             }
         },
@@ -84,10 +84,9 @@ export default {
             // Close dialog
             context.commit("setVisible", false);
             if (card.id) {
-                await deleteCard(card.id);
+                await CardAPI.deleteCard(card.id);
                 context.commit("board/removeCard", { boardListId: card.list_id, card }, { root: true });
             }
-
         }
     }
 };
