@@ -1,5 +1,5 @@
 import { API } from ".";
-import { UserLogin, RegisterPayload, User } from "./types";
+import { UserLogin, RegisterPayload, User, UserUpdate } from "./types";
 
 export const UserAPI = {
     login: (loginPayload: UserLogin) => {
@@ -22,6 +22,10 @@ export const UserAPI = {
     },
     findUser: async (username: string): Promise<User> => {
         const { data } = await API.post<User>("/auth/find-user", { username });
+        return data;
+    },
+    updateUser: async (userId: number, user: UserUpdate): Promise<User> => {
+        const { data } = await API.patch<User>(`/auth/users/${userId}`, user);
         return data;
     }
 };

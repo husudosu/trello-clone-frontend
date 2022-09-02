@@ -1,5 +1,7 @@
 import moment from "moment-timezone";
 
+type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+
 // TODO: Create draft types, for example draft card
 export interface UserLogin {
     username: string;
@@ -16,6 +18,11 @@ export interface User {
     email: string;
     registered_date?: string;
     timezone: string;
+}
+
+export interface UserUpdate extends Omit<User, "roles"> {
+    password?: string; // New password
+    current_password: string | null;
 }
 
 export interface BoardList {

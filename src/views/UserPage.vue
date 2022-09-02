@@ -26,7 +26,7 @@
         </q-item>
 
         <q-card-actions v-if="currentUser?.id === user?.id || currentUser?.roles.includes('admin')">
-            <q-btn>Edit</q-btn>
+            <q-btn color="primary" :to="{ name: 'user.edit', params: { userId: user?.id } }">Edit</q-btn>
         </q-card-actions>
 
     </div>

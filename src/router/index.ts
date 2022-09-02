@@ -31,6 +31,10 @@ const routes: Array<RouteRecordRaw> = [
     path: "/user/view/:userId",
     name: "user",
     component: () => import("../views/UserPage.vue"),
+  }, {
+    path: "/user/edit/:userId",
+    name: "user.edit",
+    component: () => import("../views/EditUserPage.vue"),
   },
   {
     path: "/500",

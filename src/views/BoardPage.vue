@@ -5,12 +5,12 @@
         <!-- Add member dialog -->
         <nav class="navbar board">
             {{ board?.title }}
-            <q-btn style="margin-left: 10px" color="secondary" @click="onDeleteBoardClicked"
+            <q-btn class="q-ml-lg" color="secondary" @click="onDeleteBoardClicked"
                 v-if="hasPermission(BoardPermission.BOARD_DELETE)">Delete board</q-btn>
-            <q-btn style="margin-left: 10px" color="secondary" @click="onNewListClicked"
+            <q-btn class="q-ml-md" color="secondary" @click="onNewListClicked"
                 v-if="hasPermission(BoardPermission.LIST_CREATE)">New list</q-btn>
-            <q-btn style="margin-left: 10px" color="secondary" @click="onMembersClicked">Members</q-btn>
-            <q-btn style="margin-left: 10px" color="secondary" @click="onAddMemberClicked" v-if="isAdmin">Add member
+            <q-btn class="q-ml-md" color="secondary" @click="onMembersClicked">Members</q-btn>
+            <q-btn class="q-ml-md" color="secondary" @click="onAddMemberClicked" v-if="isAdmin">Add member
             </q-btn>
         </nav>
         <!-- Dragabble object for reordering lists-->
