@@ -1,52 +1,65 @@
 <template>
-    <div class="list">
-        <header @dblclick="editListTitle = !editListTitle" class="listHeader">
-            <template v-if="editListTitle">
-                <q-input v-model="boardList.title" label="Name" @keyup.enter="onListSave" @blur="onListSave" autofocus>
-                </q-input>
-            </template>
-            <template v-else>
-                {{ boardList.title }}
-                <q-btn flat round icon="more_horiz">
-                    <q-menu v-model="showMenu">
-                        <q-list style="min-width: 100px">
-                            <q-item clickable @click="onDeleteBoardList"
-                                :disable="!hasPermission(BoardPermission.LIST_DELETE)">
-                                <q-item-section>Deltete list</q-item-section>
-                            </q-item>
-                        </q-list>
-                    </q-menu>
-                </q-btn>
-            </template>
-        </header>
-        <ul ref="cardsWrapper">
-            <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" :list="boardList.cards"
-                group="board-cards" itemKey="id" @end="onEnd" :move="onMove" draggable=".listCard"
-                :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id">
-                <template #item="{ element }">
-                    <li class="listCard" @click="onCardClick(element)">
-                        <template v-if="element.id">
-                            {{ element.title }}
-                        </template>
-                        <template v-else>
-                            <q-input v-model="element.title" type="textarea" label="Card title"
-                                @keyup.enter="onCardTitleKeyUp($event, element)" @blur="saveCard(element)" autofocus
-                                autogrow>
-                            </q-input>
-                            <q-btn @click="saveCard(element)" style="margin-top: 10px" size="sm" color="primary">Save
-                            </q-btn>
-                        </template>
-                    </li>
+    <div class="listWrapper" ref="listWrapperRef">
+        <div class="list">
+            <!-- TODO: Handle permission here aswell, do not inject dblclick here, it's gonna be more complex-->
+            <header @dblclick="boardList.id ? editListTitle = !editListTitle : editListTitle = true" class="listHeader">
+                <template v-if="editListTitle">
+                    <q-input v-model="boardList.title" label="Name" @keyup.enter="onListSave" @blur="onListSave"
+                        autofocus>
+                    </q-input>
                 </template>
-            </draggable>
-        </ul>
-        <footer @click="onAddCardClick">Add a card...</footer>
+                <template v-else>
+                    {{ boardList.title }}
+                    <q-btn flat round icon="more_horiz" style="float: right;">
+                        <q-menu v-model="showMenu">
+                            <q-list style="min-width: 100px">
+                                <q-item clickable @click="onDeleteBoardList"
+                                    :disable="!hasPermission(BoardPermission.LIST_DELETE)">
+                                    <q-item-section>Deltete list</q-item-section>
+                                </q-item>
+                            </q-list>
+                        </q-menu>
+                    </q-btn>
+                </template>
+            </header>
+            <ul ref="cardsWrapper">
+                <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" :list="boardList.cards"
+                    group="board-cards" itemKey="id" @end="onEnd" :move="onMove" draggable=".listCard"
+                    :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id">
+                    <template #item="{ element }">
+                        <li class="listCard" @click="onCardClick(element)">
+                            <template v-if="element.id">
+                                {{ element.title }}
+                            </template>
+                            <template v-else>
+                                <q-input v-model="element.title" type="textarea" label="Card title"
+                                    @keyup.enter="onCardTitleKeyUp($event, element)" @blur="saveCard(element)" autofocus
+                                    autogrow>
+                                </q-input>
+                                <q-btn @click="saveCard(element)" style="margin-top: 10px" size="sm" color="primary">
+                                    Save
+                                </q-btn>
+                            </template>
+                        </li>
+                    </template>
+                </draggable>
+            </ul>
+            <footer @click="onAddCardClick">
+                <div v-if="boardList.id" class="boardListAddCard">
+                    <q-icon class="q-mr-xs" name="add"></q-icon>Add a card...
+                </div>
+                <div v-else>
+                    <q-btn size="sm" class="q-ml-xs q-mr-sm" color="primary" @click="onListSave">Save</q-btn>
+                    <q-btn size="sm" outline @click="onListSave">Cancel</q-btn>
+                </div>
+            </footer>
+        </div>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { BoardList, Card, BoardPermission } from '@/api/types';
-import { defineProps, ref, nextTick } from 'vue';
+import { defineProps, ref, nextTick, onMounted } from 'vue';
 import draggable from 'vuedraggable';
 
 import store from "@/store";
@@ -65,7 +78,7 @@ interface Props {
     onMove: OnMove;
     onEnd: OnEnd;
 }
-
+const listWrapperRef = ref();
 const props = defineProps<Props>();
 const hasPermission = store.getters.board.hasPermission;
 const cardsWrapper = ref();
@@ -81,6 +94,7 @@ const onListSave = () => {
             .finally(() => {
                 editListTitle.value = false;
             });
+        listWrapperRef.value.classList.remove("draftBoardList");
     }
     else {
         store.commit.board.removeList(boardList.value);
@@ -141,4 +155,11 @@ const onDeleteBoardList = () => {
 if (!boardList.value.title) {
     editListTitle.value = true;
 }
+
+// If the board draft don't allow drag.
+onMounted(() => {
+    if (!boardList.value.id) {
+        listWrapperRef.value.classList.add("draftBoardList");
+    }
+});
 </script>

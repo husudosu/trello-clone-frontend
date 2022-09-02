@@ -153,8 +153,10 @@ const onSubmit = async () => {
         validationErrors.value = {};
         if (success && updateUser.value) {
             UserAPI.updateUser(updateUser.value.id, updateUser.value)
-                .then((data) => {
-                    // TODO: If user updated own data, have to refresh store too!
+                .then(async (data) => {
+                    if (store.state.auth.user.id === updateUser.value.id) {
+                        await store.dispatch.auth.getUserClaims();
+                    }
                     $q.notify({ type: "positive", message: "User updated", timeout: 3000, position: "top", closeBtn: true });
                     router.push({ name: "user", params: { userId: data.id } });
                 })

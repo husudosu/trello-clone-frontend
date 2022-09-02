@@ -7,24 +7,31 @@
             {{ board?.title }}
             <q-btn class="q-ml-lg" color="secondary" @click="onDeleteBoardClicked"
                 v-if="hasPermission(BoardPermission.BOARD_DELETE)">Delete board</q-btn>
-            <q-btn class="q-ml-md" color="secondary" @click="onNewListClicked"
-                v-if="hasPermission(BoardPermission.LIST_CREATE)">New list</q-btn>
             <q-btn class="q-ml-md" color="secondary" @click="onMembersClicked">Members</q-btn>
             <q-btn class="q-ml-md" color="secondary" @click="onAddMemberClicked" v-if="isAdmin">Add member
             </q-btn>
         </nav>
         <!-- Dragabble object for reordering lists-->
+        <div class="lists" ref="listsWrapper">
+            <draggable :list="board?.lists" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
+                :delay="500" @end="onBoardListSortableMoveEnd" group="board-list" handle=".listHeader"
+                style="display:flex" filter=".draftBoardList">
+                <!-- Board list object and reorder handling of cards.-->
+                <template #item="{ element }">
+                    <list-component :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
+                    </list-component>
+                </template>
+            </draggable>
 
-        <draggable class="lists" ref="listsWrapper" :list="board?.lists" itemKey="id" :delayOnTouchOnly="true"
-            :touchStartThreshold="100" :delay="500" @end="onBoardListSortableMoveEnd" group="board-list"
-            draggable=".list">
-            <!-- Board list object and reorder handling of cards.-->
-            <template #item="{ element }">
-                <list-component class="list" :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element"
-                    :data-draggable="true">
-                </list-component>
-            </template>
-        </draggable>
+            <!-- Add new list -->
+            <div class="listWrapper">
+                <div class="addNewList" v-if="hasPermission(BoardPermission.LIST_CREATE)" @click="onNewListClicked">
+                    <header class="listHeader">
+                        <q-icon class="q-mr-xs" name="add"></q-icon>Add a list...
+                    </header>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -73,6 +80,7 @@ const onBoardListSortableMoveEnd = async () => {
     FIXME: Structrue wise not so ideal to store these methods here.
 */
 const onCardSortableMoveEnd = async (ev: any) => {
+
     if (cardMoving) {
         const boardFromId: number = parseInt(ev.from.id.split("boardlistCards-")[1]);
         const boardToId: number = parseInt(ev.to.id.split("boardlistCards-")[1]);
@@ -121,7 +129,7 @@ const onNewListClicked = () => {
     store.commit.board.addNewList();
     // This will scroll the end of div.
     nextTick(() => {
-        listsWrapper.value.targetDomElement.scroll(listsWrapper.value.targetDomElement.scrollWidth, 0);
+        listsWrapper.value.scroll(listsWrapper.value.scrollWidth, 0);
     });
 };
 

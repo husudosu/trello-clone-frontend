@@ -60,7 +60,7 @@ body {
   margin-top: 20px;
 
   //width: 100%; // This is needed for FF < 54
-  > * {
+  > div > * {
     flex: 0 0 auto; // 'rigid' lists
     margin-left: $list-gap;
   }
@@ -68,6 +68,29 @@ body {
   &::after {
     content: "";
     flex: 0 0 $gap;
+  }
+
+  .addNewList {
+    margin-left: $list-gap;
+    width: $list-width;
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+
+    header {
+      line-height: $list-header-height;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #e2e4e632;
+      color: #333;
+      border-top-left-radius: $list-border-radius;
+      border-top-right-radius: $list-border-radius;
+      padding: 0 $gap;
+    }
+
+    header:hover {
+      background-color: #cbcbcc;
+    }
   }
 }
 
@@ -84,7 +107,6 @@ body {
   > * {
     background-color: $list-bg-color;
     color: #333;
-
     padding: 0 $gap;
   }
 
@@ -101,6 +123,15 @@ body {
     border-bottom-left-radius: $list-border-radius;
     border-bottom-right-radius: $list-border-radius;
     color: #888;
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    div {
+      width: 100%;
+    }
+    .boardListAddCard:hover {
+      background-color: #cbcbcc;
+    }
   }
 
   ul {
@@ -131,24 +162,23 @@ body {
         border-top-left-radius: $card-border-radius;
         border-top-right-radius: $card-border-radius;
       }
-
-      /* Disabling  text selection for cards */
-      -webkit-touch-callout: none;
-      /* iOS Safari */
-      -webkit-user-select: none;
-      /* Safari */
-      -khtml-user-select: none;
-      /* Konqueror HTML */
-      -moz-user-select: none;
-      /* Old versions of Firefox */
-      -ms-user-select: none;
-      /* Internet Explorer/Edge */
-      user-select: none;
-      /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
     }
 
     li:hover {
-      background-color: rgb(241, 240, 240);
+      background-color: #cbcbcc;
     }
   }
+  /* Disabling  text selection for cards */
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Old versions of Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
