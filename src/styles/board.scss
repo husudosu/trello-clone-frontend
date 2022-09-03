@@ -69,29 +69,6 @@ body {
     content: "";
     flex: 0 0 $gap;
   }
-
-  .addNewList {
-    margin-left: $list-gap;
-    width: $list-width;
-    display: flex;
-    flex-direction: column;
-    max-height: 100%;
-
-    header {
-      line-height: $list-header-height;
-      font-size: 16px;
-      font-weight: bold;
-      background-color: #e2e4e632;
-      color: #333;
-      border-top-left-radius: $list-border-radius;
-      border-top-right-radius: $list-border-radius;
-      padding: 0 $gap;
-    }
-
-    header:hover {
-      background-color: #cbcbcc;
-    }
-  }
 }
 
 .listWrapper {
@@ -141,9 +118,10 @@ body {
     max-height: calc(100% - #{$list-header-height} - #{$list-footer-height});
     overflow-y: auto;
 
-    li {
+    .listCard {
       //Handling of multi-line strings
       white-space: pre-wrap;
+      overflow-wrap: anywhere;
 
       background-color: #fff;
       padding: $gap;
@@ -154,18 +132,21 @@ body {
 
       border-radius: $card-border-radius;
       box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-
-      img {
-        display: block;
-        width: calc(100% + 2 * #{$gap});
-        margin: -$gap 0 $gap (-$gap);
-        border-top-left-radius: $card-border-radius;
-        border-top-right-radius: $card-border-radius;
+      .title {
+        display: flex;
+        .cardEditButton {
+          display: none;
+          margin-left: auto;
+        }
       }
     }
 
-    li:hover {
+    .listCard:hover {
       background-color: #cbcbcc;
+
+      .cardEditButton {
+        display: block;
+      }
     }
   }
   /* Disabling  text selection for cards */
@@ -181,4 +162,27 @@ body {
   /* Internet Explorer/Edge */
   user-select: none;
   /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+
+.addNewList {
+  margin-left: $list-gap;
+  width: $list-width;
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+
+  header {
+    line-height: $list-header-height;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #e2e4e632;
+    color: #333;
+    border-top-left-radius: $list-border-radius;
+    border-top-right-radius: $list-border-radius;
+    padding: 0 $gap;
+  }
+
+  header:hover {
+    background-color: #cbcbcc;
+  }
 }

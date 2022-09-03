@@ -4,7 +4,7 @@ import { State } from "../index";
 import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
-import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission } from "@/api/types";
+import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftCard } from "@/api/types";
 
 export interface BoardState {
     boards: Board[];
@@ -113,6 +113,7 @@ export default {
 
                 if (index > -1) {
                     state.board.lists[index].cards?.push({
+                        title: "",
                         list_id: listId,
                     });
                 }
@@ -227,7 +228,7 @@ export default {
                 await BoardListAPI.deleteBoardList(list.id);
             context.commit("removeList", list);
         },
-        async saveCard(context: Context, payload: { boardListId: number; card: Card; }) {
+        async saveCard(context: Context, payload: { boardListId: number; card: DraftCard; }) {
             const data = await CardAPI.postCard(payload.boardListId, payload.card);
             context.commit("saveNewCard", { boardListId: payload.boardListId, card: data });
         }

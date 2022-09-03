@@ -1,7 +1,7 @@
 import moment from "moment-timezone";
 
 import { API } from ".";
-import { Card, CardActivity, CardComment } from "./types";
+import { Card, CardActivity, CardComment, DraftCard } from "./types";
 import store from "@/store";
 export interface MoveCardParams {
     list_id: number;
@@ -13,7 +13,7 @@ export const CardAPI = {
         const { data } = await API.get<Card>(`/card/${cardId}`);
         return data;
     },
-    postCard: async (boardListId: number, card: Card) => {
+    postCard: async (boardListId: number, card: DraftCard) => {
         const { data } = await API.post<Card>(`/list/${boardListId}/card`, card);
         return data;
     },

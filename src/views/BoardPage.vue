@@ -18,8 +18,8 @@
                 style="display:flex" filter=".draftBoardList">
                 <!-- Board list object and reorder handling of cards.-->
                 <template #item="{ element }">
-                    <list-component :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
-                    </list-component>
+                    <board-list :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
+                    </board-list>
                 </template>
             </draggable>
 
@@ -48,7 +48,7 @@ import { BoardAPI } from "@/api/board";
 import { BoardPermission } from "@/api/types";
 
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
-import ListComponent from '@/components/Board/ListComponent.vue';
+import BoardList from "@/components/Board/List/BoardList.vue";
 import AddMemberDialog from "@/components/Board/AddMemberDialog.vue";
 import MembersDialog from "@/components/Board/MembersDialog.vue";
 
@@ -80,7 +80,7 @@ const onBoardListSortableMoveEnd = async () => {
     FIXME: Structrue wise not so ideal to store these methods here.
 */
 const onCardSortableMoveEnd = async (ev: any) => {
-
+    console.log("Card move end");
     if (cardMoving) {
         const boardFromId: number = parseInt(ev.from.id.split("boardlistCards-")[1]);
         const boardToId: number = parseInt(ev.to.id.split("boardlistCards-")[1]);
@@ -119,7 +119,7 @@ const loadBoard = (boardId: number) => {
 };
 
 const onDeleteBoardClicked = () => {
-    if (confirm("Are you sure about deleting board?") && typeof route.params.boardId === "string") {
+    if (confirm("Delete board?") && typeof route.params.boardId === "string") {
         store.dispatch.board.removeBoard(parseInt(route.params.boardId))
             .then(() => { router.push({ name: "boards" }); });
     }

@@ -64,11 +64,17 @@ export interface BoardClaims {
     role: BoardRole;
 }
 
+
+export interface DraftCard {
+    title: string;
+    list_id: number;
+}
+
 export interface Card {
     id?: Readonly<number>;
     list_id: number;
-    owner_id?: number;
-    title?: string;
+    owner_id?: Readonly<number>;
+    title: string;
     description?: string;
     due_date?: string;
     position?: number;

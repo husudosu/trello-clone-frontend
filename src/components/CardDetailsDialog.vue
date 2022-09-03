@@ -163,8 +163,7 @@ const onTitleEdit = async () => {
 };
 
 const onDeleteClicked = () => {
-    console.log("Delete");
-    if (confirm("Are you sure about deleting card?")) {
+    if (confirm("Delete card?")) {
         if (card.value != undefined) {
             store.dispatch.card.deleteCardFromAPI(card.value);
         }

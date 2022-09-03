@@ -28,7 +28,12 @@
                     :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id"
                     filter=".draftCard">
                     <template #item="{ element }">
-                        <list-card :card="element" :boardListId="boardList?.id"></list-card>
+                        <template v-if="element.id">
+                            <list-card :card="element" :boardListId="boardList?.id"></list-card>
+                        </template>
+                        <template v-else>
+                            <draft-card :card="element" :boardListId="boardList?.id"></draft-card>
+                        </template>
                     </template>
                 </draggable>
             </ul>
@@ -38,7 +43,7 @@
                 </div>
                 <div v-else>
                     <q-btn size="sm" class="q-ml-xs q-mr-sm" color="primary" @click="onListSave">Save</q-btn>
-                    <q-btn size="sm" outline @click="onListSave">Cancel</q-btn>
+                    <q-btn size="sm" outline @click="onCacnelClicked">Cancel</q-btn>
                 </div>
             </footer>
         </div>
@@ -52,7 +57,8 @@ import draggable from 'vuedraggable';
 
 import store from "@/store";
 
-import ListCard from "@/components/Board/ListCard.vue";
+import ListCard from "@/components/Board/Card/ListCard.vue";
+import DraftCard from "@/components/Board/Card/DraftCard.vue";
 
 /* TODO: Implement events of VueDraggable, Vue3 version off draggable is not contains event types
 Vue v2 sortable.js:
@@ -92,6 +98,16 @@ const onListSave = () => {
     }
 };
 
+const onCacnelClicked = () => {
+    if (boardList.value.id) {
+        editListTitle.value = false;
+    }
+    else {
+        // Delete draft card
+        store.commit.board.removeList(boardList.value);
+    }
+};
+
 const onAddCardClick = () => {
     /* FIXME: Blank card not appears if switching board page from other site.
     The blank card is created on boardlist, but the text input not appearing.
@@ -112,7 +128,7 @@ const onAddCardClick = () => {
 };
 
 const onDeleteBoardList = () => {
-    if (confirm("Are you sure about deleting list?")) {
+    if (confirm("Delete list?")) {
         store.dispatch.board.removeBoardList(boardList.value);
     }
 };

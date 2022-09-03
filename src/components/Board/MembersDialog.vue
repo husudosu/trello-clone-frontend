@@ -69,7 +69,7 @@ const onRoleChange = async (role: BoardRole, member: BoardAllowedUser) => {
 };
 
 const onDeleteClicked = async (member: BoardAllowedUser) => {
-    if (confirm("Are you sure?")) {
+    if (confirm("Delete member?")) {
         try {
             BoardAPI.deleteBoardMember(member.board_id, member.user_id);
         }
