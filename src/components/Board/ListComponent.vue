@@ -25,22 +25,10 @@
             <ul ref="cardsWrapper">
                 <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" :list="boardList.cards"
                     group="board-cards" itemKey="id" @end="onEnd" :move="onMove" draggable=".listCard"
-                    :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id">
+                    :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id"
+                    filter=".draftCard">
                     <template #item="{ element }">
-                        <li class="listCard" @click="onCardClick(element)">
-                            <template v-if="element.id">
-                                {{ element.title }}
-                            </template>
-                            <template v-else>
-                                <q-input v-model="element.title" type="textarea" label="Card title"
-                                    @keyup.enter="onCardTitleKeyUp($event, element)" @blur="saveCard(element)" autofocus
-                                    autogrow>
-                                </q-input>
-                                <q-btn @click="saveCard(element)" style="margin-top: 10px" size="sm" color="primary">
-                                    Save
-                                </q-btn>
-                            </template>
-                        </li>
+                        <list-card :card="element" :boardListId="boardList?.id"></list-card>
                     </template>
                 </draggable>
             </ul>
@@ -58,11 +46,14 @@
 </template>
 
 <script lang="ts" setup>
-import { BoardList, Card, BoardPermission } from '@/api/types';
+import { BoardList, BoardPermission } from '@/api/types';
 import { defineProps, ref, nextTick, onMounted } from 'vue';
 import draggable from 'vuedraggable';
 
 import store from "@/store";
+
+import ListCard from "@/components/Board/ListCard.vue";
+
 /* TODO: Implement events of VueDraggable, Vue3 version off draggable is not contains event types
 Vue v2 sortable.js:
 https://github.com/SortableJS/Vue.Draggable/blob/master/src/vuedraggable.d.ts
@@ -116,32 +107,6 @@ const onAddCardClick = () => {
         store.commit.board.addCard(boardList.value.id);
         nextTick(() => {
             cardsWrapper.value.scroll(0, cardsWrapper.value.scrollHeight);
-        });
-    }
-};
-
-const saveCard = (card: Card) => {
-    if (boardList.value.id) {
-        if (card.title && card.title.length > 0) {
-            // Save card into db
-            store.dispatch.board.saveCard({ boardListId: boardList.value.id, card });
-        }
-        else {
-            // Remove draft card
-            store.commit.board.removeCard({ boardListId: boardList.value.id, card });
-        }
-    }
-};
-
-const onCardTitleKeyUp = (ev: KeyboardEvent, card: Card) => {
-    if (ev.ctrlKey) saveCard(card);
-};
-
-const onCardClick = (item: Card) => {
-    if (item.id) {
-        store.dispatch.card.loadCard(item.id).then(() => {
-            store.commit.card.setVisible(true);
-            store.dispatch.card.loadCardActivities();
         });
     }
 };
