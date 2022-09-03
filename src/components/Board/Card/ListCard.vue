@@ -2,7 +2,7 @@
     <div class="listCard" @click="onCardClick">
         <template v-if="!editMode">
             <div class="title">
-                <li style="width: 100%;">
+                <li style="width: 100%; margin-bottom: 2px;">
                     {{ card.title }}
                 </li>
                 <div class="cardEditButton">
@@ -20,8 +20,8 @@
                 @click="saveCard">
                 Save
             </q-btn>
-            <q-btn class="q-mt-sm q-mr-xs" size="sm" dnese outline @click="onCancelClicked">Cancel</q-btn>
-            <q-btn class="q-mt-sm" size="sm" flat @click="onCancelClicked" dense>
+            <q-btn class="q-mt-sm q-mr-xs" size="sm" outline @click="onCancelClicked">Cancel</q-btn>
+            <q-btn class="q-mt-sm" size="sm" flat @click="onDeleteCardClicked" dense>
                 <q-icon name="delete"></q-icon>
             </q-btn>
         </template>
@@ -68,6 +68,13 @@ const saveCard = async () => {
     const updatedCard = await CardAPI.patchCard(cardUpdate.value.id, cardUpdate.value);
     card.value = updatedCard;
     editMode.value = false;
+};
+
+const onDeleteCardClicked = async () => {
+    if (confirm("Delete card?")) {
+        console.log(card.value);
+        store.dispatch.card.deleteCardFromAPI(card.value);
+    }
 };
 
 const onCardTitleKeyUp = (ev: KeyboardEvent) => {
