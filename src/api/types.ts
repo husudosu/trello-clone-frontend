@@ -109,6 +109,7 @@ export interface CardActivity {
     comment?: CardComment;
     list_change?: CardListChange;
     user?: UserBasicInfo;
+    changes: any;
 }
 
 export interface CardComment {
@@ -152,6 +153,12 @@ export enum CardActivityEvent {
     CARD_ASSIGN_TO_LIST = 1,
     CARD_MOVE_TO_LIST = 2,
     CARD_COMMENT = 3,
+    CHECKLIST_CREATE = 4,
+    CHECKLIST_UPDATE = 5,
+    CHECKLIST_DELETE = 6,
+    CHECKLIST_ITEM_MARKED_COMPLETE = 7,
+    CHECKLIST_ITEM_DUE_DATE = 8,
+    CHECKLIST_ITEM_USER_ASSIGN = 9,
 }
 
 

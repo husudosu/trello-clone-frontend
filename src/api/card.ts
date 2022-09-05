@@ -48,6 +48,8 @@ export const CardAPI = {
                 el.comment.created = moment.utc(el.comment.created).tz(store.state.auth.user?.timezone || "UTC");
                 el.comment.updated = moment.utc(el.comment.updated).tz(store.state.auth.user?.timezone || "UTC");
             }
+            if (el.changes)
+                el.changes = JSON.parse(el.changes);
         });
         return data;
     }

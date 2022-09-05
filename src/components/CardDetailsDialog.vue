@@ -69,9 +69,9 @@
                                             <template
                                                 v-else-if="activity?.event == CardActivityEvent.CARD_MOVE_TO_LIST">Moved
                                                 from
-                                                <b>{{ activity.list_change?.from_list?.title || "N/A" }} </b> to
+                                                <b>{{ activity.changes.from.title || "N/A" }} </b> to
                                                 <b>{{
-                                                        activity.list_change?.to_list?.title || "N/A"
+                                                activity.changes.to.title || "N/A"
                                                 }}</b>
                                             </template>
                                         </q-item-label>
@@ -80,11 +80,9 @@
                                     <q-item-section side top>
                                         <q-item-label caption>
                                             {{
-                                                    activity.comment?.updated?.isValid() ?
-                                                        "Updated: " + activity.comment?.updated?.format("YYYY-MM-DD HH:mm:ss")
-                                                        : activity.activity_on.format("YYYY-MM-DD HH:mm:ss")
-                                            
-                                            
+                                            activity.comment?.updated?.isValid() ?
+                                            "Updated: " + activity.comment?.updated?.format("YYYY-MM-DD HH:mm:ss")
+                                            : activity.activity_on.format("YYYY-MM-DD HH:mm:ss")
                                             }}
                                         </q-item-label>
                                     </q-item-section>
@@ -169,8 +167,6 @@ const onDeleteClicked = () => {
         }
     }
 };
-
-
 
 </script>
 
