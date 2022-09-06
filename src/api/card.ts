@@ -52,5 +52,5 @@ export const CardAPI = {
                 el.changes = JSON.parse(el.changes);
         });
         return data;
-    }
+    },
 };

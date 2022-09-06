@@ -79,6 +79,7 @@ export interface Card {
     due_date?: string;
     position?: number;
     activities?: CardActivity[];
+    checklists?: CardChecklist[];
 }
 
 
@@ -108,7 +109,7 @@ export interface CardActivity {
     event?: number;
     comment?: CardComment;
     list_change?: CardListChange;
-    user?: UserBasicInfo;
+    user: UserBasicInfo;
     changes: any;
 }
 
@@ -146,6 +147,25 @@ export interface AddBoardMemberType {
 
 export interface RemoveBoardMemberType {
     user_id: number;
+}
+
+export interface ChecklistItem {
+    id: Readonly<number>;
+    checklist_id: Readonly<number>;
+    marked_complete_user_id?: number;
+    assigned_user_id?: number;
+
+    title: string;
+    due_date?: moment.Moment;
+    completed: boolean;
+    marked_complete_on?: moment.Moment;
+}
+
+export interface CardChecklist {
+    id: Readonly<number>;
+    card_id: Readonly<number>;
+    title?: string;
+    items: ChecklistItem[];
 }
 
 

@@ -19,7 +19,7 @@
             </q-header>
             <q-drawer side="right" v-model="rightDrawerVisible" :width="250" :breakpoint="400" class="bg-white q-pa-sm"
                 show-if-above>
-                <span class="text-h6">Card settings</span>
+                <span class="text-h5">Card settings</span>
                 <div class="q-pa-md q-gutter-md">
 
                     <q-btn align="between" class="full-width" icon="person" dense>Members</q-btn>
@@ -33,7 +33,7 @@
             </q-drawer>
             <q-page-container>
                 <q-page padding>
-                    <span class="text-h6">Description</span>
+                    <span class="text-h5">Description</span>
                     <div class="qa-pa-md q-list--bordered card-description"
                         @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardDescription = !editCardDescription : false">
                         <template v-if="!editCardDescription">
@@ -45,48 +45,15 @@
                             </q-input>
                         </template>
                     </div>
-
-                    <span class="text-h6">Activity</span>
+                    <span class="text-h5">Checklists</span>
+                    <div v-for="checklist in card.checklists" :key="checklist.id">
+                        <card-checklist :checklist="checklist"></card-checklist>
+                    </div>
+                    <span class="text-h5">Activity</span>
                     <div class="card-comments" v-if="!activitiesLoading">
                         <q-list padding bordered>
                             <div v-for="activity in card?.activities" :key="activity.id">
-                                <q-item>
-                                    <q-item-section top avatar>
-                                        <q-avatar rounded>
-                                            <img src="@/assets/avatar-placeholder.png" />
-                                        </q-avatar>
-                                    </q-item-section>
-
-                                    <q-item-section>
-                                        <q-item-label>{{ activity?.user?.name }} ({{ activity?.user?.username }})
-                                        </q-item-label>
-                                        <q-item-label caption>
-
-                                            <template v-if="activity?.event == CardActivityEvent.CARD_COMMENT">
-                                                <span style="white-space: pre-wrap;">{{ activity?.comment?.comment
-                                                }}</span>
-                                            </template>
-                                            <template
-                                                v-else-if="activity?.event == CardActivityEvent.CARD_MOVE_TO_LIST">Moved
-                                                from
-                                                <b>{{ activity.changes.from.title || "N/A" }} </b> to
-                                                <b>{{
-                                                activity.changes.to.title || "N/A"
-                                                }}</b>
-                                            </template>
-                                        </q-item-label>
-                                    </q-item-section>
-
-                                    <q-item-section side top>
-                                        <q-item-label caption>
-                                            {{
-                                            activity.comment?.updated?.isValid() ?
-                                            "Updated: " + activity.comment?.updated?.format("YYYY-MM-DD HH:mm:ss")
-                                            : activity.activity_on.format("YYYY-MM-DD HH:mm:ss")
-                                            }}
-                                        </q-item-label>
-                                    </q-item-section>
-                                </q-item>
+                                <card-activity :activity="activity"></card-activity>
                                 <q-separator spaced inset="item" />
                             </div>
                             <div class="q-pa-md" style="width:100%;">
@@ -109,8 +76,10 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import store from "@/store";
-import { Card, CardActivityEvent, BoardPermission } from "@/api/types";
+import { Card, BoardPermission } from "@/api/types";
 import { CardAPI } from '@/api/card';
+import CardActivity from './Board/Card/CardActivity.vue';
+import CardChecklist from './Board/Card/CardChecklist.vue';
 
 const hasPermission = store.getters.board.hasPermission;
 
