@@ -159,7 +159,10 @@ export interface ChecklistItem {
     due_date?: moment.Moment;
     completed: boolean;
     marked_complete_on?: moment.Moment;
+    position?: number;
 }
+
+export type DraftChecklistItem = Optional<ChecklistItem, "id" | "checklist_id" | "completed">;
 
 export interface CardChecklist {
     id: Readonly<number>;

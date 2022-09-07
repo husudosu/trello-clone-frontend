@@ -1,7 +1,7 @@
 import moment from "moment-timezone";
 
 import { API } from ".";
-import { CardChecklist, ChecklistItem } from "./types";
+import { CardChecklist, ChecklistItem, DraftChecklistItem } from "./types";
 
 export const ChecklistAPI = {
     postCardChecklist: async (cardId: number, checklist: CardChecklist): Promise<CardChecklist> => {
@@ -16,7 +16,7 @@ export const ChecklistAPI = {
         await API.delete(`/checklist/${checklistId}`);
         return {};
     },
-    postChecklistItem: async (checklistId: number, item: ChecklistItem): Promise<ChecklistItem> => {
+    postChecklistItem: async (checklistId: number, item: DraftChecklistItem): Promise<ChecklistItem> => {
         const { data } = await API.post<ChecklistItem>(`/checklist/${checklistId}/item`, item);
         return data;
     },

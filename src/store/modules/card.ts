@@ -1,8 +1,9 @@
 import { ActionContext } from "vuex";
 import { State } from "../index";
 
-import { Card, CardActivity } from "@/api/types";
+import { Card, CardActivity, CardChecklist, ChecklistItem } from "@/api/types";
 import { CardAPI } from "@/api/card";
+import { ChecklistAPI } from "@/api/checklist";
 
 export interface CardState {
     visible: boolean;
@@ -42,6 +43,17 @@ export default {
         },
         addComment(state: CardState, activity: CardActivity) {
             state.card?.activities?.unshift(activity);
+        },
+        addChecklist(state: CardState, checklist: CardChecklist) {
+            state.card?.checklists?.push(checklist);
+        },
+        removeChecklist(state: CardState, checklist: CardChecklist) {
+            if (state.card?.checklists) {
+                const index = state.card.checklists?.findIndex((el) => el.id == checklist.id);
+                if (index > -1) {
+                    state.card.checklists.splice(index, 1);
+                }
+            }
         }
     },
     actions: {
@@ -87,6 +99,16 @@ export default {
                 await CardAPI.deleteCard(card.id);
                 context.commit("board/removeCard", { boardListId: card.list_id, card }, { root: true });
             }
+        },
+        async addCardChecklist(context: Context, checklist: CardChecklist) {
+            if (context.state.card?.id) {
+                const data = await ChecklistAPI.postCardChecklist(context.state.card.id, checklist);
+                context.commit("addChecklist", data);
+            }
+        },
+        async deleteCardChecklist(context: Context, checklist: CardChecklist) {
+            await ChecklistAPI.deleteCardchecklist(checklist.id);
+            context.commit("removeChecklist", checklist);
         }
     }
 };
