@@ -4,7 +4,7 @@ import { API } from ".";
 import { CardChecklist, ChecklistItem, DraftChecklistItem } from "./types";
 
 export const ChecklistAPI = {
-    postCardChecklist: async (cardId: number, checklist: CardChecklist): Promise<CardChecklist> => {
+    postCardChecklist: async (cardId: number, checklist: Partial<CardChecklist>): Promise<CardChecklist> => {
         const { data } = await API.post<CardChecklist>(`/card/${cardId}/checklist`, checklist);
         return data;
     },

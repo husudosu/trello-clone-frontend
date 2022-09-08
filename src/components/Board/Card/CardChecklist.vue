@@ -1,23 +1,26 @@
 <template>
     <div>
         <span class="text-h6">
-            {{ checklist.title }}
-            <q-btn flat size="sm" dense class="q-ml-sm" @click="onChecklistDelete">
+            {{ checklist.title || "Untitled"}}
+            <q-btn v-if="hasPermission(BoardPermission.CHECKLIST_EDIT)" flat size="sm" dense class="q-ml-sm"
+                @click="onChecklistDelete">
                 <q-icon name="delete"></q-icon>
             </q-btn>
         </span>
         <div v-for="item in checklist.items" :key="item.id">
             <q-checkbox size="sm" v-model="item.completed" @update:model-value="onChecklistValueChanged(item)"
-                :label="item.title">
+                :label="item.title" :disable="!hasPermission(BoardPermission.CHECKLIST_ITEM_MARK)">
             </q-checkbox>
-            <q-btn flat size="sm" dense class="q-ml-sm" @click="onItemDelete(item)">
+            <q-btn v-if="hasPermission(BoardPermission.CHECKLIST_EDIT)" flat size="sm" dense class="q-ml-sm"
+                @click="onItemDelete(item)">
                 <q-icon name="delete"></q-icon>
             </q-btn>
         </div>
-        <q-input v-if="addNewItem" v-model="newItemTitle" type="textarea" autofocus autogrow
-            placeholder="New item title" class="q-pa-sm"></q-input>
+        <q-input :disable="!hasPermission(BoardPermission.CHECKLIST_EDIT)" v-if="addNewItem" v-model="newItemTitle"
+            type="textarea" autofocus autogrow placeholder="New item title" class="q-pa-sm"></q-input>
         <div v-if="addNewItem == false" class="q-mb-sm">
-            <q-btn size="sm" @click="addNewItem = true" class="q-ma-sm">Add item</q-btn>
+            <q-btn v-if="hasPermission(BoardPermission.CHECKLIST_EDIT)" size="sm" @click="addNewItem = true"
+                class="q-ma-sm">Add item</q-btn>
         </div>
         <div v-else class="q-mb-sm">
             <q-btn size="sm" color="primary" @click="onNewItemAdd" class="q-ma-sm">Add</q-btn>
@@ -27,8 +30,9 @@
 </template>
 <script lang="ts" setup>
 import { defineProps, ref } from 'vue';
-import { CardChecklist, ChecklistItem } from "@/api/types";
+import { CardChecklist, ChecklistItem, BoardPermission } from "@/api/types";
 import store from "@/store";
+const hasPermission = store.getters.board.hasPermission;
 
 interface Props {
     checklist: CardChecklist;

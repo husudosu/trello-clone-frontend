@@ -21,10 +21,14 @@
                 show-if-above>
                 <span class="text-h5">Card settings</span>
                 <div class="q-pa-md q-gutter-md">
-
                     <q-btn align="between" class="full-width" icon="person" dense>Members</q-btn>
                     <q-btn align="between" class="full-width" icon="label" dense>Labels</q-btn>
-                    <q-btn align="between" class="full-width" icon="checklist" dense>Checklist</q-btn>
+                    <q-btn align="between" class="full-width" icon="checklist" dense
+                        :disable="!hasPermission(BoardPermission.CHECKLIST_CREATE)"
+                        @click="showNewChecklist = !showNewChecklist">
+                        Checklist
+                        <add-card-checklist :show="showNewChecklist"></add-card-checklist>
+                    </q-btn>
                     <q-btn align="between" class="full-width" icon="schedule" dense>Due date</q-btn>
                     <q-btn align="between" class="full-width" icon="delete" dense @click="onDeleteClicked"
                         :disable="!hasPermission(BoardPermission.CARD_EDIT)">Delete
@@ -82,6 +86,7 @@ import { Card, BoardPermission } from "@/api/types";
 import { CardAPI } from '@/api/card';
 import CardActivity from './Board/Card/CardActivity.vue';
 import CardChecklist from './Board/Card/CardChecklist.vue';
+import AddCardChecklist from './Board/Card/AddCardChecklist.vue';
 
 const hasPermission = store.getters.board.hasPermission;
 
@@ -108,7 +113,7 @@ const newComment = ref("");
 const editCardDescription = ref(false);
 const editCardTitle = ref(false);
 
-
+const showNewChecklist = ref(false);
 const onNewComment = async (e: KeyboardEvent) => {
     if (e.ctrlKey) {
         if (newComment.value !== undefined)

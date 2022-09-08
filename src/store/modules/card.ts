@@ -127,7 +127,7 @@ export default {
                 context.commit("board/removeCard", { boardListId: card.list_id, card }, { root: true });
             }
         },
-        async addCardChecklist(context: Context, checklist: CardChecklist) {
+        async addCardChecklist(context: Context, checklist: Partial<CardChecklist>) {
             if (context.state.card?.id) {
                 const data = await ChecklistAPI.postCardChecklist(context.state.card.id, checklist);
                 context.commit("addChecklist", data);
