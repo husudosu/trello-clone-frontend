@@ -3,7 +3,7 @@
 $appbar-height: 50px;
 $navbar-height: 50px;
 $lists-margin-top: 20px;
-$list-width: 300px;
+$list-width: 272px;
 $list-gap: 15px;
 $gap: 10px;
 $scrollbar-thickness: 17px;
@@ -32,7 +32,8 @@ body {
   grid-template-rows: $appbar-height $navbar-height 1fr;
   //grid-template-columns: 100%;
 
-  background-color: $board-bg-color;
+  // background-color: $board-bg-color;
+  background: url("@/assets/test_bg.png");
   color: #eee;
 }
 
