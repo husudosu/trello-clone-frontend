@@ -28,7 +28,6 @@
 <script lang="ts" setup>
 import { defineProps, ref } from 'vue';
 import { CardChecklist, ChecklistItem } from "@/api/types";
-import { ChecklistAPI } from "@/api/checklist";
 import store from "@/store";
 
 interface Props {
@@ -41,30 +40,25 @@ const checklist = ref(props.checklist);
 const addNewItem = ref(false);
 const newItemTitle = ref("");
 
-const onChecklistValueChanged = async (item: ChecklistItem) => {
-    await ChecklistAPI.markChecklistItem(item.id, item.completed);
+const onChecklistValueChanged = (item: ChecklistItem) => {
+    store.dispatch.card.markChecklistItem(item);
 };
 
-const onChecklistDelete = async () => {
+const onChecklistDelete = () => {
     if (confirm("Delete checklist?")) {
         store.dispatch.card.deleteCardChecklist(checklist.value);
     }
 };
 
-const onNewItemAdd = async () => {
-    // TODO: Add this code to store.
-    const item = await ChecklistAPI.postChecklistItem(checklist.value.id, { title: newItemTitle.value, completed: false });
-    checklist.value.items.push(item);
-    addNewItem.value = false;
-    newItemTitle.value = "";
+const onNewItemAdd = () => {
+    store.dispatch.card.addChecklistItem({ checklistId: checklist.value.id, item: { title: newItemTitle.value, completed: false } })
+        .then(() => {
+            addNewItem.value = false;
+            newItemTitle.value = "";
+        });
 };
 
-const onItemDelete = async (item: ChecklistItem) => {
-    // TODO: Add this code to store.
-    await ChecklistAPI.deleteChecklistItem(item.id);
-    const index = checklist.value.items.findIndex((el) => el.id == item.id);
-    if (index > -1) {
-        checklist.value.items.splice(index, 1);
-    }
+const onItemDelete = (item: ChecklistItem) => {
+    store.dispatch.card.deleteChecklistItem(item);
 };
 </script>

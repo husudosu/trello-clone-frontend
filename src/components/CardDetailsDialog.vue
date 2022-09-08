@@ -45,10 +45,12 @@
                             </q-input>
                         </template>
                     </div>
-                    <span class="text-h5">Checklists</span>
-                    <div v-for="checklist in card.checklists" :key="checklist.id">
-                        <card-checklist :checklist="checklist"></card-checklist>
-                    </div>
+                    <template v-if="card.checklists.length > 0">
+                        <span class="text-h5">Checklists</span>
+                        <div v-for="checklist in card.checklists" :key="checklist.id">
+                            <card-checklist :checklist="checklist"></card-checklist>
+                        </div>
+                    </template>
                     <span class="text-h5">Activity</span>
                     <div class="card-comments" v-if="!activitiesLoading">
                         <q-list padding bordered>

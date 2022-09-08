@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex";
 import { State } from "../index";
 
-import { Card, CardActivity, CardChecklist, ChecklistItem } from "@/api/types";
+import { Card, CardActivity, CardChecklist, ChecklistItem, DraftChecklistItem } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
 
@@ -52,6 +52,33 @@ export default {
                 const index = state.card.checklists?.findIndex((el) => el.id == checklist.id);
                 if (index > -1) {
                     state.card.checklists.splice(index, 1);
+                }
+            }
+        },
+        addChecklistItem(state: CardState, item: ChecklistItem) {
+            if (state.card?.checklists) {
+                const index = state.card.checklists.findIndex((el) => el.id == item.checklist_id);
+                if (index > -1) {
+                    state.card.checklists[index].items.push(item);
+                }
+            }
+        },
+        removeChecklistItem(state: CardState, item: ChecklistItem) {
+            if (state.card?.checklists) {
+                const index = state.card.checklists.findIndex((el) => el.id == item.checklist_id);
+                if (index > -1) {
+                    state.card.checklists[index].items.splice(state.card.checklists[index].items.indexOf(item), 1);
+                }
+            }
+        },
+        updateChecklistItem(state: CardState, item: ChecklistItem) {
+            if (state.card?.checklists) {
+                const index = state.card.checklists.findIndex((el) => el.id == item.checklist_id);
+                if (index > -1) {
+                    const itemIndex = state.card.checklists[index].items.findIndex((el) => el.id == item.id);
+                    if (itemIndex > -1) {
+                        state.card.checklists[index].items[itemIndex] = item;
+                    }
                 }
             }
         }
@@ -109,6 +136,18 @@ export default {
         async deleteCardChecklist(context: Context, checklist: CardChecklist) {
             await ChecklistAPI.deleteCardchecklist(checklist.id);
             context.commit("removeChecklist", checklist);
+        },
+        async addChecklistItem(context: Context, payload: { checklistId: number; item: DraftChecklistItem; }) {
+            const data = await ChecklistAPI.postChecklistItem(payload.checklistId, payload.item);
+            context.commit("addChecklistItem", data);
+        },
+        async deleteChecklistItem(context: Context, item: ChecklistItem) {
+            await ChecklistAPI.deleteChecklistItem(item.id);
+            context.commit("removeChecklistItem", item);
+        },
+        async markChecklistItem(context: Context, item: ChecklistItem) {
+            await ChecklistAPI.markChecklistItem(item.id, item.completed);
+            context.commit("updateChecklistItem", item);
         }
     }
 };
