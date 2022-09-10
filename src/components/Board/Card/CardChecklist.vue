@@ -1,12 +1,18 @@
 <template>
     <div>
-        <span class="text-h6">
-            {{ checklist.title || "Untitled"}}
-            <q-btn v-if="hasPermission(BoardPermission.CHECKLIST_EDIT)" flat size="sm" dense class="q-ml-sm"
-                @click="onChecklistDelete">
-                <q-icon name="delete"></q-icon>
-            </q-btn>
-        </span>
+        <template v-if="!editTitle">
+            <span class="text-h6" @dblclick="editTitle = true">
+                {{ props.checklist.title || "Untitled"}}
+                <q-btn v-if="hasPermission(BoardPermission.CHECKLIST_EDIT)" flat size="sm" dense class="q-ml-sm"
+                    @click="onChecklistDelete">
+                    <q-icon name="delete"></q-icon>
+                </q-btn>
+            </span>
+        </template>
+        <template v-else>
+            <q-input v-model="newTitle" dense @blur="editTitle = false; newTitle = checklist.title" autofocus
+                @keyup.enter="onTitleKeyUp"></q-input>
+        </template>
         <q-list dense>
             <draggable :list="checklist.items" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
                 :delay="500" group="checklist-items" @end="onItemMoveEnd">
@@ -50,6 +56,9 @@ const checklist = ref(props.checklist);
 const addNewItem = ref(false);
 const newItemTitle = ref("");
 
+const editTitle = ref(false);
+const newTitle = ref(checklist.value.title);
+
 const onChecklistDelete = () => {
     if (confirm("Delete checklist?")) {
         store.dispatch.card.deleteCardChecklist(checklist.value);
@@ -65,6 +74,7 @@ const onNewItemAdd = () => {
 };
 
 const onItemTitleKeyup = (event: KeyboardEvent) => {
+    console.log("NANI!?");
     if (event.ctrlKey) onNewItemAdd();
 };
 
@@ -73,4 +83,14 @@ const onItemMoveEnd = () => {
     ChecklistAPI.updateItemsOrder(checklist.value);
 };
 
+const updateTitle = () => {
+    editTitle.value = false;
+    store.dispatch.card.updateCardChecklist({ ...checklist.value, title: newTitle.value });
+};
+
+const onTitleKeyUp = (ev: KeyboardEvent) => {
+    if (ev.ctrlKey) {
+        updateTitle();
+    }
+};
 </script>

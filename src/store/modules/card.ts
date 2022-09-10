@@ -82,6 +82,15 @@ export default {
                 }
             }
         },
+        updateChecklist(state: CardState, list: CardChecklist) {
+            if (state.card?.checklists) {
+                const index = state.card.checklists.findIndex((el) => el.id == list.id);
+                if (index > -1) {
+                    console.log("Update");
+                    state.card.checklists[index] = list;
+                }
+            }
+        },
     },
     actions: {
         async loadCard(context: Context, cardId: number) {
@@ -133,6 +142,10 @@ export default {
                 context.commit("addChecklist", data);
             }
         },
+        async updateCardChecklist(context: Context, checklist: CardChecklist) {
+            const data = await ChecklistAPI.patchCardChecklist(checklist.id, checklist);
+            context.commit("updateChecklist", data);
+        },
         async deleteCardChecklist(context: Context, checklist: CardChecklist) {
             await ChecklistAPI.deleteCardchecklist(checklist.id);
             context.commit("removeChecklist", checklist);
@@ -150,6 +163,6 @@ export default {
             context.commit("updateChecklistItem", item);
             // FIXME: Reload card activities, probably not the best solution!
             await context.dispatch("loadCardActivities");
-        }
+        },
     }
 };
