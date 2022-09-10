@@ -7,17 +7,24 @@
                 <q-icon name="delete"></q-icon>
             </q-btn>
         </span>
-        <div v-for="item in checklist.items" :key="item.id">
-            <q-checkbox size="sm" v-model="item.completed" @update:model-value="onChecklistValueChanged(item)"
-                :label="item.title" :disable="!hasPermission(BoardPermission.CHECKLIST_ITEM_MARK)">
-            </q-checkbox>
-            <q-btn v-if="hasPermission(BoardPermission.CHECKLIST_EDIT)" flat size="sm" dense class="q-ml-sm"
-                @click="onItemDelete(item)">
-                <q-icon name="delete"></q-icon>
-            </q-btn>
-        </div>
+        <draggable :list="checklist.items" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="500"
+            group="checklist-items" @end="onItemMoveEnd">
+            <template #item="{ element }">
+                <div class="checklistItem">
+                    <q-checkbox size="sm" v-model="element.completed"
+                        @update:model-value="onChecklistValueChanged(element)" :label="element.title"
+                        :disable="!hasPermission(BoardPermission.CHECKLIST_ITEM_MARK)">
+                    </q-checkbox>
+                    <q-btn v-if="hasPermission(BoardPermission.CHECKLIST_EDIT)" flat size="sm" dense class="q-ml-sm"
+                        @click="onItemDelete(element)">
+                        <q-icon name="delete"></q-icon>
+                    </q-btn>
+                </div>
+            </template>
+        </draggable>
         <q-input :disable="!hasPermission(BoardPermission.CHECKLIST_EDIT)" v-if="addNewItem" v-model="newItemTitle"
-            type="textarea" autofocus autogrow placeholder="New item title" class="q-pa-sm"></q-input>
+            type="textarea" autofocus autogrow placeholder="New item title" class="q-pa-sm"
+            @keyup.enter="onItemTitleKeyup"></q-input>
         <div v-if="addNewItem == false" class="q-mb-sm">
             <q-btn v-if="hasPermission(BoardPermission.CHECKLIST_EDIT)" size="sm" @click="addNewItem = true"
                 class="q-ma-sm">Add item</q-btn>
@@ -31,7 +38,12 @@
 <script lang="ts" setup>
 import { defineProps, ref } from 'vue';
 import { CardChecklist, ChecklistItem, BoardPermission } from "@/api/types";
+
+import draggable from 'vuedraggable';
+
 import store from "@/store";
+import { ChecklistAPI } from '@/api/checklist';
+
 const hasPermission = store.getters.board.hasPermission;
 
 interface Props {
@@ -60,6 +72,15 @@ const onNewItemAdd = () => {
             addNewItem.value = false;
             newItemTitle.value = "";
         });
+};
+
+const onItemTitleKeyup = (event: KeyboardEvent) => {
+    if (event.ctrlKey) onNewItemAdd();
+};
+
+
+const onItemMoveEnd = () => {
+    ChecklistAPI.updateItemsOrder(checklist.value);
 };
 
 const onItemDelete = (item: ChecklistItem) => {

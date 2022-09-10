@@ -1,8 +1,16 @@
 .card-description {
-    min-height: 100px;
-    white-space: pre-wrap;
+  min-height: 100px;
+  white-space: pre-wrap;
 }
 
 .card-description textarea {
-    margin: 10px;
+  margin: 10px;
+}
+
+.checklistItem {
+  display: flex;
+  flex-direction: row;
+}
+.checklistItem:hover {
+  background-color: #dddde0;
 }

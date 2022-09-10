@@ -30,5 +30,9 @@ export const ChecklistAPI = {
     markChecklistItem: async (itemId: number, completed: boolean) => {
         const { data } = await API.patch<ChecklistItem>(`/checklist/item/${itemId}`, { completed });
         return data;
+    },
+    updateItemsOrder: async (checklist: CardChecklist) => {
+        const orderData = checklist.items.map((el) => el.id);
+        await API.patch(`/checklist/${checklist.id}/items-order`, orderData);
     }
 };

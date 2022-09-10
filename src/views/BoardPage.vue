@@ -69,7 +69,7 @@ let cardMoving = false;
 /*
     Dragabble object events for board lists
 */
-const onBoardListSortableMoveEnd = async () => {
+const onBoardListSortableMoveEnd = () => {
     if (board.value != null) {
         BoardAPI.updateBoardListsOrder(board.value);
     }
@@ -80,7 +80,6 @@ const onBoardListSortableMoveEnd = async () => {
     FIXME: Structrue wise not so ideal to store these methods here.
 */
 const onCardSortableMoveEnd = async (ev: any) => {
-    console.log("Card move end");
     if (cardMoving) {
         const boardFromId: number = parseInt(ev.from.id.split("boardlistCards-")[1]);
         const boardToId: number = parseInt(ev.to.id.split("boardlistCards-")[1]);
