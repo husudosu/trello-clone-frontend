@@ -24,6 +24,10 @@
                 <template v-else-if="activity.event == CardActivityEvent.CHECKLIST_CREATE">
                     Checklist created: <b>{{ activity.changes.to.title || "N/A"}}</b>
                 </template>
+                <template v-else-if="activity.event == CardActivityEvent.CHECKLIST_ITEM_MARKED">
+                    <b>{{ activity.changes.to.title}}</b> marked as <b>{{ activity.changes.to.completed ? `completed` :
+                    `not complete`}}</b>
+                </template>
             </q-item-label>
         </q-item-section>
         <q-item-section side top>

@@ -149,6 +149,7 @@ export interface RemoveBoardMemberType {
     user_id: number;
 }
 
+
 export interface ChecklistItem {
     id: Readonly<number>;
     checklist_id: Readonly<number>;
@@ -161,6 +162,7 @@ export interface ChecklistItem {
     marked_complete_on?: moment.Moment;
     position?: number;
 }
+
 
 export type DraftChecklistItem = Optional<ChecklistItem, "id" | "checklist_id" | "completed">;
 
@@ -179,7 +181,7 @@ export enum CardActivityEvent {
     CHECKLIST_CREATE = 4,
     CHECKLIST_UPDATE = 5,
     CHECKLIST_DELETE = 6,
-    CHECKLIST_ITEM_MARKED_COMPLETE = 7,
+    CHECKLIST_ITEM_MARKED = 7,
     CHECKLIST_ITEM_DUE_DATE = 8,
     CHECKLIST_ITEM_USER_ASSIGN = 9,
 }

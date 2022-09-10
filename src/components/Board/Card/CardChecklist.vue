@@ -7,21 +7,14 @@
                 <q-icon name="delete"></q-icon>
             </q-btn>
         </span>
-        <draggable :list="checklist.items" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="500"
-            group="checklist-items" @end="onItemMoveEnd">
-            <template #item="{ element }">
-                <div class="checklistItem">
-                    <q-checkbox size="sm" v-model="element.completed"
-                        @update:model-value="onChecklistValueChanged(element)" :label="element.title"
-                        :disable="!hasPermission(BoardPermission.CHECKLIST_ITEM_MARK)">
-                    </q-checkbox>
-                    <q-btn v-if="hasPermission(BoardPermission.CHECKLIST_EDIT)" flat size="sm" dense class="q-ml-sm"
-                        @click="onItemDelete(element)">
-                        <q-icon name="delete"></q-icon>
-                    </q-btn>
-                </div>
-            </template>
-        </draggable>
+        <q-list dense>
+            <draggable :list="checklist.items" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
+                :delay="500" group="checklist-items" @end="onItemMoveEnd">
+                <template #item="{ element }">
+                    <checklist-item :item="element"></checklist-item>
+                </template>
+            </draggable>
+        </q-list>
         <q-input :disable="!hasPermission(BoardPermission.CHECKLIST_EDIT)" v-if="addNewItem" v-model="newItemTitle"
             type="textarea" autofocus autogrow placeholder="New item title" class="q-pa-sm"
             @keyup.enter="onItemTitleKeyup"></q-input>
@@ -37,12 +30,13 @@
 </template>
 <script lang="ts" setup>
 import { defineProps, ref } from 'vue';
-import { CardChecklist, ChecklistItem, BoardPermission } from "@/api/types";
+import { CardChecklist, BoardPermission } from "@/api/types";
 
 import draggable from 'vuedraggable';
 
 import store from "@/store";
 import { ChecklistAPI } from '@/api/checklist';
+import ChecklistItem from './ChecklistItem.vue';
 
 const hasPermission = store.getters.board.hasPermission;
 
@@ -55,10 +49,6 @@ const checklist = ref(props.checklist);
 
 const addNewItem = ref(false);
 const newItemTitle = ref("");
-
-const onChecklistValueChanged = (item: ChecklistItem) => {
-    store.dispatch.card.markChecklistItem(item);
-};
 
 const onChecklistDelete = () => {
     if (confirm("Delete checklist?")) {
@@ -83,7 +73,4 @@ const onItemMoveEnd = () => {
     ChecklistAPI.updateItemsOrder(checklist.value);
 };
 
-const onItemDelete = (item: ChecklistItem) => {
-    store.dispatch.card.deleteChecklistItem(item);
-};
 </script>

@@ -81,7 +81,7 @@ export default {
                     }
                 }
             }
-        }
+        },
     },
     actions: {
         async loadCard(context: Context, cardId: number) {
@@ -146,8 +146,10 @@ export default {
             context.commit("removeChecklistItem", item);
         },
         async markChecklistItem(context: Context, item: ChecklistItem) {
-            await ChecklistAPI.markChecklistItem(item.id, item.completed);
+            const data = await ChecklistAPI.markChecklistItem(item.id, item.completed);
             context.commit("updateChecklistItem", item);
+            // FIXME: Reload card activities, probably not the best solution!
+            await context.dispatch("loadCardActivities");
         }
     }
 };
