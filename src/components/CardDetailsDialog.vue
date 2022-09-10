@@ -55,7 +55,11 @@
                             <card-checklist :checklist="checklist"></card-checklist>
                         </div>
                     </template>
-                    <span class="text-h5">Activity</span>
+                    <div class="row justify-between">
+                        <span class="text-h5 on-left">Activity
+                        </span>
+                        <q-btn class="q-ml-sm q-mb-sm on-right" size="sm">Show details</q-btn>
+                    </div>
                     <div class="card-comments" v-if="!activitiesLoading">
                         <q-list padding bordered>
                             <div v-for="activity in card?.activities" :key="activity.id">

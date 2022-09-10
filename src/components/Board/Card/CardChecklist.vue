@@ -1,13 +1,16 @@
 <template>
     <div>
         <template v-if="!editTitle">
-            <span class="text-h6" @dblclick="editTitle = true">
-                {{ props.checklist.title || "Untitled"}}
+            <div class="row justify-between">
+                <span class="text-h6" @dblclick="editTitle = true">
+                    {{ props.checklist.title || "Untitled"}}
+
+                </span>
                 <q-btn v-if="hasPermission(BoardPermission.CHECKLIST_EDIT)" flat size="sm" dense class="q-ml-sm"
                     @click="onChecklistDelete">
                     <q-icon name="delete"></q-icon>
                 </q-btn>
-            </span>
+            </div>
         </template>
         <template v-else>
             <q-input v-model="newTitle" dense @blur="editTitle = false; newTitle = checklist.title" autofocus

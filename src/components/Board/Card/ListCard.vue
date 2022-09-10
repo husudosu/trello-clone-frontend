@@ -6,7 +6,7 @@
                     {{ card.title }}
                 </li>
                 <div class="cardEditButton">
-                    <q-btn size="xs" flat dense @click="onEditClick">
+                    <q-btn size="xs" dense color="blue-grey-6" @click="onEditClick">
                         <q-icon name="edit"></q-icon>
                     </q-btn>
                 </div>
