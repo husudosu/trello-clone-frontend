@@ -1,12 +1,17 @@
 <template>
     <q-item tag="label" dense style="padding-left: 0px;">
+        <q-tooltip v-if="props.item.marked_complete_user">
+            Done by <b>{{ props.item.marked_complete_user.name }}</b> on <b>{{ props.item.marked_complete_on ?
+            props.item.marked_complete_on.format("YYYY-MM-DD HH:mm:ss") : "N/A"}}</b>
+        </q-tooltip>
         <q-item-section avatar top>
             <q-checkbox v-model="item.completed" size="sm" @update:model-value="onChecklistValueChanged()"
                 :disable="!hasPermission(BoardPermission.CHECKLIST_ITEM_MARK)" />
         </q-item-section>
         <q-item-section>
-            <q-item-label :class="{checklistItemLabel: true, checklistItemDone: item.completed }">{{
-            item.title }}</q-item-label>
+            <q-item-label :class="{checklistItemLabel: true, checklistItemDone: props.item.completed }">
+                {{ props.item.title }}
+            </q-item-label>
         </q-item-section>
         <q-item-section side>
             <div class="row">

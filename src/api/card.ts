@@ -11,6 +11,15 @@ export interface MoveCardParams {
 export const CardAPI = {
     getCard: async (cardId: number): Promise<Card> => {
         const { data } = await API.get<Card>(`/card/${cardId}`);
+
+        // FIXME: Do not process checklist item dates here.
+        data.checklists?.forEach((checklist) => {
+            checklist.items.forEach((item) => {
+                if (item.marked_complete_on) {
+                    item.marked_complete_on = moment.utc(item.marked_complete_on).tz(store.state.auth.user?.timezone || "UTC");
+                }
+            });
+        });
         return data;
     },
     postCard: async (boardListId: number, card: DraftCard) => {

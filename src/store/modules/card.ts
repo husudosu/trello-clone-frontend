@@ -160,7 +160,7 @@ export default {
         },
         async markChecklistItem(context: Context, item: ChecklistItem) {
             const data = await ChecklistAPI.markChecklistItem(item.id, item.completed);
-            context.commit("updateChecklistItem", item);
+            context.commit("updateChecklistItem", data);
             // FIXME: Reload card activities, probably not the best solution!
             await context.dispatch("loadCardActivities");
         },

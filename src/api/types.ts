@@ -160,6 +160,7 @@ export interface ChecklistItem {
     due_date?: moment.Moment;
     completed: boolean;
     marked_complete_on?: moment.Moment;
+    marked_complete_user?: UserBasicInfo;
     position?: number;
 }
 
