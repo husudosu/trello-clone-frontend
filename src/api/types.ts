@@ -71,15 +71,15 @@ export interface DraftCard {
 }
 
 export interface Card {
-    id?: Readonly<number>;
+    id: Readonly<number>;
     list_id: number;
-    owner_id?: Readonly<number>;
+    owner_id: Readonly<number>;
     title: string;
     description?: string;
     due_date?: string;
     position?: number;
-    activities?: CardActivity[];
-    checklists?: CardChecklist[];
+    activities: CardActivity[];
+    checklists: CardChecklist[];
 }
 
 

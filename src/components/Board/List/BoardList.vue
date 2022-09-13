@@ -28,14 +28,13 @@
                     :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id"
                     filter=".draftCard">
                     <template #item="{ element }">
-                        <template v-if="element.id">
-                            <list-card :card="element" :boardListId="boardList?.id"></list-card>
-                        </template>
-                        <template v-else>
-                            <draft-card :card="element" :boardListId="boardList?.id"></draft-card>
-                        </template>
+                        <list-card :card="element" :boardListId="boardList?.id"></list-card>
                     </template>
                 </draggable>
+                <template v-if="showAddCard">
+                    <draft-card :boardListId="boardList.id" :onCancel="() =>{showAddCard = false}"
+                        :onSaveSuccess="() => {showAddCard = false}"></draft-card>
+                </template>
             </ul>
             <footer @click="onAddCardClick">
                 <div v-if="boardList.id" class="boardListAddCard">
@@ -84,6 +83,7 @@ const editListTitle = ref(false);
 const showMenu = ref(false);
 
 const boardList = ref(props.boardList);
+const showAddCard = ref(false);
 
 const onListSave = () => {
     if (boardList.value.title && boardList.value.title.length > 0) {
@@ -97,6 +97,7 @@ const onListSave = () => {
         store.commit.board.removeList(boardList.value);
     }
 };
+
 
 const onCacnelClicked = () => {
     if (boardList.value.id) {
@@ -116,11 +117,11 @@ const onAddCardClick = () => {
     Update:
         - Now navigating works, the solution was to implement an unload method which runs everytime when route changes
         - Now the issue appears only when hot-reloading if you change BoardPage.
+        - Probably fixed but leave this message for a while.
     */
 
     if (hasPermission(BoardPermission.CARD_EDIT) && boardList.value.id) {
-        console.log("Add new blank card");
-        store.commit.board.addCard(boardList.value.id);
+        showAddCard.value = true;
         nextTick(() => {
             cardsWrapper.value.scroll(0, cardsWrapper.value.scrollHeight);
         });

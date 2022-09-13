@@ -133,7 +133,7 @@ export default {
             context.commit("setVisible", false);
             if (card.id) {
                 await CardAPI.deleteCard(card.id);
-                context.commit("board/removeCard", { boardListId: card.list_id, card }, { root: true });
+                context.commit("board/removeCard", card, { root: true });
             }
         },
         async addCardChecklist(context: Context, checklist: Partial<CardChecklist>) {

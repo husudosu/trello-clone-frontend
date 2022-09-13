@@ -104,56 +104,35 @@ export default {
                 }
             }
         },
-        addCard(state: BoardState, listId: number) {
-            // Adds a placeholder card to list.
-
-            // Find list first
-            if (state.board != null) {
-                const index = state.board.lists.findIndex((el) => el.id == listId);
-
-                if (index > -1) {
-                    state.board.lists[index].cards?.push({
-                        title: "",
-                        list_id: listId,
-                    });
-                }
-            }
-        },
-        saveNewCard(state: BoardState, payload: { boardListId: number; card: Card; }) {
+        saveNewCard(state: BoardState, card: Card) {
             if (state.board !== null) {
                 // Find list
-                const index = state.board.lists.findIndex((el) => el.id == payload.boardListId);
+                const index = state.board.lists.findIndex((el) => el.id == card.list_id);
                 if (index > -1) {
-                    if (state.board.lists[index]) {
-                        // Overwrite last item of board list card entry
-                        state.board.lists[index].cards[state.board.lists[index].cards.length - 1] = payload.card;
-                    }
+                    // Add new card to list.
+                    state.board.lists[index].cards.push(card);
                 }
             }
         },
-        removeCard(state: BoardState, payload: { boardListId: number; card: Card; }) {
+        removeCard(state: BoardState, card: Card) {
             if (state.board !== null) {
-                const listIndex = state.board.lists.findIndex((el) => el.id == payload.boardListId);
-                if (payload.card.id) {
-                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == payload.card.id);
+                const listIndex = state.board.lists.findIndex((el) => el.id == card.list_id);
+                if (listIndex > -1) {
+                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == card.id);
                     if (cardIndex > -1) {
                         state.board.lists[listIndex].cards.splice(cardIndex, 1);
                     }
                 }
-                else {
-                    // If card id is undefined, remove draft item aka. last  item of list
-                    state.board.lists[listIndex].cards.splice(state.board.lists[listIndex].cards.length - 1, 1);
-                }
             }
         },
-        updateCard(state: BoardState, payload: { boardListId: number; card: Card; }) {
+        updateCard(state: BoardState, card: Card) {
             if (state.board !== null) {
-                const listIndex = state.board.lists.findIndex((el) => el.id == payload.boardListId);
+                const listIndex = state.board.lists.findIndex((el) => el.id == card.list_id);
                 if (listIndex > -1) {
                     // Find card  and update it
-                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == payload.card.id);
+                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == card.id);
                     if (cardIndex > -1) {
-                        state.board.lists[listIndex].cards[cardIndex] = payload.card;
+                        state.board.lists[listIndex].cards[cardIndex] = card;
                     }
                 }
             }
@@ -228,9 +207,9 @@ export default {
                 await BoardListAPI.deleteBoardList(list.id);
             context.commit("removeList", list);
         },
-        async saveCard(context: Context, payload: { boardListId: number; card: DraftCard; }) {
-            const data = await CardAPI.postCard(payload.boardListId, payload.card);
-            context.commit("saveNewCard", { boardListId: payload.boardListId, card: data });
+        async saveCard(context: Context, card: DraftCard) {
+            const data = await CardAPI.postCard(card.list_id, card);
+            context.commit("saveNewCard", data);
         }
     }
 };

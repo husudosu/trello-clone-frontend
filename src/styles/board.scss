@@ -157,6 +157,10 @@ body {
         display: block;
       }
     }
+
+    .draftCard {
+      margin-top: $gap;
+    }
   }
   /* Disabling  text selection for cards */
   -webkit-touch-callout: none;
