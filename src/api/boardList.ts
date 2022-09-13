@@ -1,9 +1,9 @@
 import { API } from ".";
-import { BoardList } from "./types";
+import { BoardList, DraftBoardList } from "./types";
 
 export const BoardListAPI = {
-    postBoardList: async (boardListid: number, boardList: BoardList) => {
-        const { data } = await API.post<BoardList>(`/board/${boardListid}/list`, boardList);
+    postBoardList: async (boardId: number, boardList: DraftBoardList) => {
+        const { data } = await API.post<BoardList>(`/board/${boardId}/list`, boardList);
         return data;
     },
     patchBoardList: async (boardListid: number, boardList: BoardList) => {

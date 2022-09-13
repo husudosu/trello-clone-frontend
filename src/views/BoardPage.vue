@@ -12,7 +12,7 @@
             </q-btn>
         </nav>
         <!-- Dragabble object for reordering lists-->
-        <div class="lists" ref="listsWrapper">
+        <div class="lists" ref="listsWrapper" v-if="board">
             <draggable :list="board?.lists" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
                 :delay="500" @end="onBoardListSortableMoveEnd" group="board-list" handle=".listHeader"
                 style="display:flex" filter=".draftBoardList">
@@ -24,19 +24,27 @@
             </draggable>
 
             <!-- Add new list -->
-            <div class="listWrapper">
-                <div class="addNewList" v-if="hasPermission(BoardPermission.LIST_CREATE)" @click="onNewListClicked">
-                    <header class="listHeader">
-                        <q-icon class="q-mr-xs" name="add"></q-icon>Add a list...
-                    </header>
-                </div>
+            <div v-if="hasPermission(BoardPermission.LIST_CREATE)">
+                <template v-if="!showAddDraftList">
+                    <div class="listWrapper">
+                        <div class="addNewList">
+                            <header class="listHeader" @click="onNewListClicked">
+                                <q-icon class="q-mr-xs" name="add"></q-icon>Add a list...
+                            </header>
+                        </div>
+                    </div>
+                </template>
+                <template v-else>
+                    <draft-board-list :boardId="board.id" :onCancel="() => {showAddDraftList = false}"
+                        :onSaveSuccess="() => {showAddDraftList = false}"></draft-board-list>
+                </template>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 import { onBeforeRouteUpdate, useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
@@ -51,6 +59,7 @@ import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import BoardList from "@/components/Board/List/BoardList.vue";
 import AddMemberDialog from "@/components/Board/AddMemberDialog.vue";
 import MembersDialog from "@/components/Board/MembersDialog.vue";
+import DraftBoardList from "@/components/Board/List/DraftBoardList.vue";
 
 const $q = useQuasar();
 
@@ -62,6 +71,8 @@ const isAdmin = computed(() => store.getters.board.isAdmin);
 const route = useRoute();
 const router = useRouter();
 const listsWrapper = ref();
+
+const showAddDraftList = ref(false);
 
 let cardId: number | undefined;
 let cardMoving = false;
@@ -125,8 +136,8 @@ const onDeleteBoardClicked = () => {
 };
 
 const onNewListClicked = () => {
-    store.commit.board.addNewList();
     // This will scroll the end of div.
+    showAddDraftList.value = true;
     nextTick(() => {
         listsWrapper.value.scroll(listsWrapper.value.scrollWidth, 0);
     });
@@ -155,9 +166,11 @@ onBeforeRouteUpdate((to, from) => {
     }
 });
 
-if (typeof route.params.boardId === "string") {
-    loadBoard(parseInt(route.params.boardId));
-}
+onMounted(() => {
+    if (typeof route.params.boardId === "string") {
+        loadBoard(parseInt(route.params.boardId));
+    }
+})
 
 </script>
 <style lang="scss">

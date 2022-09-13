@@ -25,8 +25,14 @@ export interface UserUpdate extends Omit<User, "roles"> {
     current_password: string | null;
 }
 
+
+export interface DraftBoardList {
+    board_id: number;
+    title: string;
+}
+
 export interface BoardList {
-    id?: Readonly<number>;
+    id: Readonly<number>;
     board_id: number;
     title: string;
     position: number;

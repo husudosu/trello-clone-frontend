@@ -72,7 +72,6 @@ const saveCard = async () => {
 
 const onDeleteCardClicked = async () => {
     if (confirm("Delete card?")) {
-        console.log(card.value);
         store.dispatch.card.deleteCardFromAPI(card.value);
     }
 };

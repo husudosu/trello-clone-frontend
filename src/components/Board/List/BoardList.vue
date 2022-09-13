@@ -87,7 +87,7 @@ const showAddCard = ref(false);
 
 const onListSave = () => {
     if (boardList.value.title && boardList.value.title.length > 0) {
-        store.dispatch.board.saveBoardList(boardList.value)
+        store.dispatch.board.updateBoardList(boardList.value)
             .finally(() => {
                 editListTitle.value = false;
             });

@@ -39,6 +39,9 @@ const saveCard = (ev: any) => {
         store.dispatch.board.saveCard(card.value);
         props.onSaveSuccess();
     }
+    else {
+        props.onCancel();
+    }
 };
 
 

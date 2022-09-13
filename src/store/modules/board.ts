@@ -4,7 +4,7 @@ import { State } from "../index";
 import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
-import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftCard } from "@/api/types";
+import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftCard, DraftBoardList } from "@/api/types";
 
 export interface BoardState {
     boards: Board[];
@@ -63,21 +63,9 @@ export default {
         setBoardClaims(state: BoardState, claims: BoardClaims) {
             state.claims = claims;
         },
-        addNewList(state: BoardState) {
-            // Creates only a placeholder for new list.
-            if (state.board) {
-                state.board.lists.push({
-                    board_id: state.board.id,
-                    title: "",
-                    position: 1,
-                    cards: []
-                });
-            }
-        },
         saveNewList(state: BoardState, boardList: BoardList) {
-            // Overwrite last list of board
             if (state.board !== null) {
-                state.board.lists[state.board.lists.length - 1] = boardList;
+                state.board.lists.push(boardList);
             }
         },
         saveExistingList(state: BoardState, boardList: BoardList) {
@@ -141,7 +129,6 @@ export default {
             state.roles = roles;
         },
         unLoadBoard(state: BoardState) {
-            console.log("Unload");
             state.board = null;
             state.claims = null;
             state.roles = [];
@@ -186,20 +173,17 @@ export default {
             await BoardAPI.deleteBoard(boardId);
             context.commit("removeBoard", boardId);
         },
-        async saveBoardList(context: Context, list: BoardList) {
-            if (list.id !== undefined) {
-                // Update existing list
-                const data = await BoardListAPI.patchBoardList(list.id, list);
-                context.commit("saveExistingList", data);
-            } else {
-                // Create new list
-                if (context.state.board) {
-                    const data = await BoardListAPI.postBoardList(context.state.board.id, list);
-                    context.commit("saveNewList", data);
-
-                    // Update order of boardlists
-                    await BoardAPI.updateBoardListsOrder(context.state.board);
-                }
+        async updateBoardList(context: Context, list: BoardList) {
+            // Update existing list
+            const data = await BoardListAPI.patchBoardList(list.id, list);
+            context.commit("saveExistingList", data);
+        },
+        async newBoardList(context: Context, list: DraftBoardList) {
+            if (context.state.board) {
+                const data = await BoardListAPI.postBoardList(context.state.board.id, list);
+                context.commit("saveNewList", data);
+                // Update order of boardlists
+                await BoardAPI.updateBoardListsOrder(context.state.board);
             }
         },
         async removeBoardList(context: Context, list: BoardList) {
