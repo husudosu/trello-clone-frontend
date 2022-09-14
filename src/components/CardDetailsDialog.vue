@@ -37,7 +37,12 @@
             </q-drawer>
             <q-page-container>
                 <q-page padding>
-                    <span class="text-h5">Description</span>
+                    <div class="row q-mb-sm">
+                        <q-icon name="article" class="q-mr-sm text-h5" style="top: 6px;"> </q-icon>
+                        <span class="text-h5">
+                            <span>Description</span>
+                        </span>
+                    </div>
                     <div class="qa-pa-md q-list--bordered card-description"
                         @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardDescription = !editCardDescription : false">
                         <template v-if="!editCardDescription">
@@ -50,15 +55,26 @@
                         </template>
                     </div>
                     <template v-if="card.checklists.length > 0">
-                        <span class="text-h5">Checklists</span>
+                        <div class="row q-mb-sm q-mt-sm">
+                            <q-icon name="checklist" class="q-mr-sm text-h5" style="top: 6px;"> </q-icon>
+                            <span class="text-h5">
+                                <span>Checklists</span>
+                            </span>
+                        </div>
                         <div v-for="checklist in card.checklists" :key="checklist.id">
                             <card-checklist :checklist="checklist"></card-checklist>
                         </div>
                     </template>
                     <div class="row justify-between">
-                        <span class="text-h5 on-left">Activity
-                        </span>
-                        <q-btn class="q-ml-sm q-mb-sm on-right" size="sm">Show details</q-btn>
+                        <div class="q-mb-sm q-mt-sm">
+                            <q-icon name="view_list" class="q-mr-sm text-h5" style="top: -2px;"> </q-icon>
+                            <span class="text-h5">
+                                <span>Activity</span>
+                            </span>
+                        </div>
+                        <div class="q-ml-xs q-mb-xs on-right">
+                            <q-btn size="sm" style="top: 10px;">Show details</q-btn>
+                        </div>
                     </div>
                     <div class="card-comments" v-if="!activitiesLoading">
                         <q-list padding bordered>
