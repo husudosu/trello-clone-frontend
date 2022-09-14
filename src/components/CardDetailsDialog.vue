@@ -148,6 +148,9 @@ const onDeleteClicked = () => {
     }
 };
 
+const onKeyupEsc = (ev: KeyboardEvent) => {
+    console.log(ev.target);
+};
 </script>
 
 <style lang="scss">

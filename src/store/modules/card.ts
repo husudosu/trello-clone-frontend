@@ -164,5 +164,9 @@ export default {
             // FIXME: Reload card activities, probably not the best solution!
             await context.dispatch("loadCardActivities");
         },
+        async updateChecklistItem(context: Context, item: ChecklistItem) {
+            context.commit("updateChecklistItem", item);
+            await ChecklistAPI.patchChecklistItem(item.id, item);
+        }
     }
 };
