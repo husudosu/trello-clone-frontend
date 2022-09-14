@@ -5,17 +5,22 @@
         <!-- Add member dialog -->
         <nav class="navbar board">
             {{ board?.title }}
-            <q-btn class="q-ml-lg" color="secondary" @click="onDeleteBoardClicked"
-                v-if="hasPermission(BoardPermission.BOARD_DELETE)">Delete board</q-btn>
-            <q-btn class="q-ml-md" color="secondary" @click="onMembersClicked">Members</q-btn>
-            <q-btn class="q-ml-md" color="secondary" @click="onAddMemberClicked" v-if="isAdmin">Add member
-            </q-btn>
+            <div class="row boardButtons">
+                <q-btn class="q-ml-lg btn" flat @click=" onDeleteBoardClicked"
+                    v-if="hasPermission(BoardPermission.BOARD_DELETE)">Delete board
+                </q-btn>
+                <q-btn class="q-ml-md btn" flat @click="onMembersClicked">Members</q-btn>
+                <q-btn class="q-ml-md btn" flat @click="onAddMemberClicked" v-if="isAdmin">Add
+                    member
+                </q-btn>
+            </div>
         </nav>
         <!-- Dragabble object for reordering lists-->
         <div class="lists" ref="listsWrapper" v-if="board">
             <draggable :list="board?.lists" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
                 :delay="500" @end="onBoardListSortableMoveEnd" group="board-list" handle=".listHeader"
-                style="display:flex" filter=".draftBoardList">
+                style="display:flex" direction="horizontal" :scroll-sensitivity="170" :fallback-tolerance="1"
+                :force-fallback="true" :animation="200">
                 <!-- Board list object and reorder handling of cards.-->
                 <template #item="{ element }">
                     <board-list :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
@@ -76,7 +81,6 @@ const showAddDraftList = ref(false);
 
 let cardId: number | undefined;
 let cardMoving = false;
-
 /*
     Dragabble object events for board lists
 */

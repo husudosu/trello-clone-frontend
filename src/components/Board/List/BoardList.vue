@@ -26,7 +26,7 @@
                 <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" :list="boardList.cards"
                     group="board-cards" itemKey="id" @end="onEnd" :move="onMove" draggable=".listCard"
                     :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id"
-                    filter=".draftCard">
+                    :scroll-sensitivity="200" :fallback-tolerance="1" :force-fallback="true" :animation="200">
                     <template #item="{ element }">
                         <list-card :card="element" :boardListId="boardList?.id"></list-card>
                     </template>
