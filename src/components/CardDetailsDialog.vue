@@ -76,16 +76,19 @@
                             <q-btn size="sm" style="top: 10px;">Show details</q-btn>
                         </div>
                     </div>
+                    <div class="q-pa-md" style="width:100%;">
+                        <q-input v-model="newComment" type="textarea" placeholder="New comment..." autofocus
+                            @keydown.enter="onNewComment" :disable="!hasPermission(BoardPermission.CARD_COMMENT)" />
+                    </div>
                     <div class="card-comments" v-if="!activitiesLoading">
                         <q-list padding bordered>
-                            <div v-for="activity in card?.activities" :key="activity.id">
-                                <card-activity :activity="activity"></card-activity>
-                                <q-separator spaced inset="item" />
-                            </div>
-                            <div class="q-pa-md" style="width:100%;">
-                                <q-input v-model="newComment" type="textarea" placeholder="New comment..." autofocus
-                                    @keydown.enter="onNewComment"
-                                    :disable="!hasPermission(BoardPermission.CARD_COMMENT)" />
+                            <card-activity v-for="activity in activities" :key="activity.id" :activity="activity">
+                            </card-activity>
+                            <div class="q-ml-sm q-mr-sm">
+                                <q-btn class="full-width" unelevated outline color="primary"
+                                    v-if="activityPagination && activityPagination?.page < activityPagination?.pages"
+                                    @click="onLoadMoreClicked">
+                                    Load more...</q-btn>
                             </div>
                         </q-list>
                     </div>
@@ -111,6 +114,8 @@ import AddCardChecklist from './Board/Card/AddCardChecklist.vue';
 const hasPermission = store.getters.board.hasPermission;
 
 const card = computed(() => store.state.card.card);
+const activities = computed(() => store.state.card.activities);
+const activityPagination = computed(() => store.state.card.activityPagination);
 const cardModalVisible = computed({
     get() {
         return store.state.card.visible;
@@ -121,6 +126,7 @@ const cardModalVisible = computed({
         if (!newValue) {
             editCardDescription.value = false;
             newComment.value = "";
+            store.commit.card.unloadCard();
         }
     }
 });
@@ -164,8 +170,9 @@ const onDeleteClicked = () => {
     }
 };
 
-const onKeyupEsc = (ev: KeyboardEvent) => {
-    console.log(ev.target);
+const onLoadMoreClicked = () => {
+    if (activityPagination.value)
+        store.dispatch.card.loadCardActivities({ page: activityPagination.value?.page + 1, per_page: 10 });
 };
 </script>
 

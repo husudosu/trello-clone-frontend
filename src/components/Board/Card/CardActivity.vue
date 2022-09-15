@@ -1,18 +1,31 @@
 <template>
-    <q-item>
+    <q-item dense class="q-mb-md">
         <q-item-section top avatar>
-            <q-avatar rounded>
+            <q-avatar rounded size="md">
                 <img src="@/assets/avatar-placeholder.png" />
             </q-avatar>
         </q-item-section>
 
         <q-item-section>
-            <q-item-label>{{ activity.user.name }} ({{ activity.user.username }})
+            <q-item-label>
+                <div class="row justify-between">
+
+                    <b>{{ activity.user.name }} ({{ activity.user.username }})</b>
+                    <span>
+                        {{
+                        activity.comment?.updated?.isValid() ?
+                        "Updated: " + activity.comment?.updated?.format("YYYY-MM-DD HH:mm:ss")
+                        : activity.activity_on.format("YYYY-MM-DD HH:mm:ss")
+                        }}
+                    </span>
+                </div>
             </q-item-label>
             <q-item-label caption>
                 <template v-if="activity.event == CardActivityEvent.CARD_COMMENT">
-                    <span style="white-space: pre-wrap;">{{ activity?.comment?.comment
-                    }}</span>
+                    <div class="rounded-borders	 q-pa-sm cardComment">
+                        <span style="white-space: pre-wrap;">{{ activity?.comment?.comment
+                        }}</span>
+                    </div>
                 </template>
                 <template v-else-if="activity.event == CardActivityEvent.CARD_MOVE_TO_LIST">Moved
                     from
@@ -30,15 +43,6 @@
                 </template>
             </q-item-label>
         </q-item-section>
-        <q-item-section side top>
-            <q-item-label caption>
-                {{
-                activity.comment?.updated?.isValid() ?
-                "Updated: " + activity.comment?.updated?.format("YYYY-MM-DD HH:mm:ss")
-                : activity.activity_on.format("YYYY-MM-DD HH:mm:ss")
-                }}
-            </q-item-label>
-        </q-item-section>
     </q-item>
 </template>
 
@@ -53,3 +57,12 @@ const props = defineProps<Props>();
 const activity = ref(props.activity);
 
 </script>
+
+<style scoped  lang="scss">
+.cardComment {
+    width: 100%;
+    border: 1px solid $separator-color;
+    background-color: $grey-1;
+    color: black;
+}
+</style>

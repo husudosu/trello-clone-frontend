@@ -49,10 +49,10 @@ const editMode = ref(false);
 
 const onCardClick = () => {
     // Launch card details only if editMode inactive!
-    if (!editMode.value && card.value.id) {
+    if (!editMode.value) {
         store.dispatch.card.loadCard(card.value.id).then(() => {
             store.commit.card.setVisible(true);
-            store.dispatch.card.loadCardActivities();
+            store.dispatch.card.loadCardActivities({ per_page: 10 });
         });
     }
 };

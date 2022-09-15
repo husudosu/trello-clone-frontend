@@ -2,7 +2,27 @@ import moment from "moment-timezone";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
-// TODO: Create draft types, for example draft card
+
+export interface PaginatedLinks {
+    first: string;
+    last: string;
+}
+
+export interface PaginatedResponse {
+    links: PaginatedLinks;
+    page: number;
+    pages: number;
+    per_page: number;
+    total: number;
+}
+
+export interface PaginatedQuery {
+    page?: number;
+    per_page?: number;
+    sort_by?: number;
+    order?: "asc" | "desc";
+}
+
 export interface UserLogin {
     username: string;
     password: string;
@@ -84,7 +104,6 @@ export interface Card {
     description?: string;
     due_date?: string;
     position?: number;
-    activities: CardActivity[];
     checklists: CardChecklist[];
 }
 
@@ -117,6 +136,14 @@ export interface CardActivity {
     list_change?: CardListChange;
     user: UserBasicInfo;
     changes: any;
+}
+
+export interface PaginatedCardActivity extends PaginatedResponse {
+    data: CardActivity[];
+}
+
+export interface CardActivityQueryParams extends PaginatedQuery {
+    type?: "all" | "comment";
 }
 
 export interface CardComment {

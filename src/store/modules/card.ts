@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex";
 import { State } from "../index";
 
-import { Card, CardActivity, CardChecklist, ChecklistItem, DraftChecklistItem } from "@/api/types";
+import { Card, CardActivity, CardActivityQueryParams, CardChecklist, ChecklistItem, DraftChecklistItem, PaginatedCardActivity, PaginatedResponse } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
 
@@ -10,6 +10,8 @@ export interface CardState {
     card: null | Card;
     cardLoading: boolean;
     activitiesLoading: boolean;
+    activities: CardActivity[];
+    activityPagination: PaginatedResponse | null;
 }
 
 type Context = ActionContext<CardState, State>;
@@ -21,6 +23,8 @@ export default {
         card: null,
         cardLoading: false,
         activitiesLoading: false,
+        activities: [],
+        activityPagination: null
     } as CardState,
     getters: {},
     mutations: {
@@ -30,10 +34,13 @@ export default {
         setCard(state: CardState, value: Card) {
             state.card = value;
         },
-        setCardActivities(state: CardState, value: CardActivity[]) {
+        addCardActivities(state: CardState, value: CardActivity[]) {
             if (state.card != undefined) {
-                state.card.activities = value;
+                state.activities.push(...value);
             }
+        },
+        setCardActivitiesPagination(state: CardState, value: PaginatedResponse) {
+            state.activityPagination = value;
         },
         setActivitiesLoading(state: CardState, value: boolean) {
             state.activitiesLoading = value;
@@ -42,7 +49,8 @@ export default {
             state.cardLoading = value;
         },
         addComment(state: CardState, activity: CardActivity) {
-            state.card?.activities?.unshift(activity);
+            console.log("TODO");
+            // state.card?.activities?.unshift(activity);
         },
         addChecklist(state: CardState, checklist: CardChecklist) {
             state.card?.checklists?.push(checklist);
@@ -91,6 +99,11 @@ export default {
                 }
             }
         },
+        unloadCard(state: CardState) {
+            state.card = null;
+            state.activities = [];
+            state.activityPagination = null;
+        }
     },
     actions: {
         async loadCard(context: Context, cardId: number) {
@@ -106,19 +119,22 @@ export default {
                 context.commit("setCardLoading", false);
             }
         },
-        async loadCardActivities(context: Context) {
+        async loadCardActivities(context: Context, params: CardActivityQueryParams) {
+            const timeout = setTimeout(() => { context.commit("setActivitiesLoading", true); }, 60);
             try {
-                // FIXME: Card always has id if saved on db fix type!
-                if (context.state.card && context.state.card.id) {
-                    context.commit("setActivitiesLoading", true);
-                    const activities: CardActivity[] = await CardAPI.getCardActivities(context.state.card.id);
-                    context.commit("setCardActivities", activities);
+                if (context.state.card) {
+                    const result = await CardAPI.getCardActivities(context.state.card.id, params);
+                    // Extend activities.
+                    context.commit("addCardActivities", result.data);
+                    // Set pagination object
+                    context.commit("setCardActivitiesPagination", result);
                 }
             }
             catch (err) {
                 console.log(err);
             }
             finally {
+                clearTimeout(timeout);
                 context.commit("setActivitiesLoading", false);
             }
         },
