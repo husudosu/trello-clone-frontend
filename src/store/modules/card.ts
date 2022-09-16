@@ -128,7 +128,7 @@ export default {
                 context.commit("setCardLoading", false);
             }
         },
-        async loadCardActivities(context: Context, params: CardActivityQueryParams) {
+        async loadCardActivities(context: Context, params: CardActivityQueryParams = {}) {
             const timeout = setTimeout(() => { context.commit("setActivitiesLoading", true); }, 60);
             try {
                 if (context.state.card) {
