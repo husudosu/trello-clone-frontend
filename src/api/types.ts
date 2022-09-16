@@ -142,8 +142,10 @@ export interface PaginatedCardActivity extends PaginatedResponse {
     data: CardActivity[];
 }
 
+export type CardActivityQueryType = "all" | "comment";
+
 export interface CardActivityQueryParams extends PaginatedQuery {
-    type?: "all" | "comment";
+    type?: CardActivityQueryType;
 }
 
 export interface CardComment {

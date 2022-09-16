@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex";
 import { State } from "../index";
 
-import { Card, CardActivity, CardActivityQueryParams, CardChecklist, ChecklistItem, DraftChecklistItem, PaginatedCardActivity, PaginatedResponse } from "@/api/types";
+import { Card, CardActivity, CardActivityQueryParams, CardChecklist, ChecklistItem, DraftChecklistItem, PaginatedResponse, CardActivityQueryType } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
 
@@ -12,6 +12,7 @@ export interface CardState {
     activitiesLoading: boolean;
     activities: CardActivity[];
     activityPagination: PaginatedResponse | null;
+    cardActivityQueryType: CardActivityQueryType;
 }
 
 type Context = ActionContext<CardState, State>;
@@ -24,7 +25,8 @@ export default {
         cardLoading: false,
         activitiesLoading: false,
         activities: [],
-        activityPagination: null
+        activityPagination: null,
+        cardActivityQueryType: "comment"
     } as CardState,
     getters: {},
     mutations: {
@@ -103,6 +105,13 @@ export default {
             state.card = null;
             state.activities = [];
             state.activityPagination = null;
+        },
+        setCardActivityQueryType(state: CardState, value: CardActivityQueryType) {
+            state.cardActivityQueryType = value;
+        },
+        unloadCardActivities(state: CardState) {
+            state.activities = [];
+            state.activityPagination = null;
         }
     },
     actions: {
@@ -123,6 +132,7 @@ export default {
             const timeout = setTimeout(() => { context.commit("setActivitiesLoading", true); }, 60);
             try {
                 if (context.state.card) {
+                    params.type = context.state.cardActivityQueryType;
                     const result = await CardAPI.getCardActivities(context.state.card.id, params);
                     // Extend activities.
                     context.commit("addCardActivities", result.data);

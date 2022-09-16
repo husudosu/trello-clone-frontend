@@ -73,7 +73,10 @@
                             </span>
                         </div>
                         <div class="q-ml-xs q-mb-xs on-right">
-                            <q-btn size="sm" style="top: 10px;">Show details</q-btn>
+                            <q-btn size="sm" style="top: 10px;" @click="onCardDetailsButtonClicked">
+                                {{cardActivityQueryType == "all" ? "Hide details" :
+                                "Show details"}}
+                            </q-btn>
                         </div>
                     </div>
                     <div class="q-pa-md" style="width:100%;">
@@ -133,7 +136,7 @@ const cardModalVisible = computed({
 
 const activitiesLoading = computed(() => store.state.card.activitiesLoading);
 const rightDrawerVisible = ref(false);
-
+const cardActivityQueryType = computed(() => store.state.card.cardActivityQueryType);
 
 const newComment = ref("");
 const editCardDescription = ref(false);
@@ -172,7 +175,19 @@ const onDeleteClicked = () => {
 
 const onLoadMoreClicked = () => {
     if (activityPagination.value)
-        store.dispatch.card.loadCardActivities({ page: activityPagination.value?.page + 1, per_page: 10 });
+        store.dispatch.card.loadCardActivities({ page: activityPagination.value?.page + 1 });
+};
+
+const onCardDetailsButtonClicked = () => {
+    // First clear activities
+    store.commit.card.unloadCardActivities();
+    // Set activity type globally
+    if (cardActivityQueryType.value == "comment")
+        store.commit.card.setCardActivityQueryType("all");
+    else
+        store.commit.card.setCardActivityQueryType("comment");
+    // Reload card activities
+    store.dispatch.card.loadCardActivities({ page: 1 });
 };
 </script>
 
