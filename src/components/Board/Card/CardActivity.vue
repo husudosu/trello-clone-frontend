@@ -10,7 +10,7 @@
             <q-item-label>
                 <div class="row justify-between">
 
-                    <b>{{ activity.user.name }} ({{ activity.user.username }})</b>
+                    <b>{{ activity.board_user.user.name }} ({{ activity.board_user.user.username }})</b>
                     <span>
                         {{
                         activity.comment?.updated?.isValid() ?

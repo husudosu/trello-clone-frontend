@@ -150,8 +150,9 @@ export default {
         },
         async addCardComment(context: Context, payload: string) {
             if (context.state.card && context.state.card.id) {
-                const commentActivity = await CardAPI.postCardComment(context.state.card.id, { comment: payload });
-                context.commit("addComment", commentActivity);
+                await CardAPI.postCardComment(context.state.card.id, { comment: payload });
+                // context.commit("addComment", commentActivity);
+                await context.dispatch("loadCardActivities");
             }
         },
         async deleteCardFromAPI(context: Context, card: Card) {

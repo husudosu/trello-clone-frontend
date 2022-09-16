@@ -116,6 +116,10 @@ export interface UserBasicInfo {
     timezone: string;
 }
 
+export interface BoardMemberInfo {
+    user: UserBasicInfo;
+}
+
 export interface CardListChange {
     id: Readonly<number>;
     activity_id: number;
@@ -128,13 +132,13 @@ export interface CardListChange {
 export interface CardActivity {
     id: Readonly<number>;
     card_id: number;
-    user_id: number;
+    board_user_id: number;
     activity_on: moment.Moment;
     entity_id?: number;
     event?: number;
     comment?: CardComment;
     list_change?: CardListChange;
-    user: UserBasicInfo;
+    board_user: BoardMemberInfo;
     changes: any;
 }
 
@@ -188,14 +192,14 @@ export interface RemoveBoardMemberType {
 export interface ChecklistItem {
     id: Readonly<number>;
     checklist_id: Readonly<number>;
-    marked_complete_user_id?: number;
+    marked_complete_board_user_id?: number;
     assigned_user_id?: number;
 
     title: string;
     due_date?: moment.Moment;
     completed: boolean;
     marked_complete_on?: moment.Moment;
-    marked_complete_user?: UserBasicInfo;
+    marked_complete_user?: BoardMemberInfo;
     position?: number;
 }
 

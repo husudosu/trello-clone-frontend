@@ -1,8 +1,9 @@
 <template>
     <q-item dense style="padding-left: 0px;">
         <q-tooltip v-if="props.item.marked_complete_user">
-            Done by <b>{{ props.item.marked_complete_user.name }}</b> on <b>{{ props.item.marked_complete_on ?
-            props.item.marked_complete_on.format("YYYY-MM-DD HH:mm:ss") : "N/A"}}</b>
+            Done by <b>{{ props.item.marked_complete_user.user.name || props.item.marked_complete_user.user.username
+            }}</b> on <b>{{ props.item.marked_complete_on ?
+                props.item.marked_complete_on.format("YYYY-MM-DD HH:mm:ss") : "N/A"}}</b>
         </q-tooltip>
         <q-item-section avatar top>
             <q-checkbox v-model="item.completed" size="sm" @update:model-value="onChecklistValueChanged"
