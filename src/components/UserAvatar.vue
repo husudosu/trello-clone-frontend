@@ -1,0 +1,67 @@
+<template>
+    <div class="avatar">
+        <q-avatar ref="avatar" :size="size" :rounded="rounded" text-color="white"
+            :style="{'background-color': calculateAvatarColor()}">
+            {{ initials }}
+        </q-avatar>
+        <q-tooltip>{{ props.user.name || props.user.username}}</q-tooltip>
+        <q-btn size="xs" dense flat v-if="props.showDelete" @click="$emit('delete', $event)">
+            <q-icon name="remove" color="red"></q-icon>
+        </q-btn>
+
+    </div>
+</template>
+
+<script lang="ts" setup>
+import { UserBasicInfo } from '@/api/types';
+import { defineProps, ref, onBeforeMount, withDefaults, defineEmits } from 'vue';
+
+defineEmits(["delete"]);
+
+interface Props {
+    size?: string;
+    rounded?: boolean;
+    showTooltip?: boolean;
+    user: UserBasicInfo;
+    showDelete?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), { size: "sm", rounded: false, showTooltip: true, showDelete: false });
+
+const avatar = ref();
+const initials = ref("");
+
+const calculateAvatarColor = (): string => {
+    const charCodeRed = initials.value.charCodeAt(0);
+    const charCodeGreen = initials.value.charCodeAt(1) || charCodeRed;
+
+    const red = Math.pow(charCodeRed, 7) % 200;
+    const green = Math.pow(charCodeGreen, 7) % 200;
+    const blue = (red + green) % 200;
+    return `rgb(${red},${green},${blue})`;
+};
+
+onBeforeMount(() => {
+    const spl = props.user.name && props.user.name.length > 0 ? props.user.name.split(" ") : props.user.username.split(" ");
+    initials.value = spl.length >= 2 ? spl[0][0].toUpperCase() + spl[1][0].toUpperCase() : spl[0][0].toUpperCase();
+})
+
+
+</script>
+
+<style>
+.avatar {
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Safari */
+    -khtml-user-select: none;
+    /* Konqueror HTML */
+    -moz-user-select: none;
+    /* Old versions of Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+</style>

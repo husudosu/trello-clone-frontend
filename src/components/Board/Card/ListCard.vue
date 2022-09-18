@@ -5,6 +5,11 @@
                 <li style="width: 100%; margin-bottom: 2px;">
                     {{ card.title }}
                 </li>
+                <div class="row q-mb-xs q-mt-sm">
+                    <user-avatar v-for="member in card.assigned_members" :key="member.id" class="q-mr-xs" size="sm"
+                        :user="member.board_user.user">
+                    </user-avatar>
+                </div>
                 <div class="cardEditButton">
                     <q-btn size="xs" dense color="blue-grey-6" @click="onEditClick">
                         <q-icon name="edit"></q-icon>
@@ -31,9 +36,9 @@
 <script lang="ts" setup>
 import { Card } from '@/api/types';
 import { defineProps, ref } from 'vue';
-
 import store from "@/store";
 import { CardAPI } from '@/api/card';
+import UserAvatar from '@/components/UserAvatar.vue';
 
 interface Props {
     card: Card;
@@ -52,7 +57,8 @@ const onCardClick = () => {
     if (!editMode.value) {
         store.dispatch.card.loadCard(card.value.id).then(() => {
             store.commit.card.setVisible(true);
-            store.dispatch.card.loadCardActivities({ per_page: 10 });
+            console.log("Card loaded");
+            store.dispatch.card.loadCardActivities();
         });
     }
 };

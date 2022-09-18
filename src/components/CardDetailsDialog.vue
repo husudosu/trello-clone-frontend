@@ -21,18 +21,27 @@
                 show-if-above>
                 <span class="text-h5">Card settings</span>
                 <div class="q-pa-md q-gutter-md">
-                    <q-btn align="between" class="full-width" icon="person" dense>Members</q-btn>
+                    <q-btn align="between" class="full-width" icon="person" dense
+                        :disable="!hasPermission(BoardPermission.CARD_ASSIGN_MEMBER)" @click="onAssignMemberClicked">
+                        Members
+                    </q-btn>
                     <q-btn align="between" class="full-width" icon="label" dense>Labels</q-btn>
                     <q-btn align="between" class="full-width" icon="checklist" dense
-                        :disable="!hasPermission(BoardPermission.CHECKLIST_CREATE)"
-                        @click="showNewChecklist = !showNewChecklist">
+                        :disable="!hasPermission(BoardPermission.CHECKLIST_CREATE)" @click="onCreateChecklistClicked">
                         Checklist
-                        <add-card-checklist :show="showNewChecklist"></add-card-checklist>
                     </q-btn>
                     <q-btn align="between" class="full-width" icon="schedule" dense>Due date</q-btn>
                     <q-btn align="between" class="full-width" icon="delete" dense @click="onDeleteClicked"
                         :disable="!hasPermission(BoardPermission.CARD_EDIT)">Delete
                     </q-btn>
+
+                    <div>Assigned members:</div>
+                    <div class="row">
+                        <user-avatar class="q-mr-xs" v-for="member in card.assigned_members" size="sm" :rounded="false"
+                            :user="member.board_user.user" :key="member.id"
+                            :show-delete="hasPermission(BoardPermission.CARD_DEASSIGN_MEMBER)"
+                            @delete="onDeassignMember(member)"></user-avatar>
+                    </div>
                 </div>
             </q-drawer>
             <q-page-container>
@@ -107,13 +116,17 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
+import { useQuasar } from 'quasar';
+
 import store from "@/store";
-import { Card, BoardPermission } from "@/api/types";
+import { Card, BoardPermission, BoardAllowedUser, CardMember } from "@/api/types";
 import { CardAPI } from '@/api/card';
 import CardActivity from './Board/Card/CardActivity.vue';
 import CardChecklist from './Board/Card/CardChecklist.vue';
-import AddCardChecklist from './Board/Card/AddCardChecklist.vue';
+import AssignMember from './Board/Card/AssignMember.vue';
+import UserAvatar from './UserAvatar.vue';
 
+const $q = useQuasar();
 const hasPermission = store.getters.board.hasPermission;
 
 const card = computed(() => store.state.card.card);
@@ -142,7 +155,6 @@ const newComment = ref("");
 const editCardDescription = ref(false);
 const editCardTitle = ref(false);
 
-const showNewChecklist = ref(false);
 const onNewComment = async (e: KeyboardEvent) => {
     if (e.ctrlKey) {
         if (newComment.value !== undefined)
@@ -188,6 +200,39 @@ const onCardDetailsButtonClicked = () => {
         store.commit.card.setCardActivityQueryType("comment");
     // Reload card activities
     store.dispatch.card.loadCardActivities({ page: 1 });
+};
+
+
+const onCreateChecklistClicked = () => {
+    $q.dialog({
+        title: "New checklist",
+        message: "Title",
+        prompt: {
+            model: "",
+            type: "text"
+        },
+        cancel: true,
+        persistent: true
+    }).onOk(data => {
+        store.dispatch.card.addCardChecklist({ title: data });
+    });
+};
+
+const onAssignMemberClicked = () => {
+    $q.dialog({
+        component: AssignMember,
+        componentProps: {
+            boardUsers: store.state.board.users
+        }
+    }).onOk((data: BoardAllowedUser) => {
+        store.dispatch.card.assignCardMember({ board_user_id: data.id, send_notification: true });
+    });
+};
+
+const onDeassignMember = (member: CardMember) => {
+    console.log(member);
+    console.log("On deassign member");
+    store.dispatch.card.deassignCardMember(member);
 };
 </script>
 

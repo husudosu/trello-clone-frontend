@@ -1,7 +1,7 @@
 import moment from "moment-timezone";
 
 import { API } from ".";
-import { Card, CardActivity, CardActivityQueryParams, CardComment, DraftCard, PaginatedCardActivity } from "./types";
+import { Card, CardActivity, CardActivityQueryParams, CardComment, CardMember, DraftCard, DraftCardMember, PaginatedCardActivity } from "./types";
 import store from "@/store";
 export interface MoveCardParams {
     list_id: number;
@@ -62,4 +62,11 @@ export const CardAPI = {
         });
         return data;
     },
+    assignCardMember: async (cardId: number, member: DraftCardMember): Promise<CardMember> => {
+        const { data } = await API.post<CardMember>(`/card/${cardId}/assign-member`, member);
+        return data;
+    },
+    deassignCardMember: async (cardId: number, boardUserId: number) => {
+        await API.post<CardMember>(`/card/${cardId}/deassign-member`, { board_user_id: boardUserId });
+    }
 };

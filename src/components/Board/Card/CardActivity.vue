@@ -1,9 +1,7 @@
 <template>
     <q-item dense class="q-mb-md">
         <q-item-section top avatar>
-            <q-avatar rounded size="md">
-                <img src="@/assets/avatar-placeholder.png" />
-            </q-avatar>
+            <user-avatar :user="activity.board_user.user" :show-tooltip="false" size="md"></user-avatar>
         </q-item-section>
 
         <q-item-section>
@@ -49,7 +47,7 @@
 <script lang="ts" setup>
 import { defineProps, ref } from "vue";
 import { CardActivityEvent, CardActivity } from "@/api/types";
-
+import UserAvatar from "@/components/UserAvatar.vue";
 interface Props {
     activity: CardActivity;
 }

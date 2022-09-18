@@ -4,13 +4,14 @@ import { State } from "../index";
 import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
-import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftCard, DraftBoardList } from "@/api/types";
+import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftCard, DraftBoardList, BoardAllowedUser } from "@/api/types";
 
 export interface BoardState {
     boards: Board[];
     board: null | Board;
     claims: null | BoardClaims;
     roles: BoardRole[];
+    users: BoardAllowedUser[],
 }
 
 type Context = ActionContext<BoardState, State>;
@@ -21,7 +22,8 @@ export default {
         board: null,
         boards: [],
         claims: null,
-        roles: []
+        roles: [],
+        users: [],
     } as BoardState,
     getters: {
         boardLists: (state: BoardState) => {
@@ -128,10 +130,14 @@ export default {
         setBoardRoles(state: BoardState, roles: BoardRole[]) {
             state.roles = roles;
         },
+        setBoardUsers(state: BoardState, users: BoardAllowedUser[]) {
+            state.users = users;
+        },
         unLoadBoard(state: BoardState) {
             state.board = null;
             state.claims = null;
             state.roles = [];
+            state.users = [];
         }
     },
     actions: {
@@ -141,8 +147,10 @@ export default {
                 // Load board claims too!
                 context.commit("setBoard", board);
                 await context.dispatch("loadBoardClaims");
-                // Finaly load board roles too
+                // Load board roles too
                 await context.dispatch("loadBoardRoles");
+                // Load board users
+                await context.dispatch("loadBoardUsers");
             }
             else {
                 console.log("Board issue");
@@ -162,6 +170,12 @@ export default {
             if (context.state.board) {
                 const data = await BoardAPI.getBoardRoles(context.state.board.id);
                 context.commit("setBoardRoles", data);
+            }
+        },
+        async loadBoardUsers(context: Context) {
+            if (context.state.board) {
+                const data = await BoardAPI.getBoardMembers(context.state.board.id);
+                context.commit("setBoardUsers", data);
             }
         },
         async createBoard(context: Context, payload: Partial<Board>) {

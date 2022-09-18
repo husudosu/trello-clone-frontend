@@ -105,8 +105,20 @@ export interface Card {
     due_date?: string;
     position?: number;
     checklists: CardChecklist[];
+    assigned_members: CardMember[];
 }
 
+export interface DraftCardMember {
+    board_user_id: number;
+    send_notification: boolean;
+}
+
+export interface CardMember {
+    id: Readonly<number>;
+    board_user: BoardMemberInfo;
+    board_user_id: number;
+    send_notification: boolean;
+}
 
 export interface UserBasicInfo {
     id: Readonly<number>;
@@ -117,6 +129,7 @@ export interface UserBasicInfo {
 }
 
 export interface BoardMemberInfo {
+    id: Readonly<number>;
     user: UserBasicInfo;
 }
 
@@ -231,6 +244,8 @@ export enum BoardPermission {
     CARD_EDIT = "card.edit",
     CARD_COMMENT = "card.comment",
     CARD_DELETE = "card.delete",
+    CARD_ASSIGN_MEMBER = "card.assign_member",
+    CARD_DEASSIGN_MEMBER = "card.deassign_member",
     LIST_CREATE = "list.create",
     LIST_EDIT = "list.edit",
     LIST_DELETE = "list.delete",
@@ -238,5 +253,5 @@ export enum BoardPermission {
     BOARD_DELETE = "board.delete",
     CHECKLIST_CREATE = "checklist.create",
     CHECKLIST_EDIT = "checklist.edit",
-    CHECKLIST_ITEM_MARK = "checklist_item.mark"
+    CHECKLIST_ITEM_MARK = "checklist_item.mark",
 }
