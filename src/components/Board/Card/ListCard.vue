@@ -3,11 +3,11 @@
         <template v-if="!editMode">
             <div class="title">
                 <li style="width: 100%; margin-bottom: 2px;">
-                    {{ card.title }}
+                    {{ props.card.title }}
                 </li>
-                <div class="row q-mb-xs q-mt-sm">
-                    <user-avatar v-for="member in card.assigned_members" :key="member.id" class="q-mr-xs" size="sm"
-                        :user="member.board_user.user">
+                <div class="row q-mb-xs q-mt-sm" v-if="props.card.assigned_members.length > 0">
+                    <user-avatar v-for="member in props.card.assigned_members" :key="member.id" class="q-mr-xs"
+                        size="sm" :user="member.board_user.user">
                     </user-avatar>
                 </div>
                 <div class="cardEditButton">
@@ -37,7 +37,6 @@
 import { Card } from '@/api/types';
 import { defineProps, ref } from 'vue';
 import store from "@/store";
-import { CardAPI } from '@/api/card';
 import UserAvatar from '@/components/UserAvatar.vue';
 
 interface Props {
@@ -57,7 +56,6 @@ const onCardClick = () => {
     if (!editMode.value) {
         store.dispatch.card.loadCard(card.value.id).then(() => {
             store.commit.card.setVisible(true);
-            console.log("Card loaded");
             store.dispatch.card.loadCardActivities();
         });
     }
@@ -71,9 +69,9 @@ const onCancelClicked = (ev: any) => {
 };
 
 const saveCard = async () => {
-    const updatedCard = await CardAPI.patchCard(cardUpdate.value.id, cardUpdate.value);
-    card.value = updatedCard;
-    editMode.value = false;
+    store.dispatch.card.updateCard(cardUpdate.value).then(() => {
+        editMode.value = false;
+    }).catch((err) => console.log(err));
 };
 
 const onDeleteCardClicked = async () => {

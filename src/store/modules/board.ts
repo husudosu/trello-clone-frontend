@@ -116,6 +116,7 @@ export default {
             }
         },
         updateCard(state: BoardState, card: Card) {
+            // Updates card in board list.
             if (state.board !== null) {
                 const listIndex = state.board.lists.findIndex((el) => el.id == card.list_id);
                 if (listIndex > -1) {
@@ -138,6 +139,20 @@ export default {
             state.claims = null;
             state.roles = [];
             state.users = [];
+        },
+        setLists(state: BoardState, lists: BoardList[]) {
+            if (state.board) {
+                state.board.lists = lists;
+            }
+        },
+        setCards(state: BoardState, payload: { cards: Card[], listId: number; }) {
+            if (state.board) {
+                const listIndex = state.board.lists.findIndex((el) => el.id == payload.listId);
+
+                if (listIndex > -1) {
+                    state.board.lists[listIndex].cards = payload.cards;
+                }
+            }
         }
     },
     actions: {

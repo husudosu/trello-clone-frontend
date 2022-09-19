@@ -17,7 +17,12 @@
         </nav>
         <!-- Dragabble object for reordering lists-->
         <div class="lists" ref="listsWrapper" v-if="board">
-            <draggable :list="board?.lists" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
+            <!-- <draggable :list="board.lists" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="500"
+                @end="onBoardListSortableMoveEnd" group="board-list" handle=".listHeader" style="display:flex"
+                direction="horizontal" :scroll-sensitivity="170" :fallback-tolerance="1" :force-fallback="true"
+                :animation="200">             -->
+
+            <draggable v-model="boardLists" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
                 :delay="500" @end="onBoardListSortableMoveEnd" group="board-list" handle=".listHeader"
                 style="display:flex" direction="horizontal" :scroll-sensitivity="170" :fallback-tolerance="1"
                 :force-fallback="true" :animation="200">
@@ -68,8 +73,17 @@ import DraftBoardList from "@/components/Board/List/DraftBoardList.vue";
 
 const $q = useQuasar();
 
-// Card details modal stuff.
 const board = computed(() => store.state.board.board);
+
+const boardLists = computed({
+    get() {
+        return store.state.board.board ? store.state.board.board.lists : [];
+    },
+    set(value) {
+        store.commit.board.setLists(value);
+    }
+});
+
 const hasPermission = store.getters.board.hasPermission;
 const isAdmin = computed(() => store.getters.board.isAdmin);
 

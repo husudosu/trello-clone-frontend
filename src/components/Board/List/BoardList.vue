@@ -23,7 +23,11 @@
                 </template>
             </header>
             <ul ref="cardsWrapper">
-                <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" :list="boardList.cards"
+                <!-- <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" :list="boardList.cards"
+                    group="board-cards" itemKey="id" @end="onEnd" :move="onMove" draggable=".listCard"
+                    :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id"
+                    :scroll-sensitivity="200" :fallback-tolerance="1" :force-fallback="true" :animation="200"> -->
+                <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" v-model="cards"
                     group="board-cards" itemKey="id" @end="onEnd" :move="onMove" draggable=".listCard"
                     :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id"
                     :scroll-sensitivity="200" :fallback-tolerance="1" :force-fallback="true" :animation="200">
@@ -51,7 +55,7 @@
 
 <script lang="ts" setup>
 import { BoardList, BoardPermission } from '@/api/types';
-import { defineProps, ref, nextTick, onMounted } from 'vue';
+import { defineProps, ref, nextTick, onMounted, computed } from 'vue';
 import draggable from 'vuedraggable';
 
 import store from "@/store";
@@ -83,6 +87,19 @@ const editListTitle = ref(false);
 const showMenu = ref(false);
 
 const boardList = ref(props.boardList);
+const cards = computed({
+    get() {
+        // FIXME: This is a hacky way, come up with better solution to handle vuex.
+        if (store.state.board.board) {
+            const index = store.state.board.board.lists.findIndex((el) => el.id == boardList.value.id);
+            return index > -1 ? store.state.board.board?.lists[index].cards : [];
+        }
+        else return [];
+    },
+    set(value) {
+        store.commit.board.setCards({ cards: value, listId: boardList.value.id });
+    }
+});
 const showAddCard = ref(false);
 
 const onListSave = () => {
@@ -110,16 +127,6 @@ const onCacnelClicked = () => {
 };
 
 const onAddCardClick = () => {
-    /* FIXME: Blank card not appears if switching board page from other site.
-    The blank card is created on boardlist, but the text input not appearing.
-    F5 or hot-reload on board page is solves the problem.
-
-    Update:
-        - Now navigating works, the solution was to implement an unload method which runs everytime when route changes
-        - Now the issue appears only when hot-reloading if you change BoardPage.
-        - Probably fixed but leave this message for a while.
-    */
-
     if (hasPermission(BoardPermission.CARD_EDIT) && boardList.value.id) {
         showAddCard.value = true;
         nextTick(() => {
