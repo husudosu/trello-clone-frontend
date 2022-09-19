@@ -44,6 +44,10 @@ export default {
             if (state.claims) {
                 return state.claims;
             }
+        },
+        getBoardUsername: (state: BoardState) => (boardUserId: number) => {
+            const user = state.users.find((el) => el.id == boardUserId);
+            return user ? user.user.name || user.user.username : "";
         }
     },
     mutations: {

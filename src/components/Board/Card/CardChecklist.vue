@@ -40,6 +40,7 @@
 <script lang="ts" setup>
 import { defineProps, ref } from 'vue';
 import { CardChecklist, BoardPermission } from "@/api/types";
+import { useQuasar } from 'quasar';
 
 import draggable from 'vuedraggable';
 
@@ -47,6 +48,7 @@ import store from "@/store";
 import { ChecklistAPI } from '@/api/checklist';
 import ChecklistItem from './ChecklistItem.vue';
 
+const $q = useQuasar();
 const hasPermission = store.getters.board.hasPermission;
 
 interface Props {
@@ -63,9 +65,18 @@ const editTitle = ref(false);
 const newTitle = ref(checklist.value.title);
 
 const onChecklistDelete = () => {
-    if (confirm("Delete checklist?")) {
+    $q.dialog({
+        title: "Delete checklist",
+        cancel: true,
+        persistent: true,
+        message: `Delete checklist ${checklist.value.title}?`,
+        ok: {
+            label: "Delete",
+            color: "negative"
+        }
+    }).onOk(() => {
         store.dispatch.card.deleteCardChecklist(checklist.value);
-    }
+    });
 };
 
 const onNewItemAdd = () => {
@@ -77,7 +88,6 @@ const onNewItemAdd = () => {
 };
 
 const onItemTitleKeyup = (event: KeyboardEvent) => {
-    console.log("NANI!?");
     if (event.ctrlKey) onNewItemAdd();
 };
 

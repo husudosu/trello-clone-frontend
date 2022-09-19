@@ -1,7 +1,6 @@
 <template>
     <div class="listWrapper" ref="listWrapperRef">
         <div class="list">
-            <!-- TODO: Handle permission here aswell, do not inject dblclick here, it's gonna be more complex-->
             <header @dblclick="boardList.id ? editListTitle = !editListTitle : editListTitle = true" class="listHeader">
                 <template v-if="editListTitle">
                     <q-input v-model="boardList.title" label="Name" @keyup.enter="onListSave" @blur="onListSave"
@@ -23,10 +22,6 @@
                 </template>
             </header>
             <ul ref="cardsWrapper">
-                <!-- <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" :list="boardList.cards"
-                    group="board-cards" itemKey="id" @end="onEnd" :move="onMove" draggable=".listCard"
-                    :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id"
-                    :scroll-sensitivity="200" :fallback-tolerance="1" :force-fallback="true" :animation="200"> -->
                 <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" v-model="cards"
                     group="board-cards" itemKey="id" @end="onEnd" :move="onMove" draggable=".listCard"
                     :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id"
@@ -56,6 +51,7 @@
 <script lang="ts" setup>
 import { BoardList, BoardPermission } from '@/api/types';
 import { defineProps, ref, nextTick, onMounted, computed } from 'vue';
+import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
 
 import store from "@/store";
@@ -85,6 +81,7 @@ const cardsWrapper = ref();
 
 const editListTitle = ref(false);
 const showMenu = ref(false);
+const $q = useQuasar();
 
 const boardList = ref(props.boardList);
 const cards = computed({
@@ -136,9 +133,18 @@ const onAddCardClick = () => {
 };
 
 const onDeleteBoardList = () => {
-    if (confirm("Delete list?")) {
+    $q.dialog({
+        title: "Delete list",
+        cancel: true,
+        persistent: true,
+        message: `Delete list ${boardList.value.title}?`,
+        ok: {
+            label: "Delete",
+            color: "negative"
+        }
+    }).onOk(() => {
         store.dispatch.board.removeBoardList(boardList.value);
-    }
+    });
 };
 
 if (!boardList.value.title) {

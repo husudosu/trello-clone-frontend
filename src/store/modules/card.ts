@@ -50,10 +50,6 @@ export default {
         setCardLoading(state: CardState, value: boolean) {
             state.cardLoading = value;
         },
-        addComment(state: CardState, activity: CardActivity) {
-            console.log("TODO");
-            // state.card?.activities?.unshift(activity);
-        },
         addChecklist(state: CardState, checklist: CardChecklist) {
             state.card?.checklists?.push(checklist);
         },
@@ -145,7 +141,6 @@ export default {
                 if (context.state.card) {
                     params.type = context.state.cardActivityQueryType;
                     const result = await CardAPI.getCardActivities(context.state.card.id, params);
-                    console.log("Card activities loaded");
                     // Extend activities.
                     context.commit("addCardActivities", result.data);
                     // Set pagination object

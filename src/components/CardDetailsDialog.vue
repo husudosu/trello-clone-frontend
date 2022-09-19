@@ -35,13 +35,15 @@
                         :disable="!hasPermission(BoardPermission.CARD_EDIT)">Delete
                     </q-btn>
 
-                    <div>Assigned members:</div>
-                    <div class="row">
-                        <user-avatar class="q-mr-xs" v-for="member in card.assigned_members" size="sm" :rounded="false"
-                            :user="member.board_user.user" :key="member.id"
-                            :show-delete="hasPermission(BoardPermission.CARD_DEASSIGN_MEMBER)"
-                            @delete="onDeassignMember(member)"></user-avatar>
-                    </div>
+                    <template v-if="card.assigned_members.length > 0">
+                        <div>Assigned members:</div>
+                        <div class="row">
+                            <user-avatar class="q-mr-xs" v-for="member in card.assigned_members" size="sm"
+                                :rounded="false" :user="member.board_user.user" :key="member.id"
+                                :show-delete="hasPermission(BoardPermission.CARD_DEASSIGN_MEMBER)"
+                                @delete="onDeassignMember(member)"></user-avatar>
+                        </div>
+                    </template>
                 </div>
             </q-drawer>
             <q-page-container>
@@ -178,11 +180,19 @@ const onTitleEdit = async () => {
 };
 
 const onDeleteClicked = () => {
-    if (confirm("Delete card?")) {
-        if (card.value != undefined) {
-            store.dispatch.card.deleteCardFromAPI(card.value);
+    $q.dialog({
+        title: "Delete card",
+        cancel: true,
+        persistent: true,
+        message: `Delete card ${card.value ? card.value.title : ''}?`,
+        ok: {
+            label: "Delete",
+            color: "negative"
         }
-    }
+    }).onOk(() => {
+        if (card.value)
+            store.dispatch.card.deleteCardFromAPI(card.value);
+    });
 };
 
 const onLoadMoreClicked = () => {
@@ -230,8 +240,6 @@ const onAssignMemberClicked = () => {
 };
 
 const onDeassignMember = (member: CardMember) => {
-    console.log(member);
-    console.log("On deassign member");
     store.dispatch.card.deassignCardMember(member);
 };
 </script>

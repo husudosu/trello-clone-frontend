@@ -44,6 +44,7 @@
 <script lang="ts" setup>
 import { ref, defineEmits, computed } from "vue";
 import { useDialogPluginComponent } from 'quasar';
+import { useQuasar } from "quasar";
 import { BoardAPI } from "@/api/board";
 import store from "@/store/index";
 import { BoardAllowedUser, BoardRole } from "@/api/types";
@@ -51,6 +52,7 @@ import { BoardAllowedUser, BoardRole } from "@/api/types";
 const boardRoles = computed(() => store.state.board.roles);
 const boardUser = computed(() => store.getters.board.boardUser);
 const isAdmin = computed(() => store.getters.board.isAdmin);
+const $q = useQuasar();
 defineEmits([
     ...useDialogPluginComponent.emits
 ]);
@@ -69,13 +71,17 @@ const onRoleChange = async (role: BoardRole, member: BoardAllowedUser) => {
 };
 
 const onDeleteClicked = async (member: BoardAllowedUser) => {
-    if (confirm("Delete member?")) {
-        try {
-            BoardAPI.deleteBoardMember(member.board_id, member.user_id);
+    $q.dialog({
+        title: "Delete member?",
+        cancel: true,
+        persistent: true,
+        message: `This gonna remove access for ${member.user.name || member.user.username} to board, but the user activity stays on database.`,
+        ok: {
+            label: "Remove",
+            color: "negative"
         }
-        catch (err) {
-            console.log(err);
-        }
-    }
+    }).onOk(() => {
+        BoardAPI.deleteBoardMember(member.board_id, member.user_id);
+    });
 };
 </script>

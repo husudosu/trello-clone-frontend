@@ -17,11 +17,6 @@
         </nav>
         <!-- Dragabble object for reordering lists-->
         <div class="lists" ref="listsWrapper" v-if="board">
-            <!-- <draggable :list="board.lists" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="500"
-                @end="onBoardListSortableMoveEnd" group="board-list" handle=".listHeader" style="display:flex"
-                direction="horizontal" :scroll-sensitivity="170" :fallback-tolerance="1" :force-fallback="true"
-                :animation="200">             -->
-
             <draggable v-model="boardLists" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
                 :delay="500" @end="onBoardListSortableMoveEnd" group="board-list" handle=".listHeader"
                 style="display:flex" direction="horizontal" :scroll-sensitivity="170" :fallback-tolerance="1"
@@ -147,10 +142,20 @@ const loadBoard = (boardId: number) => {
 };
 
 const onDeleteBoardClicked = () => {
-    if (confirm("Delete board?") && typeof route.params.boardId === "string") {
-        store.dispatch.board.removeBoard(parseInt(route.params.boardId))
-            .then(() => { router.push({ name: "boards" }); });
-    }
+    $q.dialog({
+        title: "Delete board",
+        cancel: true,
+        persistent: true,
+        message: `Delete board ${board.value ? board.value.title : ''}?`,
+        ok: {
+            label: "Delete",
+            color: "negative"
+        }
+    }).onOk(() => {
+        if (typeof route.params.boardId === "string")
+            store.dispatch.board.removeBoard(parseInt(route.params.boardId))
+                .then(() => { router.push({ name: "boards" }); });
+    });
 };
 
 const onNewListClicked = () => {

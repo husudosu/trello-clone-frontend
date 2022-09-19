@@ -36,6 +36,7 @@
 <script lang="ts" setup>
 import { Card } from '@/api/types';
 import { defineProps, ref } from 'vue';
+import { useQuasar } from 'quasar';
 import store from "@/store";
 import UserAvatar from '@/components/UserAvatar.vue';
 
@@ -44,6 +45,7 @@ interface Props {
     boardListId: number;
 }
 
+const $q = useQuasar();
 const props = defineProps<Props>();
 
 const card = ref(props.card);
@@ -65,7 +67,7 @@ const onCancelClicked = (ev: any) => {
     ev.stopPropagation();
     editMode.value = false;
     // Revert previous title
-    cardUpdate.value.title = card.value.title;
+    cardUpdate.value.title = props.card.title;
 };
 
 const saveCard = async () => {
@@ -75,9 +77,18 @@ const saveCard = async () => {
 };
 
 const onDeleteCardClicked = async () => {
-    if (confirm("Delete card?")) {
-        store.dispatch.card.deleteCardFromAPI(card.value);
-    }
+    $q.dialog({
+        title: "Delete card",
+        cancel: true,
+        persistent: true,
+        message: `Delete card ${props.card.title}?`,
+        ok: {
+            label: "Delete",
+            color: "negative"
+        }
+    }).onOk(() => {
+        store.dispatch.card.deleteCardFromAPI(props.card);
+    });
 };
 
 const onCardTitleKeyUp = (ev: KeyboardEvent) => {
@@ -88,4 +99,4 @@ const onEditClick = (ev: any) => {
     ev.stopPropagation();
     editMode.value = true;
 };
-</script> 
+</script>
