@@ -17,6 +17,7 @@
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.37",
     "quasar": "^2.0.0",
+    "socket.io-client": "^4.5.2",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
     "vuedraggable": "^4.1.0",

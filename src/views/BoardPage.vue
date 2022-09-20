@@ -89,7 +89,6 @@ const listsWrapper = ref();
 const showAddDraftList = ref(false);
 
 let cardId: number | undefined;
-let cardMoving = false;
 /*
     Dragabble object events for board lists
 */
@@ -104,30 +103,26 @@ const onBoardListSortableMoveEnd = () => {
     FIXME: Structrue wise not so ideal to store these methods here.
 */
 const onCardSortableMoveEnd = async (ev: any) => {
-    if (cardMoving) {
-        const boardFromId: number = parseInt(ev.from.id.split("boardlistCards-")[1]);
-        const boardToId: number = parseInt(ev.to.id.split("boardlistCards-")[1]);
+    const boardFromId: number = parseInt(ev.from.id.split("boardlistCards-")[1]);
+    const boardToId: number = parseInt(ev.to.id.split("boardlistCards-")[1]);
 
-        if (boardFromId !== boardToId && cardId !== undefined) {
-            // Change list id of card.
-            await CardAPI.patchCard(cardId, { list_id: boardToId });
-            // BoardList changed so need to update both fromList and toList
-            const listFrom = board.value?.lists.find((el) => el.id == boardFromId);
-            if (listFrom !== undefined) {
-                await BoardListAPI.updateCardsOrder(listFrom);
-            }
+    if (boardFromId !== boardToId && cardId !== undefined) {
+        // Change list id of card.
+        await CardAPI.patchCard(cardId, { list_id: boardToId });
+        // BoardList changed so need to update both fromList and toList
+        const listFrom = board.value?.lists.find((el) => el.id == boardFromId);
+        if (listFrom !== undefined) {
+            await BoardListAPI.updateCardsOrder(listFrom);
         }
+    }
 
-        const listTo = board.value?.lists.find((el) => el.id == boardToId);
-        if (listTo !== undefined) {
-            await BoardListAPI.updateCardsOrder(listTo);
-        }
-        cardMoving = false;
+    const listTo = board.value?.lists.find((el) => el.id == boardToId);
+    if (listTo !== undefined) {
+        await BoardListAPI.updateCardsOrder(listTo);
     }
 };
 
 const onCardMove = async (ev: any) => {
-    cardMoving = true;
     cardId = ev.draggedContext.element.id;
 };
 

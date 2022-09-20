@@ -92,7 +92,9 @@
                     </div>
                     <div class="q-pa-md" style="width:100%;">
                         <q-input v-model="newComment" type="textarea" placeholder="New comment..." autofocus
-                            @keydown.enter="onNewComment" :disable="!hasPermission(BoardPermission.CARD_COMMENT)" />
+                            @keydown.enter="onNewComment" :disable="!hasPermission(BoardPermission.CARD_COMMENT)"
+                            autogrow />
+                        <q-btn class="q-mt-sm" size="sm" color="primary" :disable="newComment.length == 0">Save</q-btn>
                     </div>
                     <div class="card-comments" v-if="!activitiesLoading">
                         <q-list padding bordered>
@@ -158,9 +160,8 @@ const editCardDescription = ref(false);
 const editCardTitle = ref(false);
 
 const onNewComment = async (e: KeyboardEvent) => {
-    if (e.ctrlKey) {
-        if (newComment.value !== undefined)
-            store.dispatch.card.addCardComment(newComment.value).then(() => newComment.value = "");
+    if (e.ctrlKey && newComment.value.length > 0) {
+        store.dispatch.card.addCardComment(newComment.value).then(() => newComment.value = "");
     }
 };
 
@@ -232,7 +233,7 @@ const onAssignMemberClicked = () => {
     $q.dialog({
         component: AssignMember,
         componentProps: {
-            boardUsers: store.state.board.users
+            boardUsers: store.state.board.users // TODO: Only send assignable user lists here
         }
     }).onOk((data: BoardAllowedUser) => {
         store.dispatch.card.assignCardMember({ board_user_id: data.id, send_notification: true });

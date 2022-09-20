@@ -48,15 +48,14 @@ interface Props {
 const $q = useQuasar();
 const props = defineProps<Props>();
 
-const card = ref(props.card);
-const cardUpdate = ref(structuredClone(card.value));
+const cardUpdate = ref();
 
 const editMode = ref(false);
 
 const onCardClick = () => {
     // Launch card details only if editMode inactive!
     if (!editMode.value) {
-        store.dispatch.card.loadCard(card.value.id).then(() => {
+        store.dispatch.card.loadCard(props.card.id).then(() => {
             store.commit.card.setVisible(true);
             store.dispatch.card.loadCardActivities();
         });
@@ -97,6 +96,8 @@ const onCardTitleKeyUp = (ev: KeyboardEvent) => {
 
 const onEditClick = (ev: any) => {
     ev.stopPropagation();
+    // Create structured clone of card
+    cardUpdate.value = structuredClone(props.card);
     editMode.value = true;
 };
 </script>
