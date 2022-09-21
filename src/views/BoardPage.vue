@@ -129,8 +129,13 @@ const onCardMove = async (ev: any) => {
 const loadBoard = (boardId: number) => {
     store.dispatch.board.loadBoard({ boardId })
         .catch((err) => {
-            if (err.response.status === 404) {
-                router.push({ name: '404' });
+            switch (err.response.status) {
+                case 404:
+                    router.replace({ name: "404" });
+                    break;
+                case 403:
+                    router.replace({ name: "403" });
+                    break;
             }
         });
 

@@ -131,6 +131,7 @@ export interface UserBasicInfo {
 export interface BoardMemberInfo {
     id: Readonly<number>;
     user: UserBasicInfo;
+    is_deleted: boolean;
 }
 
 export interface CardListChange {

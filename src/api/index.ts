@@ -38,7 +38,7 @@ API.interceptors.response.use((response: AxiosResponse) => {
         router.push({ name: "login" });
     }
     else if (error.response.status === 500) {
-        router.push({
+        router.replace({
             name: "500",
             query: {
                 traceback: error.response.data.traceback,

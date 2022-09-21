@@ -17,7 +17,8 @@
                             </q-avatar>
                         </q-item-section>
                         <q-item-section>
-                            <q-item-label>{{ member.user.name }} ({{ member.user.username }})</q-item-label>
+                            <q-item-label :style="{'text-decoration': 'line-through'}">{{ member.user.name }} ({{
+                            member.user.username }})</q-item-label>
                         </q-item-section>
                         <q-item-section top side>
                             <div class="text-grey-8 q-gutter-xs row">

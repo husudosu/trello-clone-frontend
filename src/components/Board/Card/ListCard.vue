@@ -47,9 +47,7 @@ interface Props {
 
 const $q = useQuasar();
 const props = defineProps<Props>();
-
 const cardUpdate = ref();
-
 const editMode = ref(false);
 
 const onCardClick = () => {

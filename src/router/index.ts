@@ -47,6 +47,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("../views/PageNotFound.vue"),
   },
   {
+    path: "/403",
+    name: "403",
+    component: () => import("../views/ForbiddenPage.vue"),
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/404",
   },
