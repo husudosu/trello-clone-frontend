@@ -232,9 +232,6 @@ const onCreateChecklistClicked = () => {
 const onAssignMemberClicked = () => {
     $q.dialog({
         component: AssignMember,
-        componentProps: {
-            boardUsers: store.state.board.users // TODO: Only send assignable user lists here
-        }
     }).onOk((data: BoardAllowedUser) => {
         store.dispatch.card.assignCardMember({ board_user_id: data.id, send_notification: true });
     });

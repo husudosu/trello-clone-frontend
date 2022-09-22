@@ -5,7 +5,7 @@
                 <div class="text-h6">Assign member</div>
             </q-card-section>
             <q-card-section>
-                <q-select v-model="member" :options="props.boardUsers" option-value="id"
+                <q-select v-model="member" :options="boardUsers" option-value="id"
                     :option-label="opt => Object(opt) === opt && 'user' in opt ? opt.user.name || opt.user.username : 'N/A'">
                 </q-select>
             </q-card-section>
@@ -18,17 +18,20 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref } from 'vue';
-import { BoardAllowedUser } from '@/api/types';
+import { defineEmits, ref, computed } from 'vue';
 import { useDialogPluginComponent } from 'quasar';
+import store from "@/store";
 
-interface Props {
-    boardUsers: BoardAllowedUser[];
-}
-
-const props = defineProps<Props>();
 const member = ref();
 
+const boardUsers = computed(() => {
+    return store.state.board.users.filter((boardUser) => {
+        const isAssigned = store.state.card.card?.assigned_members.find((assignment) => assignment.board_user.id == boardUser.id);
+        if (!boardUser.is_deleted && isAssigned == undefined) {
+            return boardUser;
+        }
+    });
+});
 defineEmits([
     ...useDialogPluginComponent.emits
 ]);
