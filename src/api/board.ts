@@ -49,4 +49,8 @@ export const BoardAPI = {
         const { data } = await API.patch(`/board/${boardId}/member/${userId}`, { board_role_id: boardRoleId });
         return data;
     },
+    activateMember: async (memberId: number) => {
+        const { data } = await API.post(`/board/member/${memberId}/activate`);
+        return data;
+    }
 };

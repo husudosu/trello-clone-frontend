@@ -2,9 +2,7 @@
     <div class="q-mt-lg q-ma-sm shadow-1">
 
         <q-item>
-            <q-avatar rounded>
-                <img :src="user?.avatar_url" />
-            </q-avatar>
+            <user-avatar size="lg" :user="user" :show-tooltip="false"></user-avatar>
         </q-item>
         <q-item>
             <q-item-section>
@@ -39,7 +37,7 @@ import store from '@/store';
 
 import { User } from "@/api/types";
 import { UserAPI } from "@/api/user";
-
+import UserAvatar from "@/components/UserAvatar.vue";
 const route = useRoute();
 
 const user = ref<User>();

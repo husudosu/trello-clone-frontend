@@ -189,6 +189,7 @@ export interface BoardAllowedUser {
     board_id: number;
     board_role_id: number;
     is_owner: boolean;
+    is_deleted: boolean;
     role: BoardRole;
     user: UserBasicInfo;
 }
