@@ -18,18 +18,21 @@
                         </ul>
                     </q-card-section>
                     <q-card-section>
-                        <q-form class="q-px-sm q-pt-none q-pb-xs">
-                            <q-input square v-model="reg.email" type="email" label="Email">
+                        <q-form class="q-px-sm q-pt-none q-pb-xs" ref="form">
+                            <q-input square v-model="reg.email" type="email" label="Email" :rules="[validateUser]"
+                                :debounce="300">
                                 <template v-slot:prepend>
                                     <q-icon name="email" />
                                 </template>
                             </q-input>
-                            <q-input square v-model="reg.username" type="text" label="Username">
+                            <q-input square v-model="reg.username" type="text" label="Username" :rules="[validateUser]"
+                                :debounce="300">
                                 <template v-slot:prepend>
                                     <q-icon name="person" />
                                 </template>
                             </q-input>
-                            <q-input square v-model="reg.password" type="password" label="Password">
+                            <q-input square v-model="reg.password" type="password" label="Password"
+                                :rules="[requiredTextField]">
                                 <template v-slot:prepend>
                                     <q-icon name="lock" />
                                 </template>
@@ -40,7 +43,7 @@
                                 </template>
                             </q-input>
                             <q-select v-model="reg.timezone" use-input input-debounce="0" label="Timezone"
-                                :options="timezones" @filter="filterFn">
+                                :options="timezones" @filter="filterFn" :rules="[requiredTextField]">
                                 <template v-slot:prepend>
                                     <q-icon name="schedule" />
                                 </template>
@@ -69,12 +72,13 @@ import { RegisterPayload } from "@/api/types";
 import { UserAPI } from "@/api/user";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-
+import { validateUser, requiredTextField } from "@/formValidators";
 import timezonesData from "../json/timezones.json";
 
 const router = useRouter();
 
 const timezones = ref(timezonesData);
+const form = ref();
 
 const validationErrors = ref({});
 
@@ -101,9 +105,13 @@ const reg = ref<RegisterPayload>({
 
 const onRegisterClicked = async () => {
     try {
-        validationErrors.value = {};
-        await UserAPI.register(reg.value);
-        router.push({ name: "login" });
+        form.value.validate().then(async (success: boolean) => {
+            if (success) {
+                validationErrors.value = {};
+                await UserAPI.register(reg.value);
+                router.push({ name: "login" });
+            }
+        });
     }
     catch (err: any) {
         if (err.response.data.message === "validation_error") {

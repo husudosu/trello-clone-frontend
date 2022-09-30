@@ -92,9 +92,10 @@
                     </div>
                     <div class="q-pa-md" style="width:100%;">
                         <q-input v-model="newComment" type="textarea" placeholder="New comment..." autofocus
-                            @keydown.enter="onNewComment" :disable="!hasPermission(BoardPermission.CARD_COMMENT)"
-                            autogrow />
-                        <q-btn class="q-mt-sm" size="sm" color="primary" :disable="newComment.length == 0">Save</q-btn>
+                            @keydown.enter="onNewCommentKeyddown"
+                            :disable="!hasPermission(BoardPermission.CARD_COMMENT)" autogrow />
+                        <q-btn class="q-mt-sm" size="sm" color="primary" :disable="newComment.length == 0"
+                            @click="addNewComment">Save</q-btn>
                     </div>
                     <div class="card-comments" v-if="!activitiesLoading">
                         <q-list padding bordered>
@@ -159,9 +160,13 @@ const newComment = ref("");
 const editCardDescription = ref(false);
 const editCardTitle = ref(false);
 
-const onNewComment = async (e: KeyboardEvent) => {
+const addNewComment = () => {
+    store.dispatch.card.addCardComment(newComment.value).then(() => newComment.value = "");
+};
+
+const onNewCommentKeyddown = async (e: KeyboardEvent) => {
     if (e.ctrlKey && newComment.value.length > 0) {
-        store.dispatch.card.addCardComment(newComment.value).then(() => newComment.value = "");
+        addNewComment();
     }
 };
 
