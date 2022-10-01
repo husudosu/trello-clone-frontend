@@ -5,7 +5,7 @@
         <!-- Add member dialog -->
         <nav class="navbar board">
             {{ board?.title }}
-            <div class="row boardButtons">
+            <div class="boardButtons">
                 <q-btn class="q-ml-lg btn" flat @click=" onDeleteBoardClicked"
                     v-if="hasPermission(BoardPermission.BOARD_DELETE)">Delete board
                 </q-btn>
