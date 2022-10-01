@@ -99,8 +99,15 @@
                     </div>
                     <div class="card-comments" v-if="!activitiesLoading">
                         <q-list padding bordered>
-                            <card-activity v-for="activity in activities" :key="activity.id" :activity="activity">
-                            </card-activity>
+                            <template v-if="activities.length > 0">
+                                <card-activity v-for="activity in activities" :key="activity.id" :activity="activity">
+                                </card-activity>
+                            </template>
+                            <template v-else>
+                                <span class="q-ma-sm" v-if="!activitiesLoading">
+                                    {{ cardActivityQueryType == "all" ? "No activity yet" : "No comments yet"}}
+                                </span>
+                            </template>
                             <div class="q-ml-sm q-mr-sm">
                                 <q-btn class="full-width" unelevated outline color="primary"
                                     v-if="activityPagination && activityPagination?.page < activityPagination?.pages"

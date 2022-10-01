@@ -52,7 +52,12 @@ const editMode = ref(false);
 
 const onCardClick = () => {
     // Launch card details only if editMode inactive!
-    if (!editMode.value) {
+    /* FIXME: Hacky way to prevent card click event after move. 
+     The issue only appears when you move card inside a list
+    If you move one list to other it's not an isssued
+    */
+    console.log("Card click");
+    if (!editMode.value && !store.state.card.cardMoved) {
         store.dispatch.card.loadCard(props.card.id).then(() => {
             store.commit.card.setVisible(true);
             store.dispatch.card.loadCardActivities();

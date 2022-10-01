@@ -106,6 +106,13 @@ const onCardSortableMoveEnd = async (ev: any) => {
     const boardFromId: number = parseInt(ev.from.id.split("boardlistCards-")[1]);
     const boardToId: number = parseInt(ev.to.id.split("boardlistCards-")[1]);
 
+    /* FIXME: Hacky way to prevent card click event after move.
+     The issue only appears when you move card inside a list
+    If you move one list to other it's not an isssued
+    */
+    store.commit.card.setCardMoved(true);
+    setTimeout(() => store.commit.card.setCardMoved(false), 30);
+
     if (boardFromId !== boardToId && cardId !== undefined) {
         // Change list id of card.
         await CardAPI.patchCard(cardId, { list_id: boardToId });
@@ -120,6 +127,7 @@ const onCardSortableMoveEnd = async (ev: any) => {
     if (listTo !== undefined) {
         await BoardListAPI.updateCardsOrder(listTo);
     }
+
 };
 
 const onCardMove = async (ev: any) => {

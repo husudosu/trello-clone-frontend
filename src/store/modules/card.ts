@@ -13,6 +13,7 @@ export interface CardState {
     activities: CardActivity[];
     activityPagination: PaginatedResponse | null;
     cardActivityQueryType: CardActivityQueryType;
+    cardMoved: boolean;
 }
 
 type Context = ActionContext<CardState, State>;
@@ -26,7 +27,8 @@ export default {
         activitiesLoading: false,
         activities: [],
         activityPagination: null,
-        cardActivityQueryType: "comment"
+        cardActivityQueryType: localStorage.getItem("cardActivityQueryType") || "comment",
+        cardMoved: false
     } as CardState,
     getters: {},
     mutations: {
@@ -103,6 +105,7 @@ export default {
         },
         setCardActivityQueryType(state: CardState, value: CardActivityQueryType) {
             state.cardActivityQueryType = value;
+            localStorage.setItem("cardActivityQueryType", value);
         },
         unloadCardActivities(state: CardState) {
             state.activities = [];
@@ -119,6 +122,9 @@ export default {
                     state.card.assigned_members.splice(index, 1);
                 }
             }
+        },
+        setCardMoved(state: CardState, value: boolean) {
+            state.cardMoved = value;
         }
     },
     actions: {
@@ -136,7 +142,7 @@ export default {
             }
         },
         async loadCardActivities(context: Context, params: CardActivityQueryParams = {}) {
-            const timeout = setTimeout(() => { context.commit("setActivitiesLoading", true); }, 60);
+            const timeout = setTimeout(() => { context.commit("setActivitiesLoading", true); }, 80);
             try {
                 if (context.state.card) {
                     params.type = context.state.cardActivityQueryType;
