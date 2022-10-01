@@ -15,7 +15,7 @@ export default {
     namespaced: true as const,
     state: {
         user: null,
-        loggedIn: false
+        loggedIn: localStorage.getItem("loggedIn") == "true" ? true : false,
     } as AuthState,
     getters: {},
     mutations: {
@@ -23,6 +23,7 @@ export default {
             state.user = user;
         },
         setLoggedIn(state: AuthState, value: boolean) {
+            localStorage.setItem("loggedIn", value.toString());
             state.loggedIn = value;
         },
     },

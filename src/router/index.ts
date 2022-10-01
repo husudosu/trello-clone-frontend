@@ -1,40 +1,58 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import store from "@/store";
+
+// FIXME: Types for to, from, next
+const onlyAnonymousCanAccess = (to: any, from: any, next: any) => {
+  if (store.state.auth.loggedIn) next({ name: "boards" });
+  else next();
+};
+
+// FIXME: Types for to, from, next
+const onlyUserCanAccess = (to: any, from: any, next: any) => {
+  if (store.state.auth.loggedIn) next();
+  else next({ name: "login" });
+};
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    name: "board",
-    component: () => import("../views/BoardPage.vue")
+    redirect: { name: "boards" }
   },
   {
     path: "/board/:boardId",
     name: "board",
-    component: () => import("../views/BoardPage.vue")
+    component: () => import("../views/BoardPage.vue"),
+    beforeEnter: onlyUserCanAccess,
   }, {
     path: "/board",
     name: "boards",
-    component: () => import("../views/BoardsPage.vue")
+    component: () => import("../views/BoardsPage.vue"),
+    beforeEnter: onlyUserCanAccess
   },
   {
     path: "/login",
     name: "login",
     component: () => import("../views/LoginPage.vue"),
-    meta: { only_anonymous: true }
+    meta: { only_anonymous: true },
+    beforeEnter: onlyAnonymousCanAccess
   },
   {
     path: "/register",
     name: "register",
     component: () => import("../views/RegisterPage.vue"),
-    meta: { only_anonymous: true }
+    meta: { only_anonymous: true },
+    beforeEnter: onlyAnonymousCanAccess
   },
   {
     path: "/user/view/:userId",
     name: "user",
     component: () => import("../views/UserPage.vue"),
+    beforeEnter: onlyUserCanAccess
   }, {
     path: "/user/edit/:userId",
     name: "user.edit",
     component: () => import("../views/EditUserPage.vue"),
+    beforeEnter: onlyUserCanAccess
   },
   {
     path: "/500",
