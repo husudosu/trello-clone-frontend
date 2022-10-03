@@ -161,11 +161,10 @@ export default {
                 context.commit("setActivitiesLoading", false);
             }
         },
+
         async addCardComment(context: Context, payload: string) {
             if (context.state.card && context.state.card.id) {
                 await CardAPI.postCardComment(context.state.card.id, { comment: payload });
-                // context.commit("addComment", commentActivity);
-
                 // Reload activities 
                 context.commit("unloadCardActivities");
                 await context.dispatch("loadCardActivities");
@@ -205,6 +204,7 @@ export default {
             const data = await ChecklistAPI.markChecklistItem(item.id, item.completed);
             context.commit("updateChecklistItem", data);
             // FIXME: Reload card activities, probably not the best solution!
+            context.commit("unloadCardActivities");
             await context.dispatch("loadCardActivities");
         },
         async updateChecklistItem(context: Context, item: ChecklistItem) {
@@ -216,6 +216,8 @@ export default {
                 const data = await CardAPI.assignCardMember(context.state.card.id, item);
                 context.commit("addCardAsisgnment", data);
                 context.commit("board/updateCard", context.state.card, { root: true });
+                context.commit("unloadCardActivities");
+                await context.dispatch("loadCardActivities");
             }
         },
         async deassignCardMember(context: Context, item: CardMember) {
@@ -223,6 +225,9 @@ export default {
                 await CardAPI.deassignCardMember(context.state.card.id, item.board_user.id);
                 context.commit("removeCardAssignment", item);
                 context.commit("board/updateCard", context.state.card, { root: true });
+
+                context.commit("unloadCardActivities");
+                await context.dispatch("loadCardActivities");
             }
         },
         async updateCard(context: Context, item: Card) {
