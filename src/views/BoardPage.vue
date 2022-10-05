@@ -3,10 +3,10 @@
         <!-- Car details -->
         <card-details-dialog></card-details-dialog>
         <!-- Add member dialog -->
-        <nav class="navbar board">
+        <nav class="navbar board" v-if="!$q.screen.xs">
             {{ board?.title }}
             <div class="boardButtons">
-                <q-btn class="q-ml-lg btn" flat @click=" onDeleteBoardClicked"
+                <q-btn class="q-ml-lg btn" flat @click="onDeleteBoardClicked"
                     v-if="hasPermission(BoardPermission.BOARD_DELETE)">Delete board
                 </q-btn>
                 <q-btn class="q-ml-md btn" flat @click="onMembersClicked">Members</q-btn>
@@ -103,6 +103,7 @@ const onBoardListSortableMoveEnd = () => {
     FIXME: Structrue wise not so ideal to store these methods here.
 */
 const onCardSortableMoveEnd = async (ev: any) => {
+    // TODO: If the card not moved at all, do not call API here!
     const boardFromId: number = parseInt(ev.from.id.split("boardlistCards-")[1]);
     const boardToId: number = parseInt(ev.to.id.split("boardlistCards-")[1]);
 
@@ -134,8 +135,9 @@ const onCardMove = async (ev: any) => {
     cardId = ev.draggedContext.element.id;
 };
 
-const loadBoard = (boardId: number) => {
-    store.dispatch.board.loadBoard({ boardId })
+const loadBoard = async (boardId: number) => {
+    $q.loading.show({ delay: 400 });
+    await store.dispatch.board.loadBoard({ boardId })
         .catch((err) => {
             switch (err.response.status) {
                 case 404:
@@ -146,7 +148,7 @@ const loadBoard = (boardId: number) => {
                     break;
             }
         });
-
+    $q.loading.hide();
 };
 
 const onDeleteBoardClicked = () => {
@@ -190,10 +192,10 @@ onBeforeRouteLeave(() => {
     store.commit.board.unLoadBoard();
 });
 
-onBeforeRouteUpdate((to, from) => {
+onBeforeRouteUpdate(async (to, from) => {
     store.commit.board.unLoadBoard();
     if (to.params.boardId !== from.params.boardId && typeof to.params.boardId === "string") {
-        loadBoard(parseInt(to.params.boardId));
+        await loadBoard(parseInt(to.params.boardId));
     }
 });
 

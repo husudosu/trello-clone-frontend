@@ -3,10 +3,37 @@
         <q-header elevated>
             <q-toolbar>
                 <q-btn flat dense round @click="leftDrawerOpen = !leftDrawerOpen" aria-label="Menu" icon="menu" />
-
                 <q-toolbar-title>
-                    Trello clone
+                    {{ title }}
                 </q-toolbar-title>
+
+                <q-btn v-if="$q.screen.xs && store.state.board.board" flat dense round aria-label="Board menu"
+                    icon="more_vert">
+                    <q-menu>
+                        <q-list>
+                            <q-item clickable v-close-popup>
+                                <q-item-section avatar>
+                                    <q-icon name="person" size="xs"></q-icon>
+                                </q-item-section>
+                                <q-item-section>Members</q-item-section>
+                            </q-item>
+                            <q-item clickable v-close-popup>
+                                <q-item-section avatar>
+                                    <q-icon name="person_add" size="xs"></q-icon>
+                                </q-item-section>
+
+                                <q-item-section>Add member</q-item-section>
+                            </q-item>
+                            <q-separator></q-separator>
+                            <q-item clickable v-close-popup>
+                                <q-item-section avatar>
+                                    <q-icon name="delete" size="xs"></q-icon>
+                                </q-item-section>
+                                <q-item-section>Delete board</q-item-section>
+                            </q-item>
+                        </q-list>
+                    </q-menu>
+                </q-btn>
             </q-toolbar>
         </q-header>
 
@@ -60,10 +87,17 @@
 import { ref, computed } from 'vue';
 import store from "../store";
 import { useRouter } from 'vue-router';
-
+import { useQuasar } from 'quasar';
 const router = useRouter();
 const boards = computed(() => store.state.board.boards);
 const leftDrawerOpen = ref(false);
+
+
+const $q = useQuasar();
+
+const title = computed(() => {
+    return $q.screen.xs && store.state.board.board ? store.state.board.board.title : "Trello clone";
+});
 
 const user = computed(() => store.state.auth.user);
 const onLogoutClicked = () => {

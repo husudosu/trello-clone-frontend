@@ -1,6 +1,5 @@
 <template>
-    <q-dialog v-model="cardModalVisible" :fullWidth="true" :fullHeight="true"
-        :maximized="$q.platform.is.mobile || $q.screen.xs" v-if="card">
+    <q-dialog v-model="cardModalVisible" :fullWidth="true" :fullHeight="true" :maximized="$q.screen.xs" v-if="card">
         <q-layout view="hHh lpR fFf" container class="bg-white">
             <q-header class="bg-primary">
                 <q-toolbar>

@@ -48,13 +48,25 @@ body {
   }
   // background-color: rgba(255, 255, 255, 0.055);
 }
+// TODO: Convert this to quasar variable, but I cannot get working quasar variables here!
+@media only screen and (max-width: 599.99px) {
+  // Do not render navbar-height here we don't show it on mobile view!
+  .lists {
+    height: calc(100vh - #{$appbar-height} - #{$lists-margin-top});
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  .lists {
+    height: calc(
+      100vh - #{$appbar-height} - #{$lists-margin-top} - #{$navbar-height}
+    );
+  }
+}
 
 .lists {
   display: flex;
   overflow-x: auto;
-  height: calc(
-    100vh - #{$appbar-height} - #{$lists-margin-top} - #{$navbar-height}
-  );
   margin-top: 20px;
 
   //width: 100%; // This is needed for FF < 54
