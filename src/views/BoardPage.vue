@@ -186,7 +186,6 @@ const onMembersClicked = () => {
     $q.dialog({
         component: MembersDialog,
     });
-
 };
 onBeforeRouteLeave(() => {
     store.commit.board.unLoadBoard();
