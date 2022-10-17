@@ -10,6 +10,10 @@
                         size="sm" :user="member.board_user.user">
                     </user-avatar>
                 </div>
+                <div class="row q-mb-xs q-mt-sm" v-if="props.card.dates.length > 0">
+                    <card-date-component v-for="dt in props.card.dates" :key="dt.id" class="q-mr-xs" :card-date="dt">
+                    </card-date-component>
+                </div>
                 <div class="cardEditButton">
                     <q-btn size="xs" dense color="blue-grey-6" @click="onEditClick">
                         <q-icon name="edit"></q-icon>
@@ -39,6 +43,7 @@ import { defineProps, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import store from "@/store";
 import UserAvatar from '@/components/UserAvatar.vue';
+import CardDateComponent from './CardDateComponent.vue';
 
 interface Props {
     card: Card;

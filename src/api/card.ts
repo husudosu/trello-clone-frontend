@@ -1,7 +1,7 @@
 import moment from "moment-timezone";
 
 import { API } from ".";
-import { Card, CardActivity, CardActivityQueryParams, CardComment, CardMember, DraftCard, DraftCardMember, PaginatedCardActivity } from "./types";
+import { Card, CardActivity, CardActivityQueryParams, CardComment, CardDate, CardMember, DraftCard, DraftCardDate, DraftCardMember, PaginatedCardActivity } from "./types";
 import store from "@/store";
 export interface MoveCardParams {
     list_id: number;
@@ -19,6 +19,13 @@ export const CardAPI = {
                     item.marked_complete_on = moment.utc(item.marked_complete_on).tz(store.state.auth.user?.timezone || "UTC");
                 }
             });
+        });
+
+        data.dates.forEach((dt) => {
+            if (dt.dt_from) {
+                dt.dt_from = moment.utc(dt.dt_from).tz(store.state.auth.user?.timezone || "UTC");
+            }
+            dt.dt_to = moment.utc(dt.dt_to).tz(store.state.auth.user?.timezone || "UTC");
         });
         return data;
     },
@@ -68,5 +75,24 @@ export const CardAPI = {
     },
     deassignCardMember: async (cardId: number, boardUserId: number) => {
         await API.post<CardMember>(`/card/${cardId}/deassign-member`, { board_user_id: boardUserId });
+    },
+    postCardDate: async (cardId: number, dt: DraftCardDate): Promise<CardDate> => {
+        const { data } = await API.post<CardDate>(`/card/${cardId}/date`, dt);
+        if (data.dt_from) {
+            data.dt_from = moment.utc(dt.dt_from).tz(store.state.auth.user?.timezone || "UTC");
+        }
+        data.dt_to = moment.utc(dt.dt_to).tz(store.state.auth.user?.timezone || "UTC");
+        return data;
+    },
+    patchCardDate: async (cardDateId: number, dt: CardDate): Promise<CardDate> => {
+        const { data } = await API.patch<CardDate>(`/date/${cardDateId}`, dt);
+        if (data.dt_from) {
+            data.dt_from = moment.utc(data.dt_from).tz(store.state.auth.user?.timezone || "UTC");
+        }
+        data.dt_to = moment.utc(data.dt_to).tz(store.state.auth.user?.timezone || "UTC");
+        return data;
+    },
+    deleteCardDate: async (cardDateId: number) => {
+        await API.delete(`/date/${cardDateId}`);
     }
 };

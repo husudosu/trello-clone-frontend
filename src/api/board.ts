@@ -1,6 +1,9 @@
 import { API } from ".";
 import { Board, BoardClaims, BoardRole, AddBoardMemberType, BoardAllowedUser } from "./types";
 
+import moment from "moment-timezone";
+import store from "@/store";
+
 export const BoardAPI = {
     getBoards: async (): Promise<Board[]> => {
         const { data } = await API.get<Board[]>("board");
@@ -8,6 +11,20 @@ export const BoardAPI = {
     },
     getBoard: async (boardId: number): Promise<Board> => {
         const { data } = await API.get<Board>(`/board/${boardId}`);
+
+        // Convert datetimes to moment
+        data.lists.forEach((list) => {
+            list.cards.forEach((card) => {
+
+                // Convert dates to moment dates.
+                card.dates.forEach((dt) => {
+                    if (dt.dt_from) {
+                        dt.dt_from = moment.utc(dt.dt_from).tz(store.state.auth.user?.timezone || "UTC");
+                    }
+                    dt.dt_to = moment.utc(dt.dt_to).tz(store.state.auth.user?.timezone || "UTC");
+                });
+            });
+        });
         return data;
     },
     postBoard: async (board: Partial<Board>): Promise<Board> => {

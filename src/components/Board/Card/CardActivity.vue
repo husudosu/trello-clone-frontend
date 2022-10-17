@@ -17,6 +17,7 @@
                         }}
                     </span>
                 </div>
+                <!-- TODO: Remove DOM here do a function on component instead which creates proper card activity text-->
             </q-item-label>
             <q-item-label caption>
                 <template v-if="props.activity.event == CardActivityEvent.CARD_COMMENT">

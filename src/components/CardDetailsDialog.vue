@@ -30,7 +30,8 @@
                         :disable="!hasPermission(BoardPermission.CHECKLIST_CREATE)" @click="onCreateChecklistClicked">
                         Checklist
                     </q-btn>
-                    <q-btn align="between" class="full-width" icon="schedule" dense>Due date</q-btn>
+                    <q-btn align="between" class="full-width" icon="schedule" dense @click="onAddDateClicked">Date
+                    </q-btn>
                     <q-btn align="between" class="full-width" icon="delete" dense @click="onDeleteClicked"
                         :disable="!hasPermission(BoardPermission.CARD_EDIT)">Delete
                     </q-btn>
@@ -65,6 +66,13 @@
                             </q-input>
                         </template>
                     </div>
+                    <template v-if="card.dates.length > 0">
+                        <div class="row q-mb-sm q-mt-sm">
+                            <card-date-component v-for="dt in card.dates" :key="dt.id" :card-date="dt"
+                                @click="onDateMark(dt)">
+                            </card-date-component>
+                        </div>
+                    </template>
                     <template v-if="card.checklists.length > 0">
                         <div class="row q-mb-sm q-mt-sm">
                             <q-icon name="checklist" class="q-mr-sm text-h5" style="top: 6px;"> </q-icon>
@@ -131,12 +139,15 @@ import { computed, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import store from "@/store";
-import { Card, BoardPermission, BoardAllowedUser, CardMember } from "@/api/types";
+import { Card, BoardPermission, BoardAllowedUser, CardMember, DraftCardDate, CardDate } from "@/api/types";
 import { CardAPI } from '@/api/card';
 import CardActivity from './Board/Card/CardActivity.vue';
 import CardChecklist from './Board/Card/CardChecklist.vue';
 import AssignMember from './Board/Card/AssignMember.vue';
+import CardDateDialog from './Board/Card/CardDateDialog.vue';
+
 import UserAvatar from './UserAvatar.vue';
+import CardDateComponent from "./Board/Card/CardDateComponent.vue";
 
 const $q = useQuasar();
 const hasPermission = store.getters.board.hasPermission;
@@ -252,6 +263,21 @@ const onAssignMemberClicked = () => {
 const onDeassignMember = (member: CardMember) => {
     store.dispatch.card.deassignCardMember(member);
 };
+
+const onAddDateClicked = () => {
+    $q.dialog({
+        component: CardDateDialog
+    }).onOk((data: DraftCardDate) => {
+        store.dispatch.card.addCardDate(data);
+    });
+};
+
+const onDateMark = (cardDate: CardDate) => {
+    console.log("Mark");
+    cardDate.complete = !cardDate.complete;
+    store.dispatch.card.updateCardDate(cardDate);
+}
+
 </script>
 
 <style lang="scss">

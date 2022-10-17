@@ -99,13 +99,40 @@ export interface DraftCard {
 export interface Card {
     id: Readonly<number>;
     list_id: number;
-    owner_id: Readonly<number>;
     title: string;
     description?: string;
-    due_date?: string;
     position?: number;
     checklists: CardChecklist[];
     assigned_members: CardMember[];
+    dates: CardDate[];
+}
+
+/*
+    card_id = fields.Integer(dump_only=True)
+    board_id = fields.Integer(dump_only=True)
+
+    is_due_date = fields.Boolean(missing=False)
+    dt_from = fields.DateTime(required=True)
+    dt_to = fields.DateTime(allow_none=True)
+
+    description = fields.String(allow_none=True)
+*/
+export interface DraftCardDate {
+    is_due_date: boolean;
+    dt_from?: string;
+    dt_to: string;
+    description?: string;
+    complete: boolean;
+}
+
+export interface CardDate {
+    id: Readonly<number>;
+    card_id: Readonly<number>;
+    is_due_date: boolean;
+    dt_from: moment.Moment;
+    dt_to: moment.Moment;
+    description?: string;
+    complete: boolean;
 }
 
 export interface DraftCardMember {

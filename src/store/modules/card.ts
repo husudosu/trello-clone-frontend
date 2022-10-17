@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex";
 import { State } from "../index";
 
-import { Card, CardActivity, CardActivityQueryParams, CardChecklist, ChecklistItem, DraftChecklistItem, PaginatedResponse, CardActivityQueryType, DraftCardMember, CardMember } from "@/api/types";
+import { Card, CardActivity, CardActivityQueryParams, CardChecklist, ChecklistItem, DraftChecklistItem, PaginatedResponse, CardActivityQueryType, DraftCardMember, CardMember, DraftCardDate, CardDate } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
 
@@ -125,6 +125,19 @@ export default {
         },
         setCardMoved(state: CardState, value: boolean) {
             state.cardMoved = value;
+        },
+        addCardDate(state: CardState, item: CardDate) {
+            if (state.card) {
+                state.card.dates.push(item);
+            }
+        },
+        updateCardDate(state: CardState, item: CardDate) {
+            if (state.card) {
+                const index = state.card.dates.findIndex((el) => el.id == item.id);
+                if (index > -1) {
+                    state.card.dates[index] = item;
+                }
+            }
         }
     },
     actions: {
@@ -234,6 +247,18 @@ export default {
             const updatedCard = await CardAPI.patchCard(item.id, item);
             // Update card on board lists card
             context.commit("board/updateCard", updatedCard, { root: true });
+        },
+        async addCardDate(context: Context, item: DraftCardDate) {
+            if (context.state.card) {
+                const dt = await CardAPI.postCardDate(context.state.card.id, item);
+                context.commit("addCardDate", dt);
+            }
+        },
+        async updateCardDate(context: Context, item: CardDate) {
+            if (context.state.card) {
+                const dt = await CardAPI.patchCardDate(item.id, item);
+                context.commit("updateCardDate", dt);
+            }
         }
     }
 };
