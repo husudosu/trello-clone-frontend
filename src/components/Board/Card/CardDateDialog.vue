@@ -7,8 +7,8 @@
             <q-form ref="frm">
                 <q-card-section>
                     <q-checkbox v-model="isRange"></q-checkbox>
-                    <q-input v-model="cardDate.dt_from" :disable="!isRange" mask="date" fill-mask label="Start date"
-                        :rules="isRange ? [requiredTextField] : []">
+                    <q-input v-model="cardDate.dt_from" :disable="!isRange" mask="####-##-## ##:##:##" fill-mask
+                        label="Start date" :rules="isRange ? [requiredTextField] : []">
                     </q-input>
                     <q-input v-model="cardDate.dt_to" mask="####-##-## ##:##:##" :fill-mask="true" label="Due date"
                         :rules="[requiredTextField]">

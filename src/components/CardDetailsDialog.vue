@@ -17,6 +17,7 @@
                     <q-btn flat v-close-popup round dense icon="close" />
                 </q-toolbar>
             </q-header>
+            <!-- Right side menu-->
             <q-drawer side="right" v-model="rightDrawerVisible" :width="250" :breakpoint="400" class="bg-white q-pa-sm"
                 show-if-above>
                 <span class="text-h5">Card settings</span>
@@ -25,12 +26,12 @@
                         :disable="!hasPermission(BoardPermission.CARD_ASSIGN_MEMBER)" @click="onAssignMemberClicked">
                         Members
                     </q-btn>
-                    <q-btn align="between" class="full-width" icon="label" dense>Labels</q-btn>
                     <q-btn align="between" class="full-width" icon="checklist" dense
                         :disable="!hasPermission(BoardPermission.CHECKLIST_CREATE)" @click="onCreateChecklistClicked">
                         Checklist
                     </q-btn>
-                    <q-btn align="between" class="full-width" icon="schedule" dense @click="onAddDateClicked">Date
+                    <q-btn align="between" class="full-width" icon="schedule" dense @click="onAddDateClicked"
+                        :disable="!hasPermission(BoardPermission.CARD_ADD_DATE)">Date
                     </q-btn>
                     <q-btn align="between" class="full-width" icon="delete" dense @click="onDeleteClicked"
                         :disable="!hasPermission(BoardPermission.CARD_EDIT)">Delete
@@ -49,6 +50,7 @@
             </q-drawer>
             <q-page-container>
                 <q-page padding>
+                    <card-dates v-if="card.dates.length > 0"></card-dates>
                     <div class="row q-mb-sm">
                         <q-icon name="article" class="q-mr-sm text-h5" style="top: 6px;"> </q-icon>
                         <span class="text-h5">
@@ -66,13 +68,6 @@
                             </q-input>
                         </template>
                     </div>
-                    <template v-if="card.dates.length > 0">
-                        <div class="row q-mb-sm q-mt-sm">
-                            <card-date-component v-for="dt in card.dates" :key="dt.id" :card-date="dt"
-                                @click="onDateMark(dt)">
-                            </card-date-component>
-                        </div>
-                    </template>
                     <template v-if="card.checklists.length > 0">
                         <div class="row q-mb-sm q-mt-sm">
                             <q-icon name="checklist" class="q-mr-sm text-h5" style="top: 6px;"> </q-icon>
@@ -139,7 +134,7 @@ import { computed, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import store from "@/store";
-import { Card, BoardPermission, BoardAllowedUser, CardMember, DraftCardDate, CardDate } from "@/api/types";
+import { Card, BoardPermission, BoardAllowedUser, CardMember, DraftCardDate } from "@/api/types";
 import { CardAPI } from '@/api/card';
 import CardActivity from './Board/Card/CardActivity.vue';
 import CardChecklist from './Board/Card/CardChecklist.vue';
@@ -147,7 +142,7 @@ import AssignMember from './Board/Card/AssignMember.vue';
 import CardDateDialog from './Board/Card/CardDateDialog.vue';
 
 import UserAvatar from './UserAvatar.vue';
-import CardDateComponent from "./Board/Card/CardDateComponent.vue";
+import CardDates from './Board/Card/Details/CardDates.vue';
 
 const $q = useQuasar();
 const hasPermission = store.getters.board.hasPermission;
@@ -271,12 +266,6 @@ const onAddDateClicked = () => {
         store.dispatch.card.addCardDate(data);
     });
 };
-
-const onDateMark = (cardDate: CardDate) => {
-    console.log("Mark");
-    cardDate.complete = !cardDate.complete;
-    store.dispatch.card.updateCardDate(cardDate);
-}
 
 </script>
 

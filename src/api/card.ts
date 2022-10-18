@@ -35,6 +35,12 @@ export const CardAPI = {
     },
     patchCard: async (cardId: number, updatedCard: Partial<Card>) => {
         const { data } = await API.patch<Card>(`/card/${cardId}`, updatedCard);
+        data.dates.forEach((dt) => {
+            if (dt.dt_from) {
+                dt.dt_from = moment.utc(dt.dt_from).tz(store.state.auth.user?.timezone || "UTC");
+            }
+            dt.dt_to = moment.utc(dt.dt_to).tz(store.state.auth.user?.timezone || "UTC");
+        });
         return data;
     },
     moveCard: async (cardId: number, params: MoveCardParams) => {

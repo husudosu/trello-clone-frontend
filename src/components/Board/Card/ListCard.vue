@@ -11,8 +11,9 @@
                     </user-avatar>
                 </div>
                 <div class="row q-mb-xs q-mt-sm" v-if="props.card.dates.length > 0">
-                    <card-date-component v-for="dt in props.card.dates" :key="dt.id" class="q-mr-xs" :card-date="dt">
-                    </card-date-component>
+                    <card-date-chip v-for="dt in props.card.dates" :key="dt.id" class="q-mr-xs" :card-date="dt"
+                        @click="onDateMark($event, dt)">
+                    </card-date-chip>
                 </div>
                 <div class="cardEditButton">
                     <q-btn size="xs" dense color="blue-grey-6" @click="onEditClick">
@@ -38,12 +39,12 @@
 </template>
 
 <script lang="ts" setup>
-import { Card } from '@/api/types';
+import { Card, CardDate } from '@/api/types';
 import { defineProps, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import store from "@/store";
 import UserAvatar from '@/components/UserAvatar.vue';
-import CardDateComponent from './CardDateComponent.vue';
+import CardDateChip from './Status/CardDateChip.vue';
 
 interface Props {
     card: Card;
@@ -61,7 +62,6 @@ const onCardClick = () => {
      The issue only appears when you move card inside a list
     If you move one list to other it's not an isssued
     */
-    console.log("Card click");
     if (!editMode.value && !store.state.card.cardMoved) {
         store.dispatch.card.loadCard(props.card.id).then(() => {
             store.commit.card.setVisible(true);
@@ -105,7 +105,14 @@ const onCardTitleKeyUp = (ev: KeyboardEvent) => {
 const onEditClick = (ev: any) => {
     ev.stopPropagation();
     // Create structured clone of card
-    cardUpdate.value = structuredClone(props.card);
+    cardUpdate.value = { ...props.card };
     editMode.value = true;
 };
+
+const onDateMark = (ev: any, cardDate: CardDate) => {
+    ev.stopPropagation();
+    cardDate.complete = !cardDate.complete;
+    store.dispatch.card.updateCardDate(cardDate);
+};
+
 </script>

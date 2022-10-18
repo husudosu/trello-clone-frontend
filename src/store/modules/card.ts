@@ -138,6 +138,14 @@ export default {
                     state.card.dates[index] = item;
                 }
             }
+        },
+        deleteCardDate(state: CardState, item: CardDate) {
+            if (state.card) {
+                const index = state.card.dates.findIndex((el) => el.id == item.id);
+                if (index > -1) {
+                    state.card.dates.splice(index, 1);
+                }
+            }
         }
     },
     actions: {
@@ -255,10 +263,12 @@ export default {
             }
         },
         async updateCardDate(context: Context, item: CardDate) {
-            if (context.state.card) {
-                const dt = await CardAPI.patchCardDate(item.id, item);
-                context.commit("updateCardDate", dt);
-            }
+            const dt = await CardAPI.patchCardDate(item.id, item);
+            context.commit("updateCardDate", dt);
+        },
+        async deleteCardDate(context: Context, item: CardDate) {
+            await CardAPI.deleteCardDate(item.id);
+            context.commit("deleteCardDate", item);
         }
     }
 };

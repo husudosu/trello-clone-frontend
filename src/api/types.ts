@@ -277,6 +277,8 @@ export enum BoardPermission {
     CARD_DELETE = "card.delete",
     CARD_ASSIGN_MEMBER = "card.assign_member",
     CARD_DEASSIGN_MEMBER = "card.deassign_member",
+    CARD_ADD_DATE = "card.add_date",
+    CARD_EDIT_DATE = "card.edit_date",
     LIST_CREATE = "list.create",
     LIST_EDIT = "list.edit",
     LIST_DELETE = "list.delete",
@@ -285,4 +287,5 @@ export enum BoardPermission {
     CHECKLIST_CREATE = "checklist.create",
     CHECKLIST_EDIT = "checklist.edit",
     CHECKLIST_ITEM_MARK = "checklist_item.mark",
+
 }
