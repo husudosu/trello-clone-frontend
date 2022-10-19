@@ -107,16 +107,7 @@ export interface Card {
     dates: CardDate[];
 }
 
-/*
-    card_id = fields.Integer(dump_only=True)
-    board_id = fields.Integer(dump_only=True)
 
-    is_due_date = fields.Boolean(missing=False)
-    dt_from = fields.DateTime(required=True)
-    dt_to = fields.DateTime(allow_none=True)
-
-    description = fields.String(allow_none=True)
-*/
 export interface DraftCardDate {
     is_due_date: boolean;
     dt_from?: string;
@@ -128,8 +119,7 @@ export interface DraftCardDate {
 export interface CardDate {
     id: Readonly<number>;
     card_id: Readonly<number>;
-    is_due_date: boolean;
-    dt_from: moment.Moment;
+    dt_from?: moment.Moment;
     dt_to: moment.Moment;
     description?: string;
     complete: boolean;
@@ -268,6 +258,9 @@ export enum CardActivityEvent {
     CHECKLIST_ITEM_USER_ASSIGN = 9,
     CARD_ASSIGN_MEMBER = 10,
     CARD_DEASSIGN_MEMBER = 11,
+    CARD_ADD_DATE = 12,
+    CARD_EDIT_DATE = 13,
+    CARD_DELETE_DATE = 14,
 }
 
 

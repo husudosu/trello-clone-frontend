@@ -17,11 +17,10 @@
                         }}
                     </span>
                 </div>
-                <!-- TODO: Remove DOM here do a function on component instead which creates proper card activity text-->
             </q-item-label>
             <q-item-label caption>
                 <template v-if="props.activity.event == CardActivityEvent.CARD_COMMENT">
-                    <div class="rounded-borders	 q-pa-sm cardComment">
+                    <div class="rounded-borders	q-pa-sm cardComment">
                         <span style="white-space: pre-wrap;">{{ activity?.comment?.comment
                         }}</span>
                     </div>
@@ -48,6 +47,15 @@
                 <template v-else-if="props.activity.event == CardActivityEvent.CARD_DEASSIGN_MEMBER">
                     Deassigned card from <b>{{
                     store.getters.board.getBoardUsername(props.activity.changes.from.board_user_id)}}</b>
+                </template>
+                <template v-else-if="props.activity.event == CardActivityEvent.CARD_ADD_DATE">
+                    Created card date.
+                </template>
+                <template v-else-if="props.activity.event == CardActivityEvent.CARD_EDIT_DATE">
+                    Updated card date: {{ props.activity.changes.description || props.activity.changes.dt_to}}
+                </template>
+                <template v-else-if="props.activity.event == CardActivityEvent.CARD_DELETE_DATE">
+                    Removed card date.
                 </template>
             </q-item-label>
         </q-item-section>
