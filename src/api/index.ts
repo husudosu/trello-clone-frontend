@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 
 import store from "@/store";
 import router from "@/router";
-import { getCookie } from "@/cookie";
+import { Cookies } from 'quasar';
 
 const config: AxiosRequestConfig = {
     withCredentials: true,
@@ -17,17 +17,10 @@ const config: AxiosRequestConfig = {
 export const API: AxiosInstance = axios.create(config);
 
 // TODO: Handle refresh-token
-API.interceptors.request.use((config: AxiosRequestConfig) => {
-    const csrf_access_token: string | undefined = getCookie("csrf_access_token");
-    if (config.headers === undefined)
-        config.headers = {};
-    if (csrf_access_token != null) {
-        config.headers["X-CSRF-TOKEN-ACCESS"] = csrf_access_token;
-    }
-    return config;
-}, (error) => {
-    return Promise.reject(error);
-});
+API.defaults.headers.post["X-CSRF-TOKEN-ACCESS"] = Cookies.get("csrf_access_token");
+API.defaults.headers.patch["X-CSRF-TOKEN-ACCESS"] = Cookies.get("csrf_access_token");
+API.defaults.headers.delete["X-CSRF-TOKEN-ACCESS"] = Cookies.get("csrf_access_token");
+
 
 API.interceptors.response.use((response: AxiosResponse) => {
     return response;
