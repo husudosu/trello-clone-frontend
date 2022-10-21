@@ -29,7 +29,7 @@
             @keyup.enter="onItemTitleKeyup"></q-input>
         <div v-if="addNewItem == false" class="q-mb-sm">
             <q-btn v-if="hasPermission(BoardPermission.CHECKLIST_EDIT)" size="sm" @click="addNewItem = true"
-                class="q-ma-sm">Add item</q-btn>
+                class="q-ma-sm" color="primary">Add item</q-btn>
         </div>
         <div v-else class="q-mb-sm">
             <q-btn size="sm" color="primary" @click="onNewItemAdd" class="q-ma-sm">Add</q-btn>

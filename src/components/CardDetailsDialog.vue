@@ -87,7 +87,7 @@
                             </span>
                         </div>
                         <div class="q-ml-xs q-mb-xs on-right">
-                            <q-btn size="sm" style="top: 10px;" @click="onCardDetailsButtonClicked">
+                            <q-btn color="primary" size="sm" style="top: 10px;" @click="onCardDetailsButtonClicked">
                                 {{cardActivityQueryType == "all" ? "Hide details" :
                                 "Show details"}}
                             </q-btn>

@@ -109,9 +109,8 @@ export interface Card {
 
 
 export interface DraftCardDate {
-    is_due_date: boolean;
     dt_from?: string;
-    dt_to: string;
+    dt_to: string | null;
     description?: string;
     complete: boolean;
 }
@@ -119,7 +118,7 @@ export interface DraftCardDate {
 export interface CardDate {
     id: Readonly<number>;
     card_id: Readonly<number>;
-    dt_from?: moment.Moment;
+    dt_from?: moment.Moment | null;
     dt_to: moment.Moment;
     description?: string;
     complete: boolean;

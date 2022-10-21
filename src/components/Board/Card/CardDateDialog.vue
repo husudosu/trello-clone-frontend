@@ -14,7 +14,7 @@
                         <template v-slot:prepend>
                             <q-icon name="event" class="cursor-pointer">
                                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                    <q-date v-model="cardDate.dt_to" mask="YYYY-MM-DD HH:mm">
+                                    <q-date v-model="cardDate.dt_from" mask="YYYY-MM-DD HH:mm">
                                         <div class="row items-center justify-end">
                                             <q-btn v-close-popup label="Close" color="primary" flat />
                                         </div>
@@ -71,9 +71,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineEmits, ref } from 'vue';
+import { defineEmits, ref, defineProps, onMounted } from 'vue';
 import { useDialogPluginComponent } from 'quasar';
-import { DraftCardDate } from "@/api/types";
+import { CardDate, DraftCardDate } from "@/api/types";
 import { validateDateTime } from "@/formValidators";
 
 defineEmits([
@@ -82,32 +82,47 @@ defineEmits([
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent();
 
+interface Props {
+    cardDate?: CardDate;
+}
+const props = defineProps<Props>();
+
 const frm = ref();
 const isRange = ref(false);
 const cardDate = ref<DraftCardDate>({
     dt_to: "",
-    is_due_date: false,
     description: "",
     complete: false
 });
 
-// dialogRef      - Vue ref to be applied to QDialog
-// onDialogHide   - Function to be used as handler for @hide on QDialog
-// onDialogOK     - Function to call to settle dialog with "ok" outcome
-//                    example: onDialogOK() - no payload
-//                    example: onDialogOK({ /*...*/ }) - with payload
-// onDialogCancel - Function to call to settle dialog with "cancel" outcome
 
-// this is part of our example (so not required)
 function onOKClick() {
-    // on OK, it is REQUIRED to
-    // call onDialogOK (with optional payload)
     frm.value.validate().then((success: boolean) => {
         if (success) {
-            onDialogOK(cardDate.value);
+            // Remove dt_from if isRange disabled.
+            if (!isRange.value) {
+                // FIXME: I don't know why TSC complains about being this null, type allows null/undefined variables!
+                cardDate.value.dt_from = null;
+            }
+
+            if (!props.cardDate)
+                onDialogOK(cardDate.value);
+            else
+                onDialogOK({ ...cardDate.value, id: props.cardDate.id });
         }
     });
-    // or with payload: onDialogOK({ ... })
-    // ...and it will also hide the dialog automatically
 }
+
+onMounted(() => {
+    // If got cardDate prop we should edit the date
+    if (props.cardDate) {
+        // Convert dates to string
+        if (props.cardDate.dt_from) {
+            cardDate.value.dt_from = props.cardDate.dt_from.format("YYYY-MM-DD HH:mm");
+            isRange.value = true;
+        }
+        cardDate.value.dt_to = props.cardDate.dt_to.format("YYYY-MM-DD HH:mm");
+        cardDate.value.description = props.cardDate.description;
+    }
+});
 </script>
