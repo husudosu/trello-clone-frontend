@@ -8,7 +8,6 @@ const config: AxiosRequestConfig = {
     withCredentials: true,
     baseURL: process.env.VUE_APP_API_BASEURL,
     timeout: 10000,
-    xsrfCookieName: "csrf_access_token",
     headers: {
         "Content-Type": "application/json",
     },
@@ -17,10 +16,20 @@ const config: AxiosRequestConfig = {
 export const API: AxiosInstance = axios.create(config);
 
 // TODO: Handle refresh-token
-API.defaults.headers.post["X-CSRF-TOKEN-ACCESS"] = Cookies.get("csrf_access_token");
-API.defaults.headers.patch["X-CSRF-TOKEN-ACCESS"] = Cookies.get("csrf_access_token");
-API.defaults.headers.delete["X-CSRF-TOKEN-ACCESS"] = Cookies.get("csrf_access_token");
 
+API.interceptors.request.use((config: AxiosRequestConfig) => {
+    switch (config.method) {
+        case "post":
+        case "patch":
+        case "delete":
+            if (config.headers)
+                config.headers["X-CSRF-TOKEN-ACCESS"] = Cookies.get("csrf_access_token");
+            break;
+    }
+    return config;
+}, (err) => {
+    Promise.reject(err);
+});
 
 API.interceptors.response.use((response: AxiosResponse) => {
     return response;
