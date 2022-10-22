@@ -5,6 +5,7 @@ import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
 import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftCard, DraftBoardList, BoardAllowedUser } from "@/api/types";
+import { SIOCardUpdateOrder } from "@/socketTypes";
 
 export interface BoardState {
     boards: Board[];
@@ -102,9 +103,16 @@ export default {
             if (state.board !== null) {
                 // Find list
                 const index = state.board.lists.findIndex((el) => el.id == card.list_id);
+
                 if (index > -1) {
-                    // Add new card to list.
-                    state.board.lists[index].cards.push(card);
+                    // Check if card already exists.
+                    const isExists = state.board.lists[index].cards.findIndex((el) => el.id == card.id);
+
+                    // Not exists on store yet (Required for Socket IO client)
+                    if (isExists === -1) {
+                        console.debug("We should add the card to store");
+                        state.board.lists[index].cards.push(card);
+                    }
                 }
             }
         },
@@ -129,6 +137,7 @@ export default {
                     if (cardIndex > -1) {
                         state.board.lists[listIndex].cards[cardIndex] = card;
                     }
+
                 }
             }
         },
@@ -157,6 +166,24 @@ export default {
                     state.board.lists[listIndex].cards = payload.cards;
                 }
             }
+        },
+        updateListOrder(state: BoardState, orderOfIds: number[]) {
+            if (state.board) {
+                state.board.lists.sort((a, b) => orderOfIds.indexOf(a.id) - orderOfIds.indexOf(b.id));
+            }
+        },
+        updateCardOrder(state: BoardState, payload: SIOCardUpdateOrder) {
+            if (state.board) {
+                // Find list
+                const listIndex = state.board.lists.findIndex((el) => el.id === payload.list_id);
+
+                if (listIndex > -1) {
+                    state.board.lists[listIndex].cards.sort((a, b) => payload.order.indexOf(a.id) - payload.order.indexOf(b.id));
+                }
+            }
+        },
+        moveCard(state: BoardState, card: Card) {
+            console.log("TODO: Implement");
         }
     },
     actions: {

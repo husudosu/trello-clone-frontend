@@ -58,15 +58,77 @@ import store from "@/store/index";
 import { CardAPI } from "@/api/card";
 import { BoardListAPI } from '@/api/boardList';
 import { BoardAPI } from "@/api/board";
-import { BoardPermission } from "@/api/types";
+import { BoardPermission, Card } from "@/api/types";
+import { SIOCardUpdateOrder } from "@/socketTypes";
 
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import BoardList from "@/components/Board/List/BoardList.vue";
 import AddMemberDialog from "@/components/Board/AddMemberDialog.vue";
 import MembersDialog from "@/components/Board/MembersDialog.vue";
 import DraftBoardList from "@/components/Board/List/DraftBoardList.vue";
+import { useSocketIO } from "@/socket";
 
 const $q = useQuasar();
+const { socket } = useSocketIO();
+
+
+/*
+Socket.IO handler for boards.
+*/
+socket.io.on("error", (error) => {
+    console.debug(`[Socket.IO]: Error ${JSON.stringify(error)}`);
+});
+socket.on("connect", () => {
+    console.debug(`[Socket.IO]: Connection to server: Board namespace ${socket.connected}`);
+});
+socket.onAny((event, ...args) => {
+    console.debug(`[Socket.IO]: Got event: ${event}`);
+});
+
+// New card created
+socket.on("card.new", (data: Card) => {
+    console.group("[Socket.IO]: New card");
+    console.debug(data);
+    console.debug("Saving new card if not exists");
+    store.commit.board.saveNewCard(data);
+    console.groupEnd();
+});
+
+// Card updated
+socket.on("card.update", (data: Card) => {
+    console.group("[Socket.IO]: Card update");
+    console.debug(data);
+
+    console.debug("Update card on store");
+    store.commit.board.updateCard(data);
+    console.groupEnd();
+});
+
+// Card order updated
+socket.on("card.update.order", (data: SIOCardUpdateOrder) => {
+    console.group("[Socket.IO]: Card update order");
+    console.debug(data);
+    store.commit.board.updateCardOrder(data);
+    console.groupEnd();
+});
+
+// Card deleted
+socket.on("card.delete", (data: Card) => {
+    console.group("[Socket.IO]: Card delete");
+    console.debug("Remove from store");
+    console.debug(data);
+    store.commit.board.removeCard(data);
+    console.groupEnd();
+});
+
+// List order updated
+socket.on("list.update.order", (data: number[]) => {
+    console.group("[Socket.IO]: Update list order");
+    console.debug(data);
+    store.commit.board.updateListOrder(data);
+    console.groupEnd();
+});
+
 
 const board = computed(() => store.state.board.board);
 
@@ -201,6 +263,7 @@ onBeforeRouteUpdate(async (to, from) => {
 onMounted(() => {
     if (typeof route.params.boardId === "string") {
         loadBoard(parseInt(route.params.boardId));
+        socket.emit("board_change", { board_id: route.params.boardId });
     }
 })
 
