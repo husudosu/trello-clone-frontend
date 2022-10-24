@@ -8,7 +8,7 @@
                     </q-input>
                 </template>
                 <template v-else>
-                    {{ boardList.title }}
+                    {{ props.boardList.title }}
                     <q-btn flat round icon="more_horiz" style="float: right;">
                         <q-menu v-model="showMenu">
                             <q-list style="min-width: 100px">
@@ -31,8 +31,8 @@
                     </template>
                 </draggable>
                 <template v-if="showAddCard">
-                    <draft-card :boardListId="boardList.id" :onCancel="() =>{showAddCard = false}"
-                        :onSaveSuccess="() => {showAddCard = false}"></draft-card>
+                    <draft-card :boardListId="boardList.id" :onCancel="() => { showAddCard = false; }"
+                        :onSaveSuccess="() => { showAddCard = false; }"></draft-card>
                 </template>
             </ul>
             <footer @click="onAddCardClick">

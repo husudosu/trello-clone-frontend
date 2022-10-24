@@ -1,15 +1,91 @@
 import SocketIO from 'socket.io-client';
+import { BoardList, Card } from './api/types';
 
 const options = { withCredentials: true, debug: true };
-
-// export const socket = new VueSocketIO({
-//     debug: true,
-//     connection: SocketIO(process.env.VUE_APP_SOCKET_SERVER, options)
-// });
+import store from "@/store/index";
 
 export const useSocketIO = () => {
     const socket = SocketIO(process.env.VUE_APP_SOCKET_SERVER + "/board", options);
     return {
         socket,
     };
+};
+
+export enum SIOEvent {
+    CARD_NEW = "card.new",
+    CARD_UPDATE = "card.update",
+    CARD_DELETE = "card.delete",
+    CARD_UPDATE_ORDER = "card.update.order",
+    LIST_NEW = "list.new",
+    LIST_UPDATE_ORDER = "list.update.order",
+    LIST_UPDATE = "list.update",
+    LIST_DELETE = "list.delete"
+}
+
+export interface SIOCardUpdateOrder {
+    list_id: number;
+    order: number[];
+}
+
+export interface SIOCardMoved {
+    card_id: number;
+    from_list_id: number;
+    to_list_id: number;
+}
+
+// Event listeners for Board namespace
+export const SIOBoardEventListeners = {
+    newCard: (data: Card) => {
+        console.group("[Socket.IO]: New card");
+        console.debug(data);
+        console.debug("Saving new card if not exists");
+        store.commit.board.saveNewCard(data);
+        console.groupEnd();
+    },
+    cardUpdate: (data: Card) => {
+        console.group("[Socket.IO]: Card update");
+        console.debug(data);
+
+        console.debug("Update card on store");
+        store.commit.board.updateCard(data);
+        console.groupEnd();
+    },
+    cardOrderUpdate: (data: SIOCardUpdateOrder) => {
+        console.group("[Socket.IO]: Card update order");
+        console.debug(data);
+        store.commit.board.updateCardOrder(data);
+        console.groupEnd();
+    },
+    cardDelete: (data: Card) => {
+        console.group("[Socket.IO]: Card delete");
+        console.debug("Remove from store");
+        console.debug(data);
+        store.commit.board.removeCard(data);
+        console.groupEnd();
+    },
+    newList: (data: BoardList) => {
+        console.group("[Socket.IO]: New list");
+        console.debug(data);
+        store.commit.board.saveNewList(data);
+        console.groupEnd();
+    },
+    listUpdateOrder: (data: number[]) => {
+        console.group("[Socket.IO]: Update list order");
+        console.debug(data);
+        store.commit.board.updateListOrder(data);
+        console.groupEnd();
+    },
+    listUpdate: (data: BoardList) => {
+        console.group("[Socket.IO]: Update list");
+        console.debug(data);
+        // store.commit.board.saveNewList(data);
+        store.commit.board.saveExistingList(data);
+        console.groupEnd();
+    },
+    deleteList: (data: BoardList) => {
+        console.group("[Socket.IO]: Delete list");
+        console.debug(data);
+        store.commit.board.removeList(data);
+        console.groupEnd();
+    }
 };

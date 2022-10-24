@@ -5,7 +5,7 @@ import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
 import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftCard, DraftBoardList, BoardAllowedUser } from "@/api/types";
-import { SIOCardUpdateOrder } from "@/socketTypes";
+import { SIOCardUpdateOrder } from "@/socket";
 
 export interface BoardState {
     boards: Board[];
@@ -72,13 +72,20 @@ export default {
         },
         saveNewList(state: BoardState, boardList: BoardList) {
             if (state.board !== null) {
-                state.board.lists.push(boardList);
+
+                // Check if exists
+                const index = state.board.lists.findIndex((el) => el.id === boardList.id);
+
+                if (index === -1) {
+                    state.board.lists.push(boardList);
+                }
             }
         },
         saveExistingList(state: BoardState, boardList: BoardList) {
             if (state.board !== null) {
                 // Find board and overwrite it in store
                 const index = state.board.lists.findIndex((el) => el.id == boardList.id);
+                console.log(index);
                 if (index > -1) {
                     state.board.lists[index] = boardList;
                 }
@@ -182,9 +189,6 @@ export default {
                 }
             }
         },
-        moveCard(state: BoardState, card: Card) {
-            console.log("TODO: Implement");
-        }
     },
     actions: {
         async loadBoard(context: Context, payload: { boardId: number; }) {

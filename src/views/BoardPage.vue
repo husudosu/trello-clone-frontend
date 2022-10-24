@@ -23,8 +23,8 @@
                 :force-fallback="true" :animation="200">
                 <!-- Board list object and reorder handling of cards.-->
                 <template #item="{ element }">
-                    <board-list :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
-                    </board-list>
+                    <board-list-vue :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
+                    </board-list-vue>
                 </template>
             </draggable>
 
@@ -40,8 +40,8 @@
                     </div>
                 </template>
                 <template v-else>
-                    <draft-board-list :boardId="board.id" :onCancel="() => {showAddDraftList = false}"
-                        :onSaveSuccess="() => {showAddDraftList = false}"></draft-board-list>
+                    <draft-board-list :boardId="board.id" :onCancel="() => { showAddDraftList = false; }"
+                        :onSaveSuccess="() => { showAddDraftList = false; }"></draft-board-list>
                 </template>
             </div>
         </div>
@@ -58,19 +58,17 @@ import store from "@/store/index";
 import { CardAPI } from "@/api/card";
 import { BoardListAPI } from '@/api/boardList';
 import { BoardAPI } from "@/api/board";
-import { BoardPermission, Card } from "@/api/types";
-import { SIOCardUpdateOrder } from "@/socketTypes";
+import { BoardPermission } from "@/api/types";
 
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
-import BoardList from "@/components/Board/List/BoardList.vue";
+import BoardListVue from "@/components/Board/List/BoardList.vue";
 import AddMemberDialog from "@/components/Board/AddMemberDialog.vue";
 import MembersDialog from "@/components/Board/MembersDialog.vue";
 import DraftBoardList from "@/components/Board/List/DraftBoardList.vue";
-import { useSocketIO } from "@/socket";
+import { useSocketIO, SIOEvent, SIOBoardEventListeners } from "@/socket";
 
 const $q = useQuasar();
 const { socket } = useSocketIO();
-
 
 /*
 Socket.IO handler for boards.
@@ -85,50 +83,14 @@ socket.onAny((event, ...args) => {
     console.debug(`[Socket.IO]: Got event: ${event}`);
 });
 
-// New card created
-socket.on("card.new", (data: Card) => {
-    console.group("[Socket.IO]: New card");
-    console.debug(data);
-    console.debug("Saving new card if not exists");
-    store.commit.board.saveNewCard(data);
-    console.groupEnd();
-});
-
-// Card updated
-socket.on("card.update", (data: Card) => {
-    console.group("[Socket.IO]: Card update");
-    console.debug(data);
-
-    console.debug("Update card on store");
-    store.commit.board.updateCard(data);
-    console.groupEnd();
-});
-
-// Card order updated
-socket.on("card.update.order", (data: SIOCardUpdateOrder) => {
-    console.group("[Socket.IO]: Card update order");
-    console.debug(data);
-    store.commit.board.updateCardOrder(data);
-    console.groupEnd();
-});
-
-// Card deleted
-socket.on("card.delete", (data: Card) => {
-    console.group("[Socket.IO]: Card delete");
-    console.debug("Remove from store");
-    console.debug(data);
-    store.commit.board.removeCard(data);
-    console.groupEnd();
-});
-
-// List order updated
-socket.on("list.update.order", (data: number[]) => {
-    console.group("[Socket.IO]: Update list order");
-    console.debug(data);
-    store.commit.board.updateListOrder(data);
-    console.groupEnd();
-});
-
+socket.on(SIOEvent.CARD_NEW, SIOBoardEventListeners.newCard);
+socket.on(SIOEvent.CARD_UPDATE, SIOBoardEventListeners.cardUpdate);
+socket.on(SIOEvent.CARD_UPDATE_ORDER, SIOBoardEventListeners.cardOrderUpdate);
+socket.on(SIOEvent.CARD_DELETE, SIOBoardEventListeners.cardDelete);
+socket.on(SIOEvent.LIST_NEW, SIOBoardEventListeners.newList);
+socket.on(SIOEvent.LIST_UPDATE_ORDER, SIOBoardEventListeners.listUpdateOrder);
+socket.on(SIOEvent.LIST_UPDATE, SIOBoardEventListeners.listUpdate);
+socket.on(SIOEvent.LIST_DELETE, SIOBoardEventListeners.deleteList);
 
 const board = computed(() => store.state.board.board);
 
