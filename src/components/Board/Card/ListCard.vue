@@ -1,5 +1,5 @@
 <template>
-    <div class="listCard" @click="onCardClick">
+    <div class="listCard" @click="onCardClick" :data-id="props.card.id">
         <template v-if="!editMode">
             <div class="title">
                 <li style="width: 100%; margin-bottom: 2px;">

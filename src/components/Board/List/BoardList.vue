@@ -22,10 +22,10 @@
                 </template>
             </header>
             <ul ref="cardsWrapper">
-                <draggable :id="'boardlistCards-' + boardList?.id" class="list-group" v-model="cards"
-                    group="board-cards" itemKey="id" @end="onEnd" :move="onMove" draggable=".listCard"
-                    :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100" v-if="boardList.id"
-                    :scroll-sensitivity="200" :fallback-tolerance="1" :force-fallback="true" :animation="200">
+                <draggable :data-id="boardList.id" class="list-group" v-model="cards" group="board-cards" itemKey="id"
+                    @end="onEnd" draggable=".listCard" :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100"
+                    v-if="boardList.id" :scroll-sensitivity="200" :fallback-tolerance="1" :force-fallback="true"
+                    :animation="200">
                     <template #item="{ element }">
                         <list-card :card="element" :boardListId="boardList?.id"></list-card>
                     </template>
@@ -66,12 +66,10 @@ Vue v3 sortable.js:
 https://github.com/SortableJS/vue.draggable.next/blob/master/types/vuedraggable.d.ts
 */
 
-type OnMove = (ev: any) => void;
 type OnEnd = (ev: any) => void;
 
 interface Props {
     boardList: BoardList;
-    onMove: OnMove;
     onEnd: OnEnd;
 }
 const listWrapperRef = ref();

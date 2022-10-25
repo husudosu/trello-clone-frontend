@@ -17,13 +17,13 @@
         </nav>
         <!-- Dragabble object for reordering lists-->
         <div class="lists" ref="listsWrapper" v-if="board">
-            <draggable v-model="boardLists" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
+            <draggable v-model="boardLists" itemKey="data-id" :delayOnTouchOnly="true" :touchStartThreshold="100"
                 :delay="500" @end="onBoardListSortableMoveEnd" group="board-list" handle=".listHeader"
                 style="display:flex" direction="horizontal" :scroll-sensitivity="170" :fallback-tolerance="1"
                 :force-fallback="true" :animation="200">
                 <!-- Board list object and reorder handling of cards.-->
                 <template #item="{ element }">
-                    <board-list-vue :onMove="onCardMove" :onEnd="onCardSortableMoveEnd" :boardList="element">
+                    <board-list-vue :onEnd="onCardSortableMoveEnd" :boardList="element">
                     </board-list-vue>
                 </template>
             </draggable>
@@ -108,7 +108,6 @@ const listsWrapper = ref();
 
 const showAddDraftList = ref(false);
 
-let cardId: number | undefined;
 /*
     Dragabble object events for board lists
 */
@@ -123,10 +122,9 @@ const onBoardListSortableMoveEnd = () => {
     FIXME: Structrue wise not so ideal to store these methods here.
 */
 const onCardSortableMoveEnd = async (ev: any) => {
-    // TODO: If the card not moved at all, do not call API here!
-
-    const boardFromId: number = parseInt(ev.from.id.split("boardlistCards-")[1]);
-    const boardToId: number = parseInt(ev.to.id.split("boardlistCards-")[1]);
+    const cardId: number = parseInt(ev.item.getAttribute("data-id"));
+    const listFromId: number = parseInt(ev.from.getAttribute("data-id"));
+    const listToId: number = parseInt(ev.to.getAttribute("data-id"));
 
     /* FIXME: Hacky way to prevent card click event after move.
      The issue only appears when you move card inside a list
@@ -135,33 +133,27 @@ const onCardSortableMoveEnd = async (ev: any) => {
     store.commit.card.setCardMoved(true);
     setTimeout(() => store.commit.card.setCardMoved(false), 30);
 
-    if (boardFromId !== boardToId && cardId !== undefined) {
+    if (listFromId !== listToId && cardId !== undefined) {
         // Change list id of card.
-        const updatedCard = await CardAPI.patchCard(cardId, { list_id: boardToId });
+        const updatedCard = await CardAPI.patchCard(cardId, { list_id: listToId });
         /* 
-        Provide boardToId as from_list_id because when this store commit runs.
+        Provide listToId as from_list_id because when this store commit runs.
         The computed variables already by vue-draggable boardLists and cards on BoardPage, BoardList
         */
-        store.commit.board.SIOUpdateCard({ card: updatedCard, from_list_id: boardToId });
+        store.commit.board.SIOUpdateCard({ card: updatedCard, from_list_id: listToId });
         // BoardList changed so need to update both fromList and toList
-        const listFrom = board.value?.lists.find((el) => el.id == boardFromId);
+        const listFrom = board.value?.lists.find((el) => el.id == listFromId);
         if (listFrom !== undefined) {
             await BoardListAPI.updateCardsOrder(listFrom);
         }
     }
 
-    const listTo = board.value?.lists.find((el) => el.id == boardToId);
-    if (listTo !== undefined) {
+    const listTo = board.value?.lists.find((el) => el.id == listToId);
+    if (listTo !== undefined && (ev.oldIndex !== ev.newIndex || listFromId !== listToId)) {
         // Only call order update if the list  or the listindex changed.
-        if (ev.oldIndex !== ev.newIndex || boardFromId !== boardToId) {
-            await BoardListAPI.updateCardsOrder(listTo);
-        }
+        await BoardListAPI.updateCardsOrder(listTo);
     }
 
-};
-
-const onCardMove = async (ev: any) => {
-    cardId = ev.draggedContext.element.id;
 };
 
 const loadBoard = async (boardId: number) => {
