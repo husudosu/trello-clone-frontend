@@ -12,14 +12,20 @@ export const useSocketIO = () => {
 };
 
 export enum SIOEvent {
+    SIOError = "error",
+    SIOConnect = "connect",
+
     CARD_NEW = "card.new",
     CARD_UPDATE = "card.update",
     CARD_DELETE = "card.delete",
     CARD_UPDATE_ORDER = "card.update.order",
+    CARD_USER_ASSIGNED = "card.user.assigned",
+    CARD_USER_DEASSIGNED = "card.user.deassigned",
+
     LIST_NEW = "list.new",
     LIST_UPDATE_ORDER = "list.update.order",
     LIST_UPDATE = "list.update",
-    LIST_DELETE = "list.delete"
+    LIST_DELETE = "list.delete",
 }
 
 export interface SIOCardUpdateOrder {
@@ -33,8 +39,19 @@ export interface SIOCardMoved {
     to_list_id: number;
 }
 
+export interface SIOCardUpdatePayload {
+    card: Card;
+    from_list_id: number; // Check if card list_id changed
+}
+
 // Event listeners for Board namespace
 export const SIOBoardEventListeners = {
+    onError: (error: any) => {
+        console.debug(`[Socket.IO]: Error ${JSON.stringify(error)}`);
+    },
+    onConnect: () => {
+        console.debug(`[Socket.IO]: Connection to server: Board namespace`);
+    },
     newCard: (data: Card) => {
         console.group("[Socket.IO]: New card");
         console.debug(data);
@@ -42,12 +59,13 @@ export const SIOBoardEventListeners = {
         store.commit.board.saveNewCard(data);
         console.groupEnd();
     },
-    cardUpdate: (data: Card) => {
+    cardUpdate: (data: SIOCardUpdatePayload) => {
         console.group("[Socket.IO]: Card update");
         console.debug(data);
 
         console.debug("Update card on store");
-        store.commit.board.updateCard(data);
+        // If list_id changed move to other list on store aswell
+        store.commit.board.SIOUpdateCard(data);
         console.groupEnd();
     },
     cardOrderUpdate: (data: SIOCardUpdateOrder) => {

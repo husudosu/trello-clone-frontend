@@ -73,12 +73,8 @@ const { socket } = useSocketIO();
 /*
 Socket.IO handler for boards.
 */
-socket.io.on("error", (error) => {
-    console.debug(`[Socket.IO]: Error ${JSON.stringify(error)}`);
-});
-socket.on("connect", () => {
-    console.debug(`[Socket.IO]: Connection to server: Board namespace ${socket.connected}`);
-});
+socket.on(SIOEvent.SIOError, SIOBoardEventListeners.onError);
+socket.on(SIOEvent.SIOConnect, SIOBoardEventListeners.onConnect);
 socket.onAny((event, ...args) => {
     console.debug(`[Socket.IO]: Got event: ${event}`);
 });
@@ -140,7 +136,13 @@ const onCardSortableMoveEnd = async (ev: any) => {
 
     if (boardFromId !== boardToId && cardId !== undefined) {
         // Change list id of card.
-        await CardAPI.patchCard(cardId, { list_id: boardToId });
+        const updatedCard = await CardAPI.patchCard(cardId, { list_id: boardToId });
+
+        /* 
+        Provide boardToId as from_list_id because when this store commit runs.
+        The computed variables already by vue-draggable boardLists and cards on BoardPage, BoardList
+        */
+        store.commit.board.SIOUpdateCard({ card: updatedCard, from_list_id: boardToId });
         // BoardList changed so need to update both fromList and toList
         const listFrom = board.value?.lists.find((el) => el.id == boardFromId);
         if (listFrom !== undefined) {

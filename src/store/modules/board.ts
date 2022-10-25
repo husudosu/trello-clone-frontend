@@ -5,7 +5,7 @@ import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
 import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftCard, DraftBoardList, BoardAllowedUser } from "@/api/types";
-import { SIOCardUpdateOrder } from "@/socket";
+import { SIOCardUpdateOrder, SIOCardUpdatePayload } from "@/socket";
 
 export interface BoardState {
     boards: Board[];
@@ -144,7 +144,31 @@ export default {
                     if (cardIndex > -1) {
                         state.board.lists[listIndex].cards[cardIndex] = card;
                     }
-
+                }
+            }
+        },
+        SIOUpdateCard(state: BoardState, payload: SIOCardUpdatePayload) {
+            if (state.board !== null) {
+                const listIndex = state.board.lists.findIndex((el) => el.id == payload.from_list_id);
+                if (listIndex > -1) {
+                    // Find card  and update it
+                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == payload.card.id);
+                    if (cardIndex > -1) {
+                        if (payload.from_list_id === payload.card.list_id) {
+                            // Just update the card
+                            state.board.lists[listIndex].cards[cardIndex] = payload.card;
+                        }
+                        else {
+                            // We have to move the card to other list
+                            // Delete from original list if card list have changed 
+                            state.board.lists[listIndex].cards.splice(cardIndex, 1);
+                            // And put it on the new list.
+                            const newListIndex = state.board.lists.findIndex((el) => el.id === payload.card.list_id);
+                            if (newListIndex > -1) {
+                                state.board.lists[newListIndex].cards.push(payload.card);
+                            }
+                        }
+                    }
                 }
             }
         },
