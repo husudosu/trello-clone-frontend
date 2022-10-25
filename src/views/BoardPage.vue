@@ -124,6 +124,7 @@ const onBoardListSortableMoveEnd = () => {
 */
 const onCardSortableMoveEnd = async (ev: any) => {
     // TODO: If the card not moved at all, do not call API here!
+
     const boardFromId: number = parseInt(ev.from.id.split("boardlistCards-")[1]);
     const boardToId: number = parseInt(ev.to.id.split("boardlistCards-")[1]);
 
@@ -137,7 +138,6 @@ const onCardSortableMoveEnd = async (ev: any) => {
     if (boardFromId !== boardToId && cardId !== undefined) {
         // Change list id of card.
         const updatedCard = await CardAPI.patchCard(cardId, { list_id: boardToId });
-
         /* 
         Provide boardToId as from_list_id because when this store commit runs.
         The computed variables already by vue-draggable boardLists and cards on BoardPage, BoardList
@@ -152,7 +152,10 @@ const onCardSortableMoveEnd = async (ev: any) => {
 
     const listTo = board.value?.lists.find((el) => el.id == boardToId);
     if (listTo !== undefined) {
-        await BoardListAPI.updateCardsOrder(listTo);
+        // Only call order update if the list  or the listindex changed.
+        if (ev.oldIndex !== ev.newIndex || boardFromId !== boardToId) {
+            await BoardListAPI.updateCardsOrder(listTo);
+        }
     }
 
 };
