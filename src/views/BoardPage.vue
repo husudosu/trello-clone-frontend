@@ -214,6 +214,7 @@ onBeforeRouteUpdate(async (to, from) => {
     store.commit.board.unLoadBoard();
     if (to.params.boardId !== from.params.boardId && typeof to.params.boardId === "string") {
         await loadBoard(parseInt(to.params.boardId));
+        socket.emit("board_change", { board_id: to.params.boardId });
     }
 });
 
