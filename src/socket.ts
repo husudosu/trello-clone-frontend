@@ -5,7 +5,11 @@ const options = { withCredentials: true, debug: true };
 import store from "@/store/index";
 
 export const useSocketIO = () => {
-    const socket = SocketIO(process.env.VUE_APP_SOCKET_SERVER + "/board", options);
+
+    const socket = SocketIO(
+        process.env.NODE_ENV === "development" ?
+            process.env.VUE_APP_SOCKET_SERVER + "/board" :
+            window.location.protocol + "//" + window.location.host + "/board", options);
     return {
         socket,
     };
@@ -50,7 +54,7 @@ export const SIOBoardEventListeners = {
         console.debug(`[Socket.IO]: Error ${JSON.stringify(error)}`);
     },
     onConnect: () => {
-        console.debug(`[Socket.IO]: Connection to server: Board namespace`);
+        console.log("Connected to socket IO server");
     },
     newCard: (data: Card) => {
         console.group("[Socket.IO]: New card");

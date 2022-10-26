@@ -76,6 +76,7 @@ Socket.IO handler for boards.
 socket.on(SIOEvent.SIOError, SIOBoardEventListeners.onError);
 socket.on(SIOEvent.SIOConnect, SIOBoardEventListeners.onConnect);
 socket.onAny((event, ...args) => {
+    console.log(`[Socket.IO]: Got event: ${event}`);
     console.debug(`[Socket.IO]: Got event: ${event}`);
 });
 

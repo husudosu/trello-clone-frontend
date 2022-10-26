@@ -6,7 +6,7 @@ import { Cookies } from 'quasar';
 
 const config: AxiosRequestConfig = {
     withCredentials: true,
-    baseURL: process.env.VUE_APP_API_BASEURL,
+    baseURL: process.env.NODE_ENV === "development" ? process.env.VUE_APP_API_BASEURL : window.location.protocol + "//" + window.location.host + "/api/v1",
     timeout: 10000,
     headers: {
         "Content-Type": "application/json",
