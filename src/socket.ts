@@ -19,8 +19,8 @@ export enum SIOEvent {
     CARD_UPDATE = "card.update",
     CARD_DELETE = "card.delete",
     CARD_UPDATE_ORDER = "card.update.order",
-    CARD_USER_ASSIGNED = "card.user.assigned",
-    CARD_USER_DEASSIGNED = "card.user.deassigned",
+    CARD_MEMBER_ASSIGNED = "card.member.assigned",
+    CARD_MEMBER_DEASSIGNED = "card.member.deassigned",
 
     LIST_NEW = "list.new",
     LIST_UPDATE_ORDER = "list.update.order",
@@ -56,7 +56,7 @@ export const SIOBoardEventListeners = {
         console.group("[Socket.IO]: New card");
         console.debug(data);
         console.debug("Saving new card if not exists");
-        store.commit.board.saveNewCard(data);
+        store.commit.board.saveCard(data);
         console.groupEnd();
     },
     cardUpdate: (data: SIOCardUpdatePayload) => {
@@ -84,7 +84,7 @@ export const SIOBoardEventListeners = {
     newList: (data: BoardList) => {
         console.group("[Socket.IO]: New list");
         console.debug(data);
-        store.commit.board.saveNewList(data);
+        store.commit.board.saveList(data);
         console.groupEnd();
     },
     listUpdateOrder: (data: number[]) => {
@@ -96,8 +96,7 @@ export const SIOBoardEventListeners = {
     listUpdate: (data: BoardList) => {
         console.group("[Socket.IO]: Update list");
         console.debug(data);
-        // store.commit.board.saveNewList(data);
-        store.commit.board.saveExistingList(data);
+        store.commit.board.saveList(data);
         console.groupEnd();
     },
     deleteList: (data: BoardList) => {
@@ -105,5 +104,5 @@ export const SIOBoardEventListeners = {
         console.debug(data);
         store.commit.board.removeList(data);
         console.groupEnd();
-    }
+    },
 };

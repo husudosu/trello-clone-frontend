@@ -236,7 +236,7 @@ export default {
             if (context.state.card) {
                 const data = await CardAPI.assignCardMember(context.state.card.id, item);
                 context.commit("addCardAsisgnment", data);
-                context.commit("board/updateCard", context.state.card, { root: true });
+                context.commit("board/saveCard", context.state.card, { root: true });
                 context.commit("unloadCardActivities");
                 await context.dispatch("loadCardActivities");
             }
@@ -245,7 +245,7 @@ export default {
             if (context.state.card) {
                 await CardAPI.deassignCardMember(context.state.card.id, item.board_user.id);
                 context.commit("removeCardAssignment", item);
-                context.commit("board/updateCard", context.state.card, { root: true });
+                context.commit("board/saveCard", context.state.card, { root: true });
 
                 context.commit("unloadCardActivities");
                 await context.dispatch("loadCardActivities");
@@ -254,7 +254,7 @@ export default {
         async updateCard(context: Context, item: Card) {
             const updatedCard = await CardAPI.patchCard(item.id, item);
             // Update card on board lists card
-            context.commit("board/updateCard", updatedCard, { root: true });
+            context.commit("board/saveCard", updatedCard, { root: true });
         },
         async addCardDate(context: Context, item: DraftCardDate) {
             if (context.state.card) {

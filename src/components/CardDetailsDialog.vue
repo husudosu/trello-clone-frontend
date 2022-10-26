@@ -194,7 +194,7 @@ const onTitleEdit = async () => {
     if (card.value && card.value.title && card.value.id) {
         editCardTitle.value = false;
         const updatedCard: Card = await CardAPI.patchCard(card.value.id, { title: card.value.title });
-        store.commit.board.updateCard(updatedCard);
+        store.commit.board.saveCard(updatedCard);
     }
 };
 

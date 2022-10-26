@@ -117,23 +117,20 @@ const onBoardListSortableMoveEnd = () => {
     }
 };
 
-/*
-    Draggable object events for cards
-    FIXME: Structrue wise not so ideal to store these methods here.
-*/
+//Draggable object events for cards
 const onCardSortableMoveEnd = async (ev: any) => {
     const cardId: number = parseInt(ev.item.getAttribute("data-id"));
     const listFromId: number = parseInt(ev.from.getAttribute("data-id"));
     const listToId: number = parseInt(ev.to.getAttribute("data-id"));
 
     /* FIXME: Hacky way to prevent card click event after move.
-     The issue only appears when you move card inside a list
-    If you move one list to other it's not an isssued
+    The issue only appears when you move card inside a list
+    If you move one list to other it's not an isssue
     */
     store.commit.card.setCardMoved(true);
     setTimeout(() => store.commit.card.setCardMoved(false), 30);
 
-    if (listFromId !== listToId && cardId !== undefined) {
+    if (listFromId !== listToId) {
         // Change list id of card.
         const updatedCard = await CardAPI.patchCard(cardId, { list_id: listToId });
         /* 
@@ -148,10 +145,11 @@ const onCardSortableMoveEnd = async (ev: any) => {
         }
     }
 
-    const listTo = board.value?.lists.find((el) => el.id == listToId);
-    if (listTo !== undefined && (ev.oldIndex !== ev.newIndex || listFromId !== listToId)) {
-        // Only call order update if the list  or the listindex changed.
-        await BoardListAPI.updateCardsOrder(listTo);
+    if (ev.oldIndex !== ev.newIndex || listFromId !== listToId) {
+        const listTo = board.value?.lists.find((el) => el.id == listToId);
+        if (listTo !== undefined) {
+            await BoardListAPI.updateCardsOrder(listTo);
+        }
     }
 
 };

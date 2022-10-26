@@ -70,23 +70,14 @@ export default {
         setBoardClaims(state: BoardState, claims: BoardClaims) {
             state.claims = claims;
         },
-        saveNewList(state: BoardState, boardList: BoardList) {
+        saveList(state: BoardState, boardList: BoardList) {
             if (state.board !== null) {
-
                 // Check if exists
                 const index = state.board.lists.findIndex((el) => el.id === boardList.id);
 
                 if (index === -1) {
                     state.board.lists.push(boardList);
-                }
-            }
-        },
-        saveExistingList(state: BoardState, boardList: BoardList) {
-            if (state.board !== null) {
-                // Find board and overwrite it in store
-                const index = state.board.lists.findIndex((el) => el.id == boardList.id);
-                console.log(index);
-                if (index > -1) {
+                } else {
                     state.board.lists[index] = boardList;
                 }
             }
@@ -106,19 +97,20 @@ export default {
                 }
             }
         },
-        saveNewCard(state: BoardState, card: Card) {
+        saveCard(state: BoardState, card: Card) {
             if (state.board !== null) {
                 // Find list
-                const index = state.board.lists.findIndex((el) => el.id == card.list_id);
+                const listIndex = state.board.lists.findIndex((el) => el.id == card.list_id);
 
-                if (index > -1) {
+                if (listIndex > -1) {
                     // Check if card already exists.
-                    const isExists = state.board.lists[index].cards.findIndex((el) => el.id == card.id);
+                    const cardId = state.board.lists[listIndex].cards.findIndex((el) => el.id == card.id);
 
                     // Not exists on store yet (Required for Socket IO client)
-                    if (isExists === -1) {
-                        console.debug("We should add the card to store");
-                        state.board.lists[index].cards.push(card);
+                    if (cardId === -1) {
+                        state.board.lists[listIndex].cards.push(card);
+                    } else {
+                        state.board.lists[listIndex].cards[cardId] = card;
                     }
                 }
             }
@@ -130,19 +122,6 @@ export default {
                     const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == card.id);
                     if (cardIndex > -1) {
                         state.board.lists[listIndex].cards.splice(cardIndex, 1);
-                    }
-                }
-            }
-        },
-        updateCard(state: BoardState, card: Card) {
-            // Updates card in board list.
-            if (state.board !== null) {
-                const listIndex = state.board.lists.findIndex((el) => el.id == card.list_id);
-                if (listIndex > -1) {
-                    // Find card  and update it
-                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == card.id);
-                    if (cardIndex > -1) {
-                        state.board.lists[listIndex].cards[cardIndex] = card;
                     }
                 }
             }
@@ -264,12 +243,12 @@ export default {
         async updateBoardList(context: Context, list: BoardList) {
             // Update existing list
             const data = await BoardListAPI.patchBoardList(list.id, list);
-            context.commit("saveExistingList", data);
+            context.commit("saveList", data);
         },
         async newBoardList(context: Context, list: DraftBoardList) {
             if (context.state.board) {
                 const data = await BoardListAPI.postBoardList(context.state.board.id, list);
-                context.commit("saveNewList", data);
+                context.commit("saveList", data);
                 // Update order of boardlists
                 await BoardAPI.updateBoardListsOrder(context.state.board);
             }
@@ -281,7 +260,7 @@ export default {
         },
         async saveCard(context: Context, card: DraftCard) {
             const data = await CardAPI.postCard(card.list_id, card);
-            context.commit("saveNewCard", data);
+            context.commit("saveCard", data);
         }
     }
 };
