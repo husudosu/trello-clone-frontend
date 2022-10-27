@@ -76,7 +76,6 @@ Socket.IO handler for boards.
 socket.on(SIOEvent.SIOError, SIOBoardEventListeners.onError);
 socket.on(SIOEvent.SIOConnect, SIOBoardEventListeners.onConnect);
 socket.onAny((event, ...args) => {
-    console.log(`[Socket.IO]: Got event: ${event}`);
     console.debug(`[Socket.IO]: Got event: ${event}`);
 });
 
@@ -224,6 +223,11 @@ onMounted(() => {
         loadBoard(parseInt(route.params.boardId));
         socket.emit("board_change", { board_id: route.params.boardId });
     }
+});
+
+onBeforeRouteLeave(() => {
+    console.debug("[Socket.IO]: Leaving board route so disconnect from server.");
+    socket.disconnect();
 })
 
 </script>

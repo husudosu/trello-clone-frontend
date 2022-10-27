@@ -1,10 +1,9 @@
 <template>
     <div class="listWrapper" ref="listWrapperRef">
         <div class="list">
-            <header @dblclick="boardList.id ? editListTitle = !editListTitle : editListTitle = true" class="listHeader">
+            <header @dblclick="onTitleDblClick" class="listHeader">
                 <template v-if="editListTitle">
-                    <q-input v-model="boardList.title" label="Name" @keyup.enter="onListSave" @blur="onListSave"
-                        autofocus>
+                    <q-input v-model="newListTitle" label="Name" @keyup.enter="onListSave" @blur="onListSave" autofocus>
                     </q-input>
                 </template>
                 <template v-else>
@@ -22,26 +21,26 @@
                 </template>
             </header>
             <ul ref="cardsWrapper">
-                <draggable :data-id="boardList.id" class="list-group" v-model="cards" group="board-cards" itemKey="id"
-                    @end="onEnd" draggable=".listCard" :delayOnTouchOnly="true" :touchStartThreshold="100" :delay="100"
-                    v-if="boardList.id" :scroll-sensitivity="200" :fallback-tolerance="1" :force-fallback="true"
-                    :animation="200">
+                <draggable :data-id="props.boardList.id" class="list-group" v-model="cards" group="board-cards"
+                    itemKey="id" @end="onEnd" draggable=".listCard" :delayOnTouchOnly="true" :touchStartThreshold="100"
+                    :delay="100" v-if="props.boardList.id" :scroll-sensitivity="200" :fallback-tolerance="1"
+                    :force-fallback="true" :animation="200">
                     <template #item="{ element }">
-                        <list-card :card="element" :boardListId="boardList?.id"></list-card>
+                        <list-card :card="element" :boardListId="props.boardList.id"></list-card>
                     </template>
                 </draggable>
                 <template v-if="showAddCard">
-                    <draft-card :boardListId="boardList.id" :onCancel="() => { showAddCard = false; }"
+                    <draft-card :boardListId="props.boardList.id" :onCancel="() => { showAddCard = false; }"
                         :onSaveSuccess="() => { showAddCard = false; }"></draft-card>
                 </template>
             </ul>
             <footer @click="onAddCardClick">
-                <div v-if="boardList.id" class="boardListAddCard">
+                <div v-if="props.boardList.id" class="boardListAddCard">
                     <q-icon class="q-mr-xs" name="add"></q-icon>Add a card...
                 </div>
                 <div v-else>
                     <q-btn size="sm" class="q-ml-xs q-mr-sm" color="primary" @click="onListSave">Save</q-btn>
-                    <q-btn size="sm" outline @click="onCacnelClicked">Cancel</q-btn>
+                    <q-btn size="sm" outline @click="onCancelClicked">Cancel</q-btn>
                 </div>
             </footer>
         </div>
@@ -78,51 +77,47 @@ const hasPermission = store.getters.board.hasPermission;
 const cardsWrapper = ref();
 
 const editListTitle = ref(false);
+const newListTitle = ref("");
+
 const showMenu = ref(false);
 const $q = useQuasar();
 
-const boardList = ref(props.boardList);
 const cards = computed({
     get() {
-        // FIXME: This is a hacky way, come up with better solution to handle vuex.
-        if (store.state.board.board) {
-            const index = store.state.board.board.lists.findIndex((el) => el.id == boardList.value.id);
-            return index > -1 ? store.state.board.board?.lists[index].cards : [];
-        }
-        else return [];
+        return props.boardList.cards;
     },
     set(value) {
-        store.commit.board.setCards({ cards: value, listId: boardList.value.id });
+        store.commit.board.setCards({ cards: value, listId: props.boardList.id });
     }
 });
 const showAddCard = ref(false);
 
 const onListSave = () => {
-    if (boardList.value.title && boardList.value.title.length > 0) {
-        store.dispatch.board.updateBoardList(boardList.value)
+    if (props.boardList.id && newListTitle.value.length > 0) {
+        store.dispatch.board.updateBoardList({ ...props.boardList, title: newListTitle.value })
             .finally(() => {
                 editListTitle.value = false;
             });
         listWrapperRef.value.classList.remove("draftBoardList");
     }
     else {
-        store.commit.board.removeList(boardList.value);
+        store.commit.board.removeList(props.boardList);
     }
 };
 
 
-const onCacnelClicked = () => {
-    if (boardList.value.id) {
+const onCancelClicked = () => {
+    if (props.boardList.id) {
         editListTitle.value = false;
     }
     else {
         // Delete draft card
-        store.commit.board.removeList(boardList.value);
+        store.commit.board.removeList(props.boardList);
     }
 };
 
 const onAddCardClick = () => {
-    if (hasPermission(BoardPermission.CARD_EDIT) && boardList.value.id) {
+    if (hasPermission(BoardPermission.CARD_EDIT) && props.boardList.id) {
         showAddCard.value = true;
         nextTick(() => {
             cardsWrapper.value.scroll(0, cardsWrapper.value.scrollHeight);
@@ -135,23 +130,30 @@ const onDeleteBoardList = () => {
         title: "Delete list",
         cancel: true,
         persistent: true,
-        message: `Delete list ${boardList.value.title}?`,
+        message: `Delete list ${props.boardList.title}?`,
         ok: {
             label: "Delete",
             color: "negative"
         }
     }).onOk(() => {
-        store.dispatch.board.removeBoardList(boardList.value);
+        store.dispatch.board.removeBoardList(props.boardList);
     });
 };
 
-if (!boardList.value.title) {
+if (!props.boardList.title) {
     editListTitle.value = true;
 }
 
+const onTitleDblClick = () => {
+    if (props.boardList.id) {
+        editListTitle.value = !editListTitle.value;
+        // Make clone of title
+        newListTitle.value = props.boardList.title.slice();
+    }
+};
 // If the board draft don't allow drag.
 onMounted(() => {
-    if (!boardList.value.id) {
+    if (!props.boardList.id) {
         listWrapperRef.value.classList.add("draftBoardList");
     }
 });

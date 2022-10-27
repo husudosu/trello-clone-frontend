@@ -28,7 +28,7 @@ export default {
     } as BoardState,
     getters: {
         boardLists: (state: BoardState) => {
-            return state.board?.lists;
+            return state.board?.lists || [];
         },
         hasPermission: (state: BoardState) => (permission: BoardPermission) => {
             if (state.claims) {
@@ -180,6 +180,8 @@ export default {
         updateListOrder(state: BoardState, orderOfIds: number[]) {
             if (state.board) {
                 state.board.lists.sort((a, b) => orderOfIds.indexOf(a.id) - orderOfIds.indexOf(b.id));
+                console.log("New order");
+                console.log(state.board.lists);
             }
         },
         updateCardOrder(state: BoardState, payload: SIOCardUpdateOrder) {
