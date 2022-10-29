@@ -83,7 +83,14 @@ export const CardAPI = {
         await API.post<CardMember>(`/card/${cardId}/deassign-member`, { board_user_id: boardUserId });
     },
     postCardDate: async (cardId: number, dt: DraftCardDate): Promise<CardDate> => {
+        // Convert date to UTC before pushing to API
+        dt.dt_to = moment.tz(dt.dt_to, store.state.auth.user?.timezone || "UTC").utc().format("YYYY-MM-DD HH:mm:ss");
+        if (dt.dt_from) {
+            dt.dt_from = moment.tz(dt.dt_from, store.state.auth.user?.timezone || "UTC").utc().format("YYYY-MM-DD HH:mm:ss");
+        }
+
         const { data } = await API.post<CardDate>(`/card/${cardId}/date`, dt);
+
         if (data.dt_from) {
             data.dt_from = moment.utc(dt.dt_from).tz(store.state.auth.user?.timezone || "UTC");
         }
@@ -91,6 +98,12 @@ export const CardAPI = {
         return data;
     },
     patchCardDate: async (cardDateId: number, dt: CardDate): Promise<CardDate> => {
+        // Convert date to UTC before pushing to API
+        dt.dt_to = moment.tz(dt.dt_to, store.state.auth.user?.timezone || "UTC").utc();
+        if (dt.dt_from) {
+            dt.dt_from = moment.tz(dt.dt_from, store.state.auth.user?.timezone || "UTC").utc();
+        }
+
         const { data } = await API.patch<CardDate>(`/date/${cardDateId}`, dt);
         if (data.dt_from) {
             data.dt_from = moment.utc(data.dt_from).tz(store.state.auth.user?.timezone || "UTC");
