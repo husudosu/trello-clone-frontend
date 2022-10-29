@@ -17,7 +17,11 @@ export default {
         user: null,
         loggedIn: localStorage.getItem("loggedIn") == "true" ? true : false,
     } as AuthState,
-    getters: {},
+    getters: {
+        timezone: (state: AuthState) => {
+            return state.user ? state.user.timezone : "UTC";
+        },
+    },
     mutations: {
         setUser(state: AuthState, user: User | null) {
             state.user = user;

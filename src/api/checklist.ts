@@ -20,14 +20,14 @@ export const ChecklistAPI = {
     postChecklistItem: async (checklistId: number, item: DraftChecklistItem): Promise<ChecklistItem> => {
         const { data } = await API.post<ChecklistItem>(`/checklist/${checklistId}/item`, item);
         if (data.marked_complete_on) {
-            data.marked_complete_on = moment.utc(data.marked_complete_on).tz(store.state.auth.user?.timezone || "UTC");
+            data.marked_complete_on = moment.utc(data.marked_complete_on).tz(store.getters.auth.timezone);
         }
         return data;
     },
     patchChecklistItem: async (itemId: number, item: ChecklistItem): Promise<ChecklistItem> => {
         const { data } = await API.patch<ChecklistItem>(`/checklist/item/${itemId}`, item);
         if (data.marked_complete_on) {
-            data.marked_complete_on = moment.utc(data.marked_complete_on).tz(store.state.auth.user?.timezone || "UTC");
+            data.marked_complete_on = moment.utc(data.marked_complete_on).tz(store.getters.auth.timezone);
         }
         return data;
     },
@@ -37,7 +37,7 @@ export const ChecklistAPI = {
     markChecklistItem: async (itemId: number, completed: boolean): Promise<ChecklistItem> => {
         const { data } = await API.patch<ChecklistItem>(`/checklist/item/${itemId}`, { completed });
         if (data.marked_complete_on) {
-            data.marked_complete_on = moment.utc(data.marked_complete_on).tz(store.state.auth.user?.timezone || "UTC");
+            data.marked_complete_on = moment.utc(data.marked_complete_on).tz(store.getters.auth.timezone);
         }
         return data;
     },

@@ -16,16 +16,16 @@ export const CardAPI = {
         data.checklists?.forEach((checklist) => {
             checklist.items.forEach((item) => {
                 if (item.marked_complete_on) {
-                    item.marked_complete_on = moment.utc(item.marked_complete_on).tz(store.state.auth.user?.timezone || "UTC");
+                    item.marked_complete_on = moment.utc(item.marked_complete_on).tz(store.getters.auth.timezone);
                 }
             });
         });
 
         data.dates.forEach((dt) => {
             if (dt.dt_from) {
-                dt.dt_from = moment.utc(dt.dt_from).tz(store.state.auth.user?.timezone || "UTC");
+                dt.dt_from = moment.utc(dt.dt_from).tz(store.getters.auth.timezone);
             }
-            dt.dt_to = moment.utc(dt.dt_to).tz(store.state.auth.user?.timezone || "UTC");
+            dt.dt_to = moment.utc(dt.dt_to).tz(store.getters.auth.timezone);
         });
         return data;
     },
@@ -37,9 +37,9 @@ export const CardAPI = {
         const { data } = await API.patch<Card>(`/card/${cardId}`, updatedCard);
         data.dates.forEach((dt) => {
             if (dt.dt_from) {
-                dt.dt_from = moment.utc(dt.dt_from).tz(store.state.auth.user?.timezone || "UTC");
+                dt.dt_from = moment.utc(dt.dt_from).tz(store.getters.auth.timezone);
             }
-            dt.dt_to = moment.utc(dt.dt_to).tz(store.state.auth.user?.timezone || "UTC");
+            dt.dt_to = moment.utc(dt.dt_to).tz(store.getters.auth.timezone);
         });
         return data;
     },
@@ -53,10 +53,10 @@ export const CardAPI = {
     postCardComment: async (cardId: number, comment: Partial<CardComment>): Promise<CardActivity> => {
         const { data } = await API.post<CardActivity>(`/card/${cardId}/comment`, comment);
         // FIXME: Probably it's a bad thing to convert dates here to moment, need better solution!
-        data.activity_on = moment.utc(data.activity_on).tz(store.state.auth.user?.timezone || "UTC");
+        data.activity_on = moment.utc(data.activity_on).tz(store.getters.auth.timezone);
         if (data.comment) {
-            data.comment.created = moment.utc(data.comment.created).tz(store.state.auth.user?.timezone || "UTC");
-            data.comment.updated = moment.utc(data.comment.updated).tz(store.state.auth.user?.timezone || "UTC");
+            data.comment.created = moment.utc(data.comment.created).tz(store.getters.auth.timezone);
+            data.comment.updated = moment.utc(data.comment.updated).tz(store.getters.auth.timezone);
         }
         return data;
     },
@@ -65,10 +65,10 @@ export const CardAPI = {
 
         // FIXME: Probably it's a bad thing to convert dates here to moment, need better solution!
         data.data.forEach((el) => {
-            el.activity_on = moment.utc(el.activity_on).tz(store.state.auth.user?.timezone || "UTC");
+            el.activity_on = moment.utc(el.activity_on).tz(store.getters.auth.timezone);
             if (el.comment) {
-                el.comment.created = moment.utc(el.comment.created).tz(store.state.auth.user?.timezone || "UTC");
-                el.comment.updated = moment.utc(el.comment.updated).tz(store.state.auth.user?.timezone || "UTC");
+                el.comment.created = moment.utc(el.comment.created).tz(store.getters.auth.timezone);
+                el.comment.updated = moment.utc(el.comment.updated).tz(store.getters.auth.timezone);
             }
             if (el.changes)
                 el.changes = JSON.parse(el.changes);
@@ -84,31 +84,31 @@ export const CardAPI = {
     },
     postCardDate: async (cardId: number, dt: DraftCardDate): Promise<CardDate> => {
         // Convert date to UTC before pushing to API
-        dt.dt_to = moment.tz(dt.dt_to, store.state.auth.user?.timezone || "UTC").utc().format("YYYY-MM-DD HH:mm:ss");
+        dt.dt_to = moment.tz(dt.dt_to, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
         if (dt.dt_from) {
-            dt.dt_from = moment.tz(dt.dt_from, store.state.auth.user?.timezone || "UTC").utc().format("YYYY-MM-DD HH:mm:ss");
+            dt.dt_from = moment.tz(dt.dt_from, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
         }
 
         const { data } = await API.post<CardDate>(`/card/${cardId}/date`, dt);
 
         if (data.dt_from) {
-            data.dt_from = moment.utc(dt.dt_from).tz(store.state.auth.user?.timezone || "UTC");
+            data.dt_from = moment.utc(dt.dt_from).tz(store.getters.auth.timezone);
         }
-        data.dt_to = moment.utc(dt.dt_to).tz(store.state.auth.user?.timezone || "UTC");
+        data.dt_to = moment.utc(dt.dt_to).tz(store.getters.auth.timezone);
         return data;
     },
     patchCardDate: async (cardDateId: number, dt: CardDate): Promise<CardDate> => {
         // Convert date to UTC before pushing to API
-        dt.dt_to = moment.tz(dt.dt_to, store.state.auth.user?.timezone || "UTC").utc();
+        dt.dt_to = moment.tz(dt.dt_to, store.getters.auth.timezone).utc();
         if (dt.dt_from) {
-            dt.dt_from = moment.tz(dt.dt_from, store.state.auth.user?.timezone || "UTC").utc();
+            dt.dt_from = moment.tz(dt.dt_from, store.getters.auth.timezone).utc();
         }
 
         const { data } = await API.patch<CardDate>(`/date/${cardDateId}`, dt);
         if (data.dt_from) {
-            data.dt_from = moment.utc(data.dt_from).tz(store.state.auth.user?.timezone || "UTC");
+            data.dt_from = moment.utc(data.dt_from).tz(store.getters.auth.timezone);
         }
-        data.dt_to = moment.utc(data.dt_to).tz(store.state.auth.user?.timezone || "UTC");
+        data.dt_to = moment.utc(data.dt_to).tz(store.getters.auth.timezone);
         return data;
     },
     deleteCardDate: async (cardDateId: number) => {

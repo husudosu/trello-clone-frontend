@@ -19,9 +19,9 @@ export const BoardAPI = {
                 // Convert dates to moment dates.
                 card.dates.forEach((dt) => {
                     if (dt.dt_from) {
-                        dt.dt_from = moment.utc(dt.dt_from).tz(store.state.auth.user?.timezone || "UTC");
+                        dt.dt_from = moment.utc(dt.dt_from).tz(store.getters.auth.timezone);
                     }
-                    dt.dt_to = moment.utc(dt.dt_to).tz(store.state.auth.user?.timezone || "UTC");
+                    dt.dt_to = moment.utc(dt.dt_to).tz(store.getters.auth.timezone);
                 });
             });
         });
