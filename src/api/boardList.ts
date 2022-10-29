@@ -6,7 +6,7 @@ export const BoardListAPI = {
         const { data } = await API.post<BoardList>(`/board/${boardId}/list`, boardList);
         return data;
     },
-    patchBoardList: async (boardListid: number, boardList: BoardList) => {
+    patchBoardList: async (boardListid: number, boardList: Partial<BoardList>) => {
         const { data } = await API.patch<BoardList>(`/list/${boardListid}`, boardList);
         return data;
     },

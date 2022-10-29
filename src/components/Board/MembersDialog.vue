@@ -15,9 +15,11 @@
                             <user-avatar size="md" :user="member.user" :show-tooltip="false"></user-avatar>
                         </q-item-section>
                         <q-item-section>
-                            <q-item-label :style="{'text-decoration': member.is_deleted ? 'line-through' : 'auto'}">{{
-                            member.user.name }} ({{
-                                member.user.username }})</q-item-label>
+                            <q-item-label :style="{ 'text-decoration': member.is_deleted ? 'line-through' : 'auto' }">{{
+                                    member.user.name
+                            }} ({{
+        member.user.username
+}})</q-item-label>
                         </q-item-section>
                         <q-item-section top side>
                             <div class="text-grey-8 q-gutter-xs row">
@@ -87,8 +89,8 @@ const onDeleteClicked = async (member: BoardAllowedUser) => {
             label: "Remove",
             color: "negative"
         }
-    }).onOk(() => {
-        BoardAPI.deleteBoardMember(member.board_id, member.user_id);
+    }).onOk(async () => {
+        await BoardAPI.deleteBoardMember(member.board_id, member.user_id);
         // FIXME: Refresh the store, not reload the whole page FFS.
         window.location.reload();
     });
@@ -103,9 +105,9 @@ const onActivateUserClicked = async (member: BoardAllowedUser) => {
         ok: {
             label: "Activate",
         }
-    }).onOk(() => {
+    }).onOk(async () => {
         // BoardAPI.deleteBoardMember(member.board_id, member.user_id);
-        BoardAPI.activateMember(member.id);
+        await BoardAPI.activateMember(member.id);
         // FIXME: Refresh the store, not reload the whole page FFS.
         window.location.reload();
     });

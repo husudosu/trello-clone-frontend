@@ -180,7 +180,11 @@ export default {
         updateListOrder(state: BoardState, orderOfIds: number[]) {
             if (state.board) {
                 state.board.lists.sort((a, b) => orderOfIds.indexOf(a.id) - orderOfIds.indexOf(b.id));
-                console.log("New order");
+                // Update position data. FIXME: We need better method for this.
+                state.board.lists.forEach((el, index) => {
+                    el.position = index;
+                });
+
                 console.log(state.board.lists);
             }
         },
@@ -191,7 +195,12 @@ export default {
 
                 if (listIndex > -1) {
                     state.board.lists[listIndex].cards.sort((a, b) => payload.order.indexOf(a.id) - payload.order.indexOf(b.id));
+                    // Update position data. FIXME: We need better method for this.
+                    state.board.lists[listIndex].cards.forEach((el, index) => {
+                        el.position = index;
+                    });
                 }
+
             }
         },
     },
