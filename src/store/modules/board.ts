@@ -135,16 +135,16 @@ export default {
                     if (cardIndex > -1) {
                         if (payload.from_list_id === payload.card.list_id) {
                             // Just update the card
-                            state.board.lists[listIndex].cards[cardIndex] = payload.card;
+                            state.board.lists[listIndex].cards[cardIndex] = CardAPI.parseCard(payload.card);
                         }
                         else {
                             // We have to move the card to other list
                             // Delete from original list if card list have changed 
-                            state.board.lists[listIndex].cards.splice(cardIndex, 1);
+                            state.board.lists[listIndex].cards.splice(cardIndex, 1)[0];
                             // And put it on the new list.
                             const newListIndex = state.board.lists.findIndex((el) => el.id === payload.card.list_id);
                             if (newListIndex > -1) {
-                                state.board.lists[newListIndex].cards.push(payload.card);
+                                state.board.lists[newListIndex].cards.push(CardAPI.parseCard(payload.card));
                             }
                         }
                     }

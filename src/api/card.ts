@@ -9,43 +9,54 @@ export interface MoveCardParams {
 }
 
 export const CardAPI = {
-    getCard: async (cardId: number): Promise<Card> => {
-        const { data } = await API.get<Card>(`/card/${cardId}`);
-
-        // FIXME: Do not process checklist item dates here.
-        data.checklists?.forEach((checklist) => {
+    parseCardComment: (data: CardComment) => {
+        data.created = moment.utc(data.created).tz(store.getters.auth.timezone);
+        data.updated = moment.utc(data.updated).tz(store.getters.auth.timezone);
+        return data;
+    },
+    parseCardActivity: (data: CardActivity) => {
+        data.activity_on = moment.utc(data.activity_on).tz(store.getters.auth.timezone);
+        if (data.comment) {
+            CardAPI.parseCardComment(data.comment);
+        }
+        if (data.changes)
+            data.changes = JSON.parse(data.changes);
+        return data;
+    },
+    /*
+    Parses card, for example converts dates into moment object.
+    */
+    parseCard: (data: Card): Card => {
+        data.dates.forEach((dt) => {
+            if (dt.dt_from) {
+                dt.dt_from = moment.utc(dt.dt_from).tz(store.getters.auth.timezone);
+            }
+            dt.dt_to = moment.utc(dt.dt_to).tz(store.getters.auth.timezone);
+        });
+        data.checklists.forEach((checklist) => {
             checklist.items.forEach((item) => {
                 if (item.marked_complete_on) {
                     item.marked_complete_on = moment.utc(item.marked_complete_on).tz(store.getters.auth.timezone);
                 }
             });
         });
-
-        data.dates.forEach((dt) => {
-            if (dt.dt_from) {
-                dt.dt_from = moment.utc(dt.dt_from).tz(store.getters.auth.timezone);
-            }
-            dt.dt_to = moment.utc(dt.dt_to).tz(store.getters.auth.timezone);
-        });
         return data;
+    },
+    getCard: async (cardId: number): Promise<Card> => {
+        const { data } = await API.get<Card>(`/card/${cardId}`);
+        return CardAPI.parseCard(data);
     },
     postCard: async (boardListId: number, card: DraftCard) => {
         const { data } = await API.post<Card>(`/list/${boardListId}/card`, card);
-        return data;
+        return CardAPI.parseCard(data);
     },
     patchCard: async (cardId: number, updatedCard: Partial<Card>) => {
         const { data } = await API.patch<Card>(`/card/${cardId}`, updatedCard);
-        data.dates.forEach((dt) => {
-            if (dt.dt_from) {
-                dt.dt_from = moment.utc(dt.dt_from).tz(store.getters.auth.timezone);
-            }
-            dt.dt_to = moment.utc(dt.dt_to).tz(store.getters.auth.timezone);
-        });
-        return data;
+        return CardAPI.parseCard(data);
     },
     moveCard: async (cardId: number, params: MoveCardParams) => {
         const { data } = await API.patch<Card>(`/card/${cardId}`, params);
-        return data;
+        return CardAPI.parseCard(data);
     },
     deleteCard: async (cardId: number) => {
         await API.delete(`/card/${cardId}`);
@@ -55,8 +66,7 @@ export const CardAPI = {
         // FIXME: Probably it's a bad thing to convert dates here to moment, need better solution!
         data.activity_on = moment.utc(data.activity_on).tz(store.getters.auth.timezone);
         if (data.comment) {
-            data.comment.created = moment.utc(data.comment.created).tz(store.getters.auth.timezone);
-            data.comment.updated = moment.utc(data.comment.updated).tz(store.getters.auth.timezone);
+            data.comment = CardAPI.parseCardComment(data.comment);
         }
         return data;
     },
@@ -65,13 +75,7 @@ export const CardAPI = {
 
         // FIXME: Probably it's a bad thing to convert dates here to moment, need better solution!
         data.data.forEach((el) => {
-            el.activity_on = moment.utc(el.activity_on).tz(store.getters.auth.timezone);
-            if (el.comment) {
-                el.comment.created = moment.utc(el.comment.created).tz(store.getters.auth.timezone);
-                el.comment.updated = moment.utc(el.comment.updated).tz(store.getters.auth.timezone);
-            }
-            if (el.changes)
-                el.changes = JSON.parse(el.changes);
+            CardAPI.parseCardActivity(el);
         });
         return data;
     },
