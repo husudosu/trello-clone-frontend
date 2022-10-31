@@ -5,7 +5,7 @@ import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
 import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftCard, DraftBoardList, BoardAllowedUser } from "@/api/types";
-import { SIOCardUpdateOrder, SIOCardUpdatePayload } from "@/socket";
+import { SIOCardDate, SIOCardUpdateOrder, SIOCardUpdatePayload } from "@/socket";
 
 export interface BoardState {
     boards: Board[];
@@ -140,11 +140,37 @@ export default {
                         else {
                             // We have to move the card to other list
                             // Delete from original list if card list have changed 
-                            state.board.lists[listIndex].cards.splice(cardIndex, 1)[0];
+                            state.board.lists[listIndex].cards.splice(cardIndex, 1);
                             // And put it on the new list.
                             const newListIndex = state.board.lists.findIndex((el) => el.id === payload.card.list_id);
                             if (newListIndex > -1) {
                                 state.board.lists[newListIndex].cards.push(CardAPI.parseCard(payload.card));
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        SIOHandleCardDate(state: BoardState, payload: { cardDate: SIOCardDate, delete: boolean; }) {
+            if (state.board !== null) {
+                const listIndex = state.board.lists.findIndex((el) => el.id == payload.cardDate.list_id);
+                if (listIndex > -1) {
+                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == payload.cardDate.card_id);
+
+                    if (cardIndex > -1) {
+                        // Check if card date already exist
+                        const dateIndex = state.board.lists[listIndex].cards[cardIndex].dates.findIndex((el) => el.id == payload.cardDate.id);
+                        if (dateIndex === -1) {
+                            state.board.lists[listIndex].cards[cardIndex].dates.push(CardAPI.parseCardDate(payload.cardDate));
+                        }
+                        else {
+                            if (!payload.delete) {
+                                // Update card date
+                                state.board.lists[listIndex].cards[cardIndex].dates[dateIndex] = CardAPI.parseCardDate(payload.cardDate);
+                            }
+                            else {
+                                // Delete card date
+                                state.board.lists[listIndex].cards[cardIndex].dates.splice(dateIndex, 1);
                             }
                         }
                     }

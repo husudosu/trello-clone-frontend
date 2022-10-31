@@ -1,5 +1,5 @@
 import SocketIO from 'socket.io-client';
-import { BoardList, Card } from './api/types';
+import { BoardList, Card, CardDate } from './api/types';
 
 const options = { withCredentials: true, debug: true };
 import store from "@/store/index";
@@ -22,9 +22,15 @@ export enum SIOEvent {
     CARD_NEW = "card.new",
     CARD_UPDATE = "card.update",
     CARD_DELETE = "card.delete",
+
     CARD_UPDATE_ORDER = "card.update.order",
+
     CARD_MEMBER_ASSIGNED = "card.member.assigned",
     CARD_MEMBER_DEASSIGNED = "card.member.deassigned",
+
+    CARD_DATE_NEW = "card.date.new",
+    CARD_DATE_UPDATE = "card.date.update",
+    CARD_DATE_DELETE = "card.data.delete",
 
     LIST_NEW = "list.new",
     LIST_UPDATE_ORDER = "list.update.order",
@@ -46,6 +52,10 @@ export interface SIOCardMoved {
 export interface SIOCardUpdatePayload {
     card: Card;
     from_list_id: number; // Check if card list_id changed
+}
+
+export interface SIOCardDate extends CardDate {
+    list_id: number;
 }
 
 // Event listeners for Board namespace
@@ -89,6 +99,25 @@ export const SIOBoardEventListeners = {
         console.group("[Socket.IO]: New list");
         console.debug(data);
         store.commit.board.saveList(data);
+        console.groupEnd();
+    },
+    newCardDate: (cardDate: SIOCardDate) => {
+        console.group("[Socket.IO]: New card date");
+        console.debug(cardDate);
+        store.commit.board.SIOHandleCardDate({ cardDate, delete: false });
+        console.groupEnd();
+    },
+    updateCardDate: (cardDate: SIOCardDate) => {
+        console.group("[Socket.IO]: Update card date");
+        console.debug(cardDate);
+        store.commit.board.SIOHandleCardDate({ cardDate, delete: false });
+        console.groupEnd();
+
+    },
+    deleteCardDate: (cardDate: SIOCardDate) => {
+        console.group("[Socket.IO]: Delete card date");
+        console.debug(cardDate);
+        store.commit.board.SIOHandleCardDate({ cardDate, delete: true });
         console.groupEnd();
     },
     listUpdateOrder: (data: number[]) => {

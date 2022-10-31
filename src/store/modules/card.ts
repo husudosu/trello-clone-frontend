@@ -258,13 +258,11 @@ export default {
         },
         async addCardDate(context: Context, item: DraftCardDate) {
             if (context.state.card) {
-                // TODO: Handle timezone here, we should put UTC timestamp for API!
                 const dt = await CardAPI.postCardDate(context.state.card.id, item);
                 context.commit("addCardDate", dt);
             }
         },
         async updateCardDate(context: Context, item: CardDate) {
-            // TODO: Handle timezone here, we should put UTC timestamp for API!
             const dt = await CardAPI.patchCardDate(item.id, item);
             context.commit("updateCardDate", dt);
         },

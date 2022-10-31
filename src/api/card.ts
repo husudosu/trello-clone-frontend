@@ -9,6 +9,13 @@ export interface MoveCardParams {
 }
 
 export const CardAPI = {
+    parseCardDate: (data: CardDate) => {
+        if (data.dt_from) {
+            data.dt_from = moment.utc(data.dt_from).tz(store.getters.auth.timezone);
+        }
+        data.dt_to = moment.utc(data.dt_to).tz(store.getters.auth.timezone);
+        return data;
+    },
     parseCardComment: (data: CardComment) => {
         data.created = moment.utc(data.created).tz(store.getters.auth.timezone);
         data.updated = moment.utc(data.updated).tz(store.getters.auth.timezone);
@@ -94,12 +101,7 @@ export const CardAPI = {
         }
 
         const { data } = await API.post<CardDate>(`/card/${cardId}/date`, dt);
-
-        if (data.dt_from) {
-            data.dt_from = moment.utc(dt.dt_from).tz(store.getters.auth.timezone);
-        }
-        data.dt_to = moment.utc(dt.dt_to).tz(store.getters.auth.timezone);
-        return data;
+        return CardAPI.parseCardDate(data);
     },
     patchCardDate: async (cardDateId: number, dt: CardDate): Promise<CardDate> => {
         // Convert date to UTC before pushing to API
@@ -109,11 +111,7 @@ export const CardAPI = {
         }
 
         const { data } = await API.patch<CardDate>(`/date/${cardDateId}`, dt);
-        if (data.dt_from) {
-            data.dt_from = moment.utc(data.dt_from).tz(store.getters.auth.timezone);
-        }
-        data.dt_to = moment.utc(data.dt_to).tz(store.getters.auth.timezone);
-        return data;
+        return CardAPI.parseCardDate(data);
     },
     deleteCardDate: async (cardDateId: number) => {
         await API.delete(`/date/${cardDateId}`);
