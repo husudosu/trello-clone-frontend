@@ -3,7 +3,7 @@
         <template v-if="!editTitle">
             <div class="row justify-between">
                 <span class="text-h6" @dblclick="editTitle = true">
-                    {{ props.checklist.title || "Untitled"}}
+                    {{ props.checklist.title || "Untitled" }}
 
                 </span>
                 <q-btn v-if="hasPermission(BoardPermission.CHECKLIST_EDIT)" flat size="sm" dense class="q-ml-sm"
@@ -17,7 +17,7 @@
                 @keyup.enter="onTitleKeyUp"></q-input>
         </template>
         <q-list dense>
-            <draggable :list="checklist.items" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
+            <draggable :list="props.checklist.items" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
                 :delay="500" group="checklist-items" @end="onItemMoveEnd">
                 <template #item="{ element }">
                     <checklist-item :item="element"></checklist-item>

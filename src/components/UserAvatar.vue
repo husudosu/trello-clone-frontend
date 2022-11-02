@@ -1,10 +1,10 @@
 <template>
     <div class="avatar">
         <q-avatar ref="avatar" :size="size" :rounded="rounded" text-color="white"
-            :style="{'background-color': calculateAvatarColor()}">
+            :style="{      'background-color': calculateAvatarColor()      }">
             {{ initials }}
         </q-avatar>
-        <q-tooltip v-if="props.showTooltip">{{ props.user.name || props.user.username}}</q-tooltip>
+        <q-tooltip v-if="props.showTooltip">{{ props.user.name || props.user.username      }}</q-tooltip>
         <q-btn size="xs" dense flat v-if="props.showDelete" @click="$emit('delete', $event)">
             <q-icon name="remove" color="red"></q-icon>
         </q-btn>
@@ -27,7 +27,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), { size: "sm", rounded: false, showTooltip: true, showDelete: false });
-
 const avatar = ref();
 const initials = ref("");
 

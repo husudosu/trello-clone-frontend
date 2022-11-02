@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex";
 import { State } from "../index";
 
-import { Card, CardActivity, CardActivityQueryParams, CardChecklist, ChecklistItem, DraftChecklistItem, PaginatedResponse, CardActivityQueryType, DraftCardMember, CardMember, DraftCardDate, CardDate } from "@/api/types";
+import { Card, CardActivity, CardActivityQueryParams, CardChecklist, ChecklistItem, DraftChecklistItem, PaginatedResponse, CardActivityQueryType, DraftCardMember, CardMember, DraftCardDate, CardDate, BoardAllowedUser } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
 
@@ -146,7 +146,7 @@ export default {
                     state.card.dates.splice(index, 1);
                 }
             }
-        }
+        },
     },
     actions: {
         async loadCard(context: Context, cardId: number) {
@@ -269,6 +269,14 @@ export default {
         async deleteCardDate(context: Context, item: CardDate) {
             await CardAPI.deleteCardDate(item.id);
             context.commit("deleteCardDate", item);
-        }
+        },
+        async assignMemberToChecklistItem(context: Context, payload: { member: BoardAllowedUser, item: ChecklistItem; }) {
+            const data = await ChecklistAPI.assignMemberToChecklistItem(payload.item.id, payload.member);
+            context.commit("updateChecklistItem", data);
+        },
+        async deassignMemberFromChecklistItem(context: Context, item: ChecklistItem) {
+            const data = await ChecklistAPI.deassignMemberToChecklistItem(item.id);
+            context.commit("updateChecklistItem", data);
+        },
     }
 };

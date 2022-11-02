@@ -231,6 +231,7 @@ export interface ChecklistItem {
     completed: boolean;
     marked_complete_on?: moment.Moment;
     marked_complete_user?: BoardMemberInfo;
+    assigned_user?: BoardMemberInfo;
     position?: number;
 }
 
