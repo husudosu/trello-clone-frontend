@@ -23,6 +23,9 @@
         </q-item-section>
         <q-item-section side>
             <div class="row">
+                <span v-if="props.item.due_date" class="q-mr-sm q-mt-xs">
+                    {{ props.item.due_date?.format("YYYY-MM-DD HH:mm") }}
+                </span>
                 <user-avatar v-if="props.item.assigned_user" size="sm" :user="props.item.assigned_user.user"
                     :show-delete="true" @delete="onDeassignMember" :show-tooltip="false">
                 </user-avatar>
@@ -49,6 +52,7 @@ import { ChecklistItem, BoardPermission, BoardAllowedUser } from "@/api/types";
 import { useQuasar } from 'quasar';
 import AssignMember from "@/components/Board/Card/AssignMember.vue";
 import UserAvatar from '@/components/UserAvatar.vue';
+import DateToItemDialog from './DateToItemDialog.vue';
 const hasPermission = store.getters.board.hasPermission;
 
 const $q = useQuasar();
@@ -90,7 +94,6 @@ const onAssignMember = () => {
         component: AssignMember
     }
     ).onOk((data: BoardAllowedUser) => {
-        console.log(`Member: ${JSON.stringify(data)}`);
         store.dispatch.card.assignMemberToChecklistItem({ member: data, item: props.item });
     });
 };
@@ -100,7 +103,10 @@ const onDeassignMember = () => {
 };
 
 const onAssignDueDate = () => {
-    console.log(props.item);
-    alert("Not implemented yet");
+    $q.dialog({
+        component: DateToItemDialog,
+    }).onOk((data) => {
+        store.dispatch.card.updateChecklistItem({ ...item.value, due_date: data });
+    });
 };
 </script>

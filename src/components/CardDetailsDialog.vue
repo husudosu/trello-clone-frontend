@@ -88,8 +88,9 @@
                         </div>
                         <div class="q-ml-xs q-mb-xs on-right">
                             <q-btn color="primary" size="sm" style="top: 10px;" @click="onCardDetailsButtonClicked">
-                                {{cardActivityQueryType == "all" ? "Hide details" :
-                                "Show details"}}
+                                {{ cardActivityQueryType == "all" ? "Hide details" :
+                                        "Show details"
+                                }}
                             </q-btn>
                         </div>
                     </div>
@@ -108,7 +109,7 @@
                             </template>
                             <template v-else>
                                 <span class="q-ma-sm" v-if="!activitiesLoading">
-                                    {{ cardActivityQueryType == "all" ? "No activity yet" : "No comments yet"}}
+                                    {{ cardActivityQueryType == "all" ? "No activity yet" : "No comments yet" }}
                                 </span>
                             </template>
                             <div class="q-ml-sm q-mr-sm">
@@ -137,7 +138,7 @@ import store from "@/store";
 import { Card, BoardPermission, BoardAllowedUser, CardMember, DraftCardDate } from "@/api/types";
 import { CardAPI } from '@/api/card';
 import CardActivity from './Board/Card/CardActivity.vue';
-import CardChecklist from './Board/Card/CardChecklist.vue';
+import CardChecklist from './Board/Card/Checklist/CardChecklist.vue';
 import AssignMember from './Board/Card/AssignMember.vue';
 import CardDateDialog from './Board/Card/CardDateDialog.vue';
 

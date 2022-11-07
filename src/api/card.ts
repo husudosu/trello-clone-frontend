@@ -3,6 +3,7 @@ import moment from "moment-timezone";
 import { API } from ".";
 import { Card, CardActivity, CardActivityQueryParams, CardComment, CardDate, CardMember, DraftCard, DraftCardDate, DraftCardMember, PaginatedCardActivity } from "./types";
 import store from "@/store";
+import { ChecklistAPI } from "./checklist";
 export interface MoveCardParams {
     list_id: number;
     position: number;
@@ -42,9 +43,8 @@ export const CardAPI = {
         });
         data.checklists.forEach((checklist) => {
             checklist.items.forEach((item) => {
-                if (item.marked_complete_on) {
-                    item.marked_complete_on = moment.utc(item.marked_complete_on).tz(store.getters.auth.timezone);
-                }
+                // Parse checklist items
+                ChecklistAPI.parseChecklistItem(item);
             });
         });
         return data;

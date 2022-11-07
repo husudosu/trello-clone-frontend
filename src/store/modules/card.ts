@@ -229,8 +229,8 @@ export default {
             await context.dispatch("loadCardActivities");
         },
         async updateChecklistItem(context: Context, item: ChecklistItem) {
-            context.commit("updateChecklistItem", item);
-            await ChecklistAPI.patchChecklistItem(item.id, item);
+            const data = await ChecklistAPI.patchChecklistItem(item.id, item);
+            context.commit("updateChecklistItem", data);
         },
         async assignCardMember(context: Context, item: DraftCardMember) {
             if (context.state.card) {
