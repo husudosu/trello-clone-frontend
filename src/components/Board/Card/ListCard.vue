@@ -45,10 +45,11 @@ import { useQuasar } from 'quasar';
 import store from "@/store";
 import UserAvatar from '@/components/UserAvatar.vue';
 import CardDateChip from './Status/CardDateChip.vue';
+import { CardAPI } from '@/api/card';
 
 interface Props {
     card: Card;
-    boardListId: number;
+    boardListId: number; // FIXME: We don't use this here!
 }
 
 const $q = useQuasar();
@@ -78,9 +79,11 @@ const onCancelClicked = (ev: any) => {
 };
 
 const saveCard = async () => {
-    store.dispatch.card.updateCard(cardUpdate.value).then(() => {
-        editMode.value = false;
-    }).catch((err) => console.log(err));
+    // store.dispatch.card.updateCard(cardUpdate.value).then(() => {
+    //     editMode.value = false;
+    // }).catch((err) => console.log(err));
+    await CardAPI.patchCard(props.card.id, cardUpdate.value);
+    editMode.value = false;
 };
 
 const onDeleteCardClicked = async () => {
@@ -94,7 +97,8 @@ const onDeleteCardClicked = async () => {
             color: "negative"
         }
     }).onOk(() => {
-        store.dispatch.card.deleteCardFromAPI(props.card);
+        // store.dispatch.card.deleteCardFromAPI(props.card);
+        CardAPI.deleteCard(props.card.id);
     });
 };
 
@@ -112,7 +116,8 @@ const onEditClick = (ev: any) => {
 const onDateMark = (ev: any, cardDate: CardDate) => {
     ev.stopPropagation();
     cardDate.complete = !cardDate.complete;
-    store.dispatch.card.updateCardDate(cardDate);
+    // store.dispatch.card.updateCardDate(cardDate);
+    CardAPI.patchCardDate(cardDate.id, cardDate);
 };
 
 </script>

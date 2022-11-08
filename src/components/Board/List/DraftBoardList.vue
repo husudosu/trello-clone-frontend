@@ -21,8 +21,10 @@
 import { ref, defineProps } from "vue";
 
 import { DraftBoardList } from '@/api/types';
-import store from "@/store";
+import { BoardListAPI } from "@/api/boardList";
+// import store from "@/store";
 
+// TODO: Convert these to emits!
 type OnCancel = () => void;
 type OnSaveSuccess = () => void;
 
@@ -49,8 +51,9 @@ const onTitleBlur = (ev: any) => {
     }
 };
 
-const onListSave = () => {
-    store.dispatch.board.newBoardList(boardList.value);
+const onListSave = async () => {
+    // store.dispatch.board.newBoardList(boardList.value);
+    await BoardListAPI.postBoardList(props.boardId, boardList.value);
     props.onSaveSuccess();
 };
 
