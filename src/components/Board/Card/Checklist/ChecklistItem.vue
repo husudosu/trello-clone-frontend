@@ -91,7 +91,10 @@ const onItemDelete = () => {
 
 const onAssignMember = () => {
     $q.dialog({
-        component: AssignMember
+        component: AssignMember,
+        componentProps: {
+            showOnlyNotAssignedMembers: false
+        }
     }
     ).onOk((data: BoardAllowedUser) => {
         store.dispatch.card.assignMemberToChecklistItem({ member: data, item: props.item });
