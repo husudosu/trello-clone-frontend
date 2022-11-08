@@ -135,7 +135,7 @@ import { computed, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import store from "@/store";
-import { Card, BoardPermission, BoardAllowedUser, CardMember, DraftCardDate } from "@/api/types";
+import { BoardPermission, BoardAllowedUser, CardMember, DraftCardDate } from "@/api/types";
 import { CardAPI } from '@/api/card';
 import CardActivity from './Board/Card/CardActivity.vue';
 import CardChecklist from './Board/Card/Checklist/CardChecklist.vue';
@@ -194,8 +194,9 @@ const onDescriptionEdit = async (e: KeyboardEvent) => {
 const onTitleEdit = async () => {
     if (card.value && card.value.title && card.value.id) {
         editCardTitle.value = false;
-        const updatedCard: Card = await CardAPI.patchCard(card.value.id, { title: card.value.title });
-        store.commit.board.saveCard(updatedCard);
+        // const updatedCard: Card = await CardAPI.patchCard(card.value.id, { title: card.value.title });
+        await CardAPI.patchCard(card.value.id, { title: card.value.title });
+        // store.commit.board.saveCard(updatedCard);
     }
 };
 

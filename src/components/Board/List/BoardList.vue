@@ -57,6 +57,7 @@ import store from "@/store";
 
 import ListCard from "@/components/Board/Card/ListCard.vue";
 import DraftCard from "@/components/Board/Card/DraftCard.vue";
+import { BoardListAPI } from '@/api/boardList';
 
 /* TODO: Implement events of VueDraggable, Vue3 version off draggable is not contains event types
 Vue v2 sortable.js:
@@ -92,28 +93,22 @@ const cards = computed({
 });
 const showAddCard = ref(false);
 
-const onListSave = () => {
+const onListSave = async () => {
     if (props.boardList.id && newListTitle.value.length > 0) {
-        store.dispatch.board.updateBoardList({ ...props.boardList, title: newListTitle.value })
-            .finally(() => {
-                editListTitle.value = false;
-            });
+        // store.dispatch.board.updateBoardList({ ...props.boardList, title: newListTitle.value })
+        //     .finally(() => {
+        //         editListTitle.value = false;
+        //     });
+        await BoardListAPI.patchBoardList(props.boardList.id, { ...props.boardList, title: newListTitle.value });
+        editListTitle.value = false;
         listWrapperRef.value.classList.remove("draftBoardList");
-    }
-    else {
-        store.commit.board.removeList(props.boardList);
     }
 };
 
 
 const onCancelClicked = () => {
-    if (props.boardList.id) {
+    if (props.boardList.id)
         editListTitle.value = false;
-    }
-    else {
-        // Delete draft card
-        store.commit.board.removeList(props.boardList);
-    }
 };
 
 const onAddCardClick = () => {
@@ -136,7 +131,8 @@ const onDeleteBoardList = () => {
             color: "negative"
         }
     }).onOk(() => {
-        store.dispatch.board.removeBoardList(props.boardList);
+        BoardListAPI.deleteBoardList(props.boardList.id);
+        // store.dispatch.board.removeBoardList(props.boardList);
     });
 };
 

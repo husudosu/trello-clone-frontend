@@ -15,7 +15,7 @@
 import { DraftCard } from '@/api/types';
 import { defineProps, ref } from 'vue';
 
-import store from "@/store";
+import { CardAPI } from '@/api/card';
 
 type OnCancel = () => void;
 type OnSaveSuccess = () => void;
@@ -28,7 +28,7 @@ interface Props {
 const props = defineProps<Props>();
 const card = ref<DraftCard>({ list_id: props.boardListId, title: "" });
 
-const saveCard = (ev: any) => {
+const saveCard = async (ev: any) => {
     // FIXME: this seems hacky. If the related target contains draftCardCancelButton class we don't save data.
     let relatedTargetClasses = [];
     if (ev.relatedTarget)
@@ -36,7 +36,8 @@ const saveCard = (ev: any) => {
 
     if (!relatedTargetClasses.includes("draftCardCancelButton") && card.value.title.length > 0) {
         // Save card into db
-        store.dispatch.board.saveCard(card.value);
+        // store.dispatch.board.saveCard(card.value);
+        await CardAPI.postCard(card.value.list_id, card.value);
         props.onSaveSuccess();
     }
     else {

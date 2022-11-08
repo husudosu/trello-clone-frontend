@@ -295,9 +295,9 @@ export default {
                 await BoardListAPI.deleteBoardList(list.id);
             context.commit("removeList", list);
         },
-        async saveCard(context: Context, card: DraftCard) {
-            const data = await CardAPI.postCard(card.list_id, card);
-            context.commit("saveCard", data);
-        }
+        // async saveCard(context: Context, card: DraftCard) {
+        //     const data = await CardAPI.postCard(card.list_id, card);
+        //     context.commit("saveCard", data);
+        // }
     }
 };
