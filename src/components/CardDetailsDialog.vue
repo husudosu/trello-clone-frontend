@@ -145,6 +145,10 @@ import CardDateDialog from './Board/Card/CardDateDialog.vue';
 import UserAvatar from './UserAvatar.vue';
 import CardDates from './Board/Card/Details/CardDates.vue';
 
+import { useSocketIO, SIOBoardEventListeners, SIOEvent } from "@/socket";
+
+const { socket } = useSocketIO();
+
 const $q = useQuasar();
 const hasPermission = store.getters.board.hasPermission;
 
@@ -161,8 +165,13 @@ const cardModalVisible = computed({
         if (!newValue) {
             editCardDescription.value = false;
             newComment.value = "";
+            socket.emit("card_leave", { card_id: card.value?.id });
+
+            // Unregister card activity listener
+            socket.off(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
             store.commit.card.unloadCard();
         }
+
     }
 });
 
@@ -175,7 +184,12 @@ const editCardDescription = ref(false);
 const editCardTitle = ref(false);
 
 const addNewComment = () => {
-    store.dispatch.card.addCardComment(newComment.value).then(() => newComment.value = "");
+    if (card.value) {
+        store.dispatch.card.addCardComment(newComment.value).then(() => newComment.value = "");
+        // TODO: We need to transform CardDetailsDialog and CardActivity rendering for this!
+        // CardAPI.postCardComment(card.value.id, { comment: newComment.value });
+    }
+
 };
 
 const onNewCommentKeyddown = async (e: KeyboardEvent) => {

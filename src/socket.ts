@@ -1,15 +1,22 @@
-import SocketIO from 'socket.io-client';
-import { BoardList, Card, CardDate } from './api/types';
+import SocketIO, { Socket } from 'socket.io-client';
+import { BoardList, Card, CardActivity, CardDate } from './api/types';
 
 const options = { withCredentials: true, debug: true };
 import store from "@/store/index";
 
+
+let socket: Socket | undefined = undefined;
+
 export const useSocketIO = () => {
 
-    const socket = SocketIO(
-        process.env.NODE_ENV === "development" ?
-            process.env.VUE_APP_SOCKET_SERVER + "/board" :
-            window.location.protocol + "//" + window.location.host + "/board", options);
+    // I don't know if it's good solution store Socket IO client like this
+    if (socket === undefined) {
+        console.log("Create Socket.IO client");
+        socket = SocketIO(
+            process.env.NODE_ENV === "development" ?
+                process.env.VUE_APP_SOCKET_SERVER + "/board" :
+                window.location.protocol + "//" + window.location.host + "/board", options);
+    }
     return {
         socket,
     };
@@ -31,6 +38,8 @@ export enum SIOEvent {
     CARD_DATE_NEW = "card.date.new",
     CARD_DATE_UPDATE = "card.date.update",
     CARD_DATE_DELETE = "card.data.delete",
+
+    CARD_ACTIVITY = "card.activity",
 
     LIST_NEW = "list.new",
     LIST_UPDATE_ORDER = "list.update.order",
@@ -138,4 +147,9 @@ export const SIOBoardEventListeners = {
         store.commit.board.removeList(data);
         console.groupEnd();
     },
+    onCardActivity: (data: CardActivity) => {
+        console.group(`[Socket.IO]: Card activity`);
+        console.debug(data);
+        console.groupEnd();
+    }
 };
