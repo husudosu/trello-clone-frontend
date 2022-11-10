@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex";
 import { State } from "../index";
 
-import { Card, CardActivity, CardActivityQueryParams, CardChecklist, ChecklistItem, DraftChecklistItem, PaginatedResponse, CardActivityQueryType, DraftCardMember, CardMember, DraftCardDate, CardDate, BoardAllowedUser } from "@/api/types";
+import { Card, CardActivity, CardChecklist, ChecklistItem, DraftChecklistItem, PaginatedResponse, CardActivityQueryType, DraftCardMember, CardMember, DraftCardDate, CardDate, BoardAllowedUser } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
 
@@ -25,7 +25,6 @@ export default {
         card: null,
         cardLoading: false,
         activitiesLoading: false,
-        activities: [],
         activityPagination: null,
         cardActivityQueryType: localStorage.getItem("cardActivityQueryType") || "comment",
         cardMoved: false
@@ -38,10 +37,8 @@ export default {
         setCard(state: CardState, value: Card) {
             state.card = value;
         },
-        addCardActivities(state: CardState, value: CardActivity[]) {
-            if (state.card != undefined) {
-                state.activities.push(...value);
-            }
+        addCardActivity(state: CardState, activity: CardActivity) {
+            state.card?.activities.unshift(CardAPI.parseCardActivity(activity));
         },
         setCardActivitiesPagination(state: CardState, value: PaginatedResponse) {
             state.activityPagination = value;
@@ -107,10 +104,6 @@ export default {
             state.cardActivityQueryType = value;
             localStorage.setItem("cardActivityQueryType", value);
         },
-        unloadCardActivities(state: CardState) {
-            state.activities = [];
-            state.activityPagination = null;
-        },
         addCardAsisgnment(state: CardState, member: CardMember) {
             state.card?.assigned_members.push(member);
         },
@@ -162,33 +155,9 @@ export default {
                 context.commit("setCardLoading", false);
             }
         },
-        async loadCardActivities(context: Context, params: CardActivityQueryParams = {}) {
-            const timeout = setTimeout(() => { context.commit("setActivitiesLoading", true); }, 80);
-            try {
-                if (context.state.card) {
-                    params.type = context.state.cardActivityQueryType;
-                    const result = await CardAPI.getCardActivities(context.state.card.id, params);
-                    // Extend activities.
-                    context.commit("addCardActivities", result.data);
-                    // Set pagination object
-                    context.commit("setCardActivitiesPagination", result);
-                }
-            }
-            catch (err) {
-                console.log(err);
-            }
-            finally {
-                clearTimeout(timeout);
-                context.commit("setActivitiesLoading", false);
-            }
-        },
-
         async addCardComment(context: Context, payload: string) {
             if (context.state.card && context.state.card.id) {
                 await CardAPI.postCardComment(context.state.card.id, { comment: payload });
-                // Reload activities 
-                context.commit("unloadCardActivities");
-                await context.dispatch("loadCardActivities");
             }
         },
         async deleteCardFromAPI(context: Context, card: Card) {
@@ -224,9 +193,6 @@ export default {
         async markChecklistItem(context: Context, item: ChecklistItem) {
             const data = await ChecklistAPI.markChecklistItem(item.id, item.completed);
             context.commit("updateChecklistItem", data);
-            // FIXME: Reload card activities, probably not the best solution!
-            context.commit("unloadCardActivities");
-            await context.dispatch("loadCardActivities");
         },
         async updateChecklistItem(context: Context, item: ChecklistItem) {
             const data = await ChecklistAPI.patchChecklistItem(item.id, item);
@@ -237,8 +203,6 @@ export default {
                 const data = await CardAPI.assignCardMember(context.state.card.id, item);
                 context.commit("addCardAsisgnment", data);
                 context.commit("board/saveCard", context.state.card, { root: true });
-                context.commit("unloadCardActivities");
-                await context.dispatch("loadCardActivities");
             }
         },
         async deassignCardMember(context: Context, item: CardMember) {
@@ -246,9 +210,6 @@ export default {
                 await CardAPI.deassignCardMember(context.state.card.id, item.board_user.id);
                 context.commit("removeCardAssignment", item);
                 context.commit("board/saveCard", context.state.card, { root: true });
-
-                context.commit("unloadCardActivities");
-                await context.dispatch("loadCardActivities");
             }
         },
         async updateCard(context: Context, item: Card) {

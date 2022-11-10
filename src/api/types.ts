@@ -105,6 +105,7 @@ export interface Card {
     checklists: CardChecklist[];
     assigned_members: CardMember[];
     dates: CardDate[];
+    activities: CardActivity[];
 }
 
 

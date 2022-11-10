@@ -150,6 +150,7 @@ export const SIOBoardEventListeners = {
     onCardActivity: (data: CardActivity) => {
         console.group(`[Socket.IO]: Card activity`);
         console.debug(data);
+        store.commit.card.addCardActivity(data);
         console.groupEnd();
     }
 };

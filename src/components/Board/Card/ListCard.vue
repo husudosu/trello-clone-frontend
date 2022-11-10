@@ -73,7 +73,7 @@ const onCardClick = () => {
             socket.emit("card_change", { card_id: props.card.id });
             socket.on(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
             store.commit.card.setVisible(true);
-            store.dispatch.card.loadCardActivities();
+            // store.dispatch.card.loadCardActivities();
         });
     }
 };

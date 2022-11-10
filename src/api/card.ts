@@ -47,6 +47,9 @@ export const CardAPI = {
                 ChecklistAPI.parseChecklistItem(item);
             });
         });
+        data.activities.forEach((activity) => {
+            CardAPI.parseCardActivity(activity);
+        });
         return data;
     },
     getCard: async (cardId: number): Promise<Card> => {

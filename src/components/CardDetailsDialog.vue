@@ -103,8 +103,9 @@
                     </div>
                     <div class="card-comments" v-if="!activitiesLoading">
                         <q-list padding bordered>
-                            <template v-if="activities.length > 0">
-                                <card-activity v-for="activity in activities" :key="activity.id" :activity="activity">
+                            <template v-if="card.activities.length > 0">
+                                <card-activity v-for="activity in card.activities" :key="activity.id"
+                                    :activity="activity">
                                 </card-activity>
                             </template>
                             <template v-else>
@@ -153,7 +154,6 @@ const $q = useQuasar();
 const hasPermission = store.getters.board.hasPermission;
 
 const card = computed(() => store.state.card.card);
-const activities = computed(() => store.state.card.activities);
 const activityPagination = computed(() => store.state.card.activityPagination);
 const cardModalVisible = computed({
     get() {
@@ -231,8 +231,9 @@ const onDeleteClicked = () => {
 };
 
 const onLoadMoreClicked = () => {
-    if (activityPagination.value)
-        store.dispatch.card.loadCardActivities({ page: activityPagination.value?.page + 1 });
+    // if (activityPagination.value)
+    //     store.dispatch.card.loadCardActivities({ page: activityPagination.value?.page + 1 });
+    console.log("TODO");
 };
 
 const onCardDetailsButtonClicked = () => {
@@ -244,7 +245,7 @@ const onCardDetailsButtonClicked = () => {
     else
         store.commit.card.setCardActivityQueryType("comment");
     // Reload card activities
-    store.dispatch.card.loadCardActivities({ page: 1 });
+    // store.dispatch.card.loadCardActivities({ page: 1 });
 };
 
 
