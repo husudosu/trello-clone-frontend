@@ -1,5 +1,5 @@
 import SocketIO, { Socket } from 'socket.io-client';
-import { BoardList, Card, CardActivity, CardDate } from './api/types';
+import { BoardList, Card, CardActivity, CardDate, CardMember } from './api/types';
 
 const options = { withCredentials: true, debug: true };
 import store from "@/store/index";
@@ -66,6 +66,21 @@ export interface SIOCardUpdatePayload {
 export interface SIOCardDate extends CardDate {
     list_id: number;
 }
+
+
+/*
+Initial payload for Socket.IO events.
+Helps frontend to find list and card by ID easier.
+*/
+export interface SIOCardEvent {
+    list_id: number;
+    card_id: number;
+}
+
+export interface SIOCardMemberEvent extends SIOCardEvent {
+    entity: CardMember;
+}
+
 
 // Event listeners for Board namespace
 export const SIOBoardEventListeners = {
@@ -151,6 +166,11 @@ export const SIOBoardEventListeners = {
         console.group(`[Socket.IO]: Card activity`);
         console.debug(data);
         store.commit.card.addCardActivity(data);
+        console.groupEnd();
+    },
+    cardMemberAssigned: (data: CardMember) => {
+        console.group(`[Socket.IO]: Card member assignment`);
+        console.log(data);
         console.groupEnd();
     }
 };

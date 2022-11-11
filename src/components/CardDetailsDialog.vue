@@ -238,7 +238,7 @@ const onLoadMoreClicked = () => {
 
 const onCardDetailsButtonClicked = () => {
     // First clear activities
-    store.commit.card.unloadCardActivities();
+    // store.commit.card.unloadCardActivities();
     // Set activity type globally
     if (cardActivityQueryType.value == "comment")
         store.commit.card.setCardActivityQueryType("all");
