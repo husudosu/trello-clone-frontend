@@ -33,6 +33,7 @@ import store from "@/store/index";
 
 import { UserAPI } from "@/api/user";
 import { BoardAPI } from "@/api/board";
+import { AddBoardMemberType } from "@/api/types";
 
 defineEmits([
     ...useDialogPluginComponent.emits
@@ -41,10 +42,7 @@ defineEmits([
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent();
 
 // FIXME: Fix types here!
-const addMemberForm = ref({
-    user_id: null as any,
-    board_role_id: null as any,
-});
+const addMemberForm = ref<AddBoardMemberType>();
 
 const addMemberFormUsername = ref("");
 const boardRoles = computed(() => store.state.board.roles);

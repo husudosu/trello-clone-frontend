@@ -74,7 +74,7 @@ const onChecklistItemClicked = () => {
     editItem.value = true;
 };
 
-const dissmisTitleChange = (ev: any) => {
+const dissmisTitleChange = (ev: Event) => {
     ev.stopPropagation();
     editItem.value = false;
     newItemTitle.value = props.item.title;

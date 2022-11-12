@@ -72,7 +72,7 @@ Socket.IO handler for boards.
 */
 socket.on(SIOEvent.SIOError, SIOBoardEventListeners.onError);
 socket.on(SIOEvent.SIOConnect, SIOBoardEventListeners.onConnect);
-socket.onAny((event, ...args) => {
+socket.onAny((event: string) => {
     console.debug(`[Socket.IO]: Got event: ${event}`);
 });
 
@@ -212,9 +212,6 @@ const onMembersClicked = () => {
         component: MembersDialog,
     });
 };
-onBeforeRouteLeave(() => {
-    store.commit.board.unLoadBoard();
-});
 
 onBeforeRouteUpdate(async (to, from) => {
     store.commit.board.unLoadBoard();
@@ -234,6 +231,7 @@ onMounted(() => {
 
 onBeforeRouteLeave(() => {
     console.debug("[Socket.IO]: Leaving board route so disconnect from server.");
+    store.commit.board.unLoadBoard();
     socket.disconnect();
 })
 

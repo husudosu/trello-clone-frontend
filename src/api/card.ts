@@ -4,8 +4,7 @@ import { API } from ".";
 import { Card, CardActivity, CardActivityQueryParams, CardComment, CardDate, CardMember, DraftCard, DraftCardDate, DraftCardMember, PaginatedCardActivity } from "./types";
 import store from "@/store";
 import { ChecklistAPI } from "./checklist";
-import axios from "axios";
-import { InternalServerError, ValidationError } from "./exceptions";
+
 export interface MoveCardParams {
     list_id: number;
     position: number;

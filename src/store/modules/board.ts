@@ -4,7 +4,7 @@ import { State } from "../index";
 import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
-import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftCard, DraftBoardList, BoardAllowedUser } from "@/api/types";
+import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftBoardList, BoardAllowedUser } from "@/api/types";
 import { SIOCardDate, SIOCardMemberEvent, SIOCardUpdateOrder, SIOCardUpdatePayload } from "@/socket";
 
 export interface BoardState {

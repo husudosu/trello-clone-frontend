@@ -73,7 +73,7 @@ const onCardClick = () => {
     }
 };
 
-const onCancelClicked = (ev: any) => {
+const onCancelClicked = (ev: Event) => {
     ev.stopPropagation();
     editMode.value = false;
     // Revert previous title
@@ -108,14 +108,14 @@ const onCardTitleKeyUp = (ev: KeyboardEvent) => {
     if (ev.ctrlKey) saveCard();
 };
 
-const onEditClick = (ev: any) => {
+const onEditClick = (ev: Event) => {
     ev.stopPropagation();
     // Create structured clone of card
     cardUpdate.value = { ...props.card };
     editMode.value = true;
 };
 
-const onDateMark = (ev: any, cardDate: CardDate) => {
+const onDateMark = (ev: Event, cardDate: CardDate) => {
     ev.stopPropagation();
     cardDate.complete = !cardDate.complete;
     // store.dispatch.card.updateCardDate(cardDate);
