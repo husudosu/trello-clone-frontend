@@ -1,6 +1,6 @@
 <template>
-    <q-dialog v-model="cardModalVisible" :fullWidth="true" :fullHeight="true" :maximized="$q.screen.xs" v-if="card">
-        <q-layout view="hHh lpR fFf" container class="bg-white">
+    <q-dialog :fullWidth="true" :fullHeight="true" :maximized="$q.screen.xs" @hide="onCloseDialog" ref="dialogRef">
+        <q-layout view="hHh lpR fFf" container class="bg-white" v-if="card">
             <q-header class="bg-primary">
                 <q-toolbar>
                     <q-toolbar-title
@@ -113,12 +113,6 @@
                                     {{ cardActivityQueryType == "all" ? "No activity yet" : "No comments yet" }}
                                 </span>
                             </template>
-                            <div class="q-ml-sm q-mr-sm">
-                                <q-btn class="full-width" unelevated outline color="primary"
-                                    v-if="activityPagination && activityPagination?.page < activityPagination?.pages"
-                                    @click="onLoadMoreClicked">
-                                    Load more...</q-btn>
-                            </div>
                         </q-list>
                     </div>
                     <div v-else>
@@ -132,9 +126,11 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
-import { useQuasar } from 'quasar';
+import { useDialogPluginComponent } from 'quasar';
 
+import { computed, ref, defineEmits, defineProps, onMounted } from 'vue';
+import { useQuasar } from 'quasar';
+import { ValidationError } from "@/api/exceptions";
 import store from "@/store";
 import { BoardPermission, BoardAllowedUser, CardMember, DraftCardDate } from "@/api/types";
 import { CardAPI } from '@/api/card';
@@ -147,6 +143,13 @@ import UserAvatar from './UserAvatar.vue';
 import CardDates from './Board/Card/Details/CardDates.vue';
 
 import { useSocketIO, SIOBoardEventListeners, SIOEvent } from "@/socket";
+import * as DOMPurify from 'dompurify';
+
+interface Props {
+    cardId: number;
+}
+
+const props = defineProps<Props>();
 
 const { socket } = useSocketIO();
 
@@ -154,26 +157,6 @@ const $q = useQuasar();
 const hasPermission = store.getters.board.hasPermission;
 
 const card = computed(() => store.state.card.card);
-const activityPagination = computed(() => store.state.card.activityPagination);
-const cardModalVisible = computed({
-    get() {
-        return store.state.card.visible;
-    },
-    set(newValue) {
-        store.commit.card.setVisible(newValue);
-        // clear fields
-        if (!newValue) {
-            editCardDescription.value = false;
-            newComment.value = "";
-            socket.emit("card_leave", { card_id: card.value?.id });
-
-            // Unregister card activity listener
-            socket.off(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
-            store.commit.card.unloadCard();
-        }
-
-    }
-});
 
 const activitiesLoading = computed(() => store.state.card.activitiesLoading);
 const rightDrawerVisible = ref(false);
@@ -182,6 +165,55 @@ const cardActivityQueryType = computed(() => store.state.card.cardActivityQueryT
 const newComment = ref("");
 const editCardDescription = ref(false);
 const editCardTitle = ref(false);
+
+
+defineEmits([
+    ...useDialogPluginComponent.emits
+]);
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
+
+onMounted(async () => {
+    try {
+        $q.loading.show({ delay: 150 });
+        await store.dispatch.card.loadCard(props.cardId);
+        socket.emit("card_change", { card_id: props.cardId });
+        socket.on(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
+    }
+    catch (err) {
+        console.log(err);
+        $q.notify({
+            position: "bottom-right",
+            type: "negative",
+            message: "Cannot load card."
+        });
+        onDialogHide();
+    }
+    finally {
+        $q.loading.hide();
+    }
+});
+
+const onCloseDialog = () => {
+    try {
+        store.commit.card.unloadCard();
+        // Leave Socket.IO card room.
+        socket.emit("card_leave", { card_id: props.cardId });
+
+        // Unregister card activity listener
+        socket.off(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
+    }
+    catch (err) {
+        console.log(err);
+        $q.notify({
+            position: "bottom-right",
+            type: "negative",
+            message: "Cannot close card properly."
+        });
+    }
+    finally {
+        onDialogHide();
+    }
+};
 
 const addNewComment = () => {
     if (card.value) {
@@ -214,6 +246,7 @@ const onTitleEdit = async () => {
     }
 };
 
+
 const onDeleteClicked = () => {
     $q.dialog({
         title: "Delete card",
@@ -228,12 +261,6 @@ const onDeleteClicked = () => {
         if (card.value)
             store.dispatch.card.deleteCardFromAPI(card.value);
     });
-};
-
-const onLoadMoreClicked = () => {
-    // if (activityPagination.value)
-    //     store.dispatch.card.loadCardActivities({ page: activityPagination.value?.page + 1 });
-    console.log("TODO");
 };
 
 const onCardDetailsButtonClicked = () => {
@@ -268,12 +295,25 @@ const onAssignMemberClicked = () => {
     $q.dialog({
         component: AssignMember,
     }).onOk((data: BoardAllowedUser) => {
-        store.dispatch.card.assignCardMember({ board_user_id: data.id, send_notification: true });
+        if (card.value)
+            CardAPI.assignCardMember(card.value.id, { board_user_id: data.id, send_notification: true });
     });
 };
 
-const onDeassignMember = (member: CardMember) => {
-    store.dispatch.card.deassignCardMember(member);
+const onDeassignMember = async (member: CardMember) => {
+    try {
+        await CardAPI.deassignCardMember(props.cardId, member.board_user.id);
+    }
+    catch (err) {
+        if (err instanceof ValidationError) {
+            $q.notify({
+                position: "bottom-right",
+                type: "negative",
+                message: DOMPurify.sanitize(`Server validation error: ${err.formatErrors()}`),
+                html: true
+            });
+        }
+    }
 };
 
 const onAddDateClicked = () => {

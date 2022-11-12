@@ -4,6 +4,7 @@ import store from "@/store";
 import router from "@/router";
 import { Cookies } from 'quasar';
 
+import { ValidationError } from "./exceptions";
 const config: AxiosRequestConfig = {
     withCredentials: true,
     baseURL: process.env.NODE_ENV === "development" ? process.env.VUE_APP_API_BASEURL : window.location.protocol + "//" + window.location.host + "/api/v1",
@@ -39,13 +40,19 @@ API.interceptors.response.use((response: AxiosResponse) => {
         store.commit.auth.setUser(null);
         router.push({ name: "login" });
     }
-    else if (error.response.status === 500) {
-        router.replace({
-            name: "500",
-            query: {
-                traceback: error.response.data.traceback,
-            },
-        });
+    else if (error.response) {
+        switch (error.response.status) {
+            case 400:
+                return Promise.reject(new ValidationError({ message: error.response.data.message, errors: error.response.data.errors }));
+            case 500:
+                router.replace({
+                    name: "500",
+                    query: {
+                        traceback: error.response.data.traceback,
+                    },
+                });
+                break;
+        }
     }
     return Promise.reject(error);
 });

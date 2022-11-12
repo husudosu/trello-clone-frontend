@@ -1,7 +1,5 @@
 <template>
     <div class="ui" ref="boardWrapper">
-        <!-- Car details -->
-        <card-details-dialog></card-details-dialog>
         <!-- Add member dialog -->
         <nav class="navbar board" v-if="!$q.screen.xs">
             {{ board?.title }}
@@ -60,7 +58,6 @@ import { BoardListAPI } from '@/api/boardList';
 import { BoardAPI } from "@/api/board";
 import { BoardPermission } from "@/api/types";
 
-import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import BoardListVue from "@/components/Board/List/BoardList.vue";
 import AddMemberDialog from "@/components/Board/AddMemberDialog.vue";
 import MembersDialog from "@/components/Board/MembersDialog.vue";
@@ -87,6 +84,9 @@ socket.on(SIOEvent.CARD_DELETE, SIOBoardEventListeners.cardDelete);
 socket.on(SIOEvent.CARD_DATE_NEW, SIOBoardEventListeners.newCardDate);
 socket.on(SIOEvent.CARD_DATE_UPDATE, SIOBoardEventListeners.updateCardDate);
 socket.on(SIOEvent.CARD_DATE_DELETE, SIOBoardEventListeners.deleteCardDate);
+
+socket.on(SIOEvent.CARD_MEMBER_ASSIGNED, SIOBoardEventListeners.cardMemberAssigned);
+socket.on(SIOEvent.CARD_MEMBER_DEASSIGNED, SIOBoardEventListeners.cardMemberDeAssigned);
 
 socket.on(SIOEvent.LIST_NEW, SIOBoardEventListeners.newList);
 socket.on(SIOEvent.LIST_UPDATE_ORDER, SIOBoardEventListeners.listUpdateOrder);

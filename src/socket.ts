@@ -168,9 +168,27 @@ export const SIOBoardEventListeners = {
         store.commit.card.addCardActivity(data);
         console.groupEnd();
     },
-    cardMemberAssigned: (data: CardMember) => {
+    cardMemberAssigned: (data: SIOCardMemberEvent) => {
         console.group(`[Socket.IO]: Card member assignment`);
         console.log(data);
+        // Add assignment to board assigned
+        store.commit.board.SIOHandleCardMember({ data, delete: false });
+
+        // Add assignment to card if it's active
+        if (store.state.card.card && store.state.card.card.id === data.card_id) {
+            store.commit.card.addCardAsisgnment(data.entity);
+        }
+        console.groupEnd();
+    },
+    cardMemberDeAssigned: (data: SIOCardMemberEvent) => {
+        console.group(`[Socket.IO]: Card member deassignment`);
+        console.log(data);
+        store.commit.board.SIOHandleCardMember({ data, delete: true });
+
+        // Delete assignment to card if it's active
+        if (store.state.card.card && store.state.card.card.id === data.card_id) {
+            store.commit.card.removeCardAssignment(data.entity);
+        }
         console.groupEnd();
     }
 };

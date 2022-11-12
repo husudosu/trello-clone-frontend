@@ -5,7 +5,7 @@ import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
 import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftCard, DraftBoardList, BoardAllowedUser } from "@/api/types";
-import { SIOCardDate, SIOCardUpdateOrder, SIOCardUpdatePayload } from "@/socket";
+import { SIOCardDate, SIOCardMemberEvent, SIOCardUpdateOrder, SIOCardUpdatePayload } from "@/socket";
 
 export interface BoardState {
     boards: Board[];
@@ -16,6 +16,26 @@ export interface BoardState {
 }
 
 type Context = ActionContext<BoardState, State>;
+
+interface CardPositionInBoard {
+    listIndex: number;
+    cardIndex: number;
+}
+
+/*
+Finds card in list
+*/
+const findCardIndex = (lists: BoardList[], listId: number, cardId: number): CardPositionInBoard => {
+    const listIndex = lists.findIndex((el) => el.id === listId);
+
+    if (listIndex > -1) {
+        const cardIndex = lists[listIndex].cards.findIndex((el) => el.id === cardId);
+
+        if (cardIndex > -1) return { listIndex, cardIndex };
+        else throw "Card index of card not found!";
+    }
+    else throw "List index of card not found!";
+};
 
 export default {
     namespaced: true as const,
@@ -177,6 +197,21 @@ export default {
                 }
             }
         },
+        SIOHandleCardMember(state: BoardState, payload: { data: SIOCardMemberEvent, delete: boolean; }) {
+            if (state.board !== null) {
+                const cpos = findCardIndex(state.board.lists, payload.data.list_id, payload.data.card_id);
+                if (!payload.delete) {
+                    state.board.lists[cpos.listIndex].cards[cpos.cardIndex].assigned_members.push(payload.data.entity);
+                }
+                else {
+                    // Find entity for deletion.
+                    const memberIndex = state.board.lists[cpos.listIndex].cards[cpos.cardIndex].assigned_members.findIndex((el) => el.id === payload.data.entity.id);
+                    console.log(memberIndex);
+                    if (memberIndex > -1)
+                        state.board.lists[cpos.listIndex].cards[cpos.cardIndex].assigned_members.splice(memberIndex, 1);
+                }
+            }
+        },
         setBoardRoles(state: BoardState, roles: BoardRole[]) {
             state.roles = roles;
         },
@@ -295,9 +330,5 @@ export default {
                 await BoardListAPI.deleteBoardList(list.id);
             context.commit("removeList", list);
         },
-        // async saveCard(context: Context, card: DraftCard) {
-        //     const data = await CardAPI.postCard(card.list_id, card);
-        //     context.commit("saveCard", data);
-        // }
     }
 };

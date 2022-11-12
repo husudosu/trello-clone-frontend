@@ -4,6 +4,8 @@ import { API } from ".";
 import { Card, CardActivity, CardActivityQueryParams, CardComment, CardDate, CardMember, DraftCard, DraftCardDate, DraftCardMember, PaginatedCardActivity } from "./types";
 import store from "@/store";
 import { ChecklistAPI } from "./checklist";
+import axios from "axios";
+import { InternalServerError, ValidationError } from "./exceptions";
 export interface MoveCardParams {
     list_id: number;
     position: number;
@@ -91,7 +93,10 @@ export const CardAPI = {
         return data;
     },
     deassignCardMember: async (cardId: number, boardUserId: number) => {
-        await API.post<CardMember>(`/card/${cardId}/deassign-member`, { board_user_id: boardUserId });
+        console.log(cardId);
+        console.log(boardUserId);
+        const { data } = await API.post<CardMember>(`/card/${cardId}/deassign-member`, { board_user_id: boardUserId });
+        return data;
     },
     postCardDate: async (cardId: number, dt: DraftCardDate): Promise<CardDate> => {
         // Convert date to UTC before pushing to API

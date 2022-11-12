@@ -47,9 +47,7 @@ import UserAvatar from '@/components/UserAvatar.vue';
 import CardDateChip from './Status/CardDateChip.vue';
 import { CardAPI } from '@/api/card';
 
-import { useSocketIO, SIOBoardEventListeners, SIOEvent } from "@/socket";
-
-const { socket } = useSocketIO();
+import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 
 interface Props {
     card: Card;
@@ -68,12 +66,9 @@ const onCardClick = () => {
     If you move one list to other it's not an isssued
     */
     if (!editMode.value && !store.state.card.cardMoved) {
-        store.dispatch.card.loadCard(props.card.id).then(() => {
-            // Joining to card room and register card activity listener.
-            socket.emit("card_change", { card_id: props.card.id });
-            socket.on(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
-            store.commit.card.setVisible(true);
-            // store.dispatch.card.loadCardActivities();
+        $q.dialog({
+            component: CardDetailsDialog,
+            componentProps: { cardId: props.card.id }
         });
     }
 };
