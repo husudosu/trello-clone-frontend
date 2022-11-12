@@ -21,7 +21,7 @@
                 :force-fallback="true" :animation="200">
                 <!-- Board list object and reorder handling of cards.-->
                 <template #item="{ element }">
-                    <board-list-vue :onEnd="onCardSortableMoveEnd" :boardList="element">
+                    <board-list-vue @on-card-move-end="onCardSortableMoveEnd" :boardList="element">
                     </board-list-vue>
                 </template>
             </draggable>

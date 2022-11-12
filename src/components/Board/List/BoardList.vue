@@ -22,16 +22,16 @@
             </header>
             <ul ref="cardsWrapper">
                 <draggable :data-id="props.boardList.id" class="list-group" v-model="cards" group="board-cards"
-                    itemKey="id" @end="onEnd" draggable=".listCard" :delayOnTouchOnly="true" :touchStartThreshold="100"
-                    :delay="100" v-if="props.boardList.id" :scroll-sensitivity="200" :fallback-tolerance="1"
-                    :force-fallback="true" :animation="200">
+                    itemKey="id" @end="$emit('onCardMoveEnd', $event)" draggable=".listCard" :delayOnTouchOnly="true"
+                    :touchStartThreshold="100" :delay="100" v-if="props.boardList.id" :scroll-sensitivity="200"
+                    :fallback-tolerance="1" :force-fallback="true" :animation="200">
                     <template #item="{ element }">
                         <list-card :card="element" :boardListId="props.boardList.id"></list-card>
                     </template>
                 </draggable>
                 <template v-if="showAddCard">
-                    <draft-card :boardListId="props.boardList.id" :onCancel="() => { showAddCard = false; }"
-                        :onSaveSuccess="() => { showAddCard = false; }"></draft-card>
+                    <draft-card :boardListId="props.boardList.id" @on-save-success="showAddCard = false"
+                        @oncancel="showAddCard = false"></draft-card>
                 </template>
             </ul>
             <footer @click="onAddCardClick">
@@ -49,7 +49,7 @@
 
 <script lang="ts" setup>
 import { BoardList, BoardPermission } from '@/api/types';
-import { defineProps, ref, nextTick, onMounted, computed } from 'vue';
+import { defineProps, ref, nextTick, onMounted, computed, defineEmits } from 'vue';
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
 
@@ -66,12 +66,12 @@ Vue v3 sortable.js:
 https://github.com/SortableJS/vue.draggable.next/blob/master/types/vuedraggable.d.ts
 */
 
-type OnEnd = (ev: any) => void;
+defineEmits(['onCardMoveEnd']);
 
 interface Props {
     boardList: BoardList;
-    onEnd: OnEnd;
 }
+
 const listWrapperRef = ref();
 const props = defineProps<Props>();
 const hasPermission = store.getters.board.hasPermission;
