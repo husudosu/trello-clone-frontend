@@ -176,8 +176,8 @@ onMounted(async () => {
     try {
         $q.loading.show({ delay: 150 });
         await store.dispatch.card.loadCard(props.cardId);
-        socket.emit("card_change", { card_id: props.cardId });
         socket.on(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
+        socket.emit("card_change", { card_id: props.cardId });
     }
     catch (err) {
         console.log(err);
@@ -196,11 +196,8 @@ onMounted(async () => {
 const onCloseDialog = () => {
     try {
         store.commit.card.unloadCard();
-        // Leave Socket.IO card room.
-        socket.emit("card_leave", { card_id: props.cardId });
-
         // Unregister card activity listener
-        socket.off(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
+        socket.disconnect();
     }
     catch (err) {
         console.log(err);

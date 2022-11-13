@@ -5,6 +5,7 @@ import router from "@/router";
 import { Cookies } from 'quasar';
 
 import { ValidationError } from "./exceptions";
+
 const config: AxiosRequestConfig = {
     withCredentials: true,
     baseURL: process.env.NODE_ENV === "development" ? process.env.VUE_APP_API_BASEURL : window.location.protocol + "//" + window.location.host + "/api/v1",

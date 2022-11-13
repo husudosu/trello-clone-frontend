@@ -224,7 +224,8 @@ onBeforeRouteUpdate(async (to, from) => {
 onMounted(() => {
     if (typeof route.params.boardId === "string") {
         loadBoard(parseInt(route.params.boardId));
-        socket.connect();
+        if (!socket.connected)
+            socket.connect();
         socket.emit("board_change", { board_id: route.params.boardId });
     }
 });

@@ -1,26 +1,21 @@
-import SocketIO, { Socket } from 'socket.io-client';
+import SocketIO from 'socket.io-client';
 import { BoardList, Card, CardActivity, CardDate, CardMember } from './api/types';
 
 const options = { withCredentials: true, debug: true };
 import store from "@/store/index";
 
 
-let socket: Socket | undefined = undefined;
-
 export const useSocketIO = () => {
-
-    // I don't know if it's good solution store Socket IO client like this
-    if (socket === undefined) {
-        console.log("Create Socket.IO client");
-        socket = SocketIO(
-            process.env.NODE_ENV === "development" ?
-                process.env.VUE_APP_SOCKET_SERVER + "/board" :
-                window.location.protocol + "//" + window.location.host + "/board", options);
-    }
+    console.log("Create Socket.IO client");
+    const socket = SocketIO(
+        process.env.NODE_ENV === "development" ?
+            process.env.VUE_APP_SOCKET_SERVER + "/board" :
+            window.location.protocol + "//" + window.location.host + "/board", options);
     return {
         socket,
     };
 };
+
 
 export enum SIOEvent {
     SIOError = "error",
