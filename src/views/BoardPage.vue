@@ -143,7 +143,8 @@ const onCardSortableMoveEnd = async (ev: any) => {
         Provide listToId as from_list_id because when this store commit runs.
         The computed variables already by vue-draggable boardLists and cards on BoardPage, BoardList
         */
-        store.commit.board.SIOUpdateCard({ card: updatedCard, from_list_id: listToId });
+        // store.commit.board.SIOUpdateCard({ card: updatedCard, from_list_id: listToId });
+        store.commit.board.SIOUpdateCard({ entity: updatedCard, list_id: listToId, card_id: updatedCard.id });
         // BoardList changed so need to update both fromList and toList
         const listFrom = board.value?.lists.find((el) => el.id == listFromId);
         if (listFrom !== undefined) {

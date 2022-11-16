@@ -16,6 +16,7 @@ export const useSocketIO = () => {
     };
 };
 
+export type CardEntity = "activity" | "date" | "member" | "checklist";
 
 export enum SIOEvent {
     SIOError = "error",
@@ -53,11 +54,6 @@ export interface SIOCardMoved {
     to_list_id: number;
 }
 
-export interface SIOCardUpdatePayload {
-    card: Card;
-    from_list_id: number; // Check if card list_id changed
-}
-
 export interface SIOCardDate extends CardDate {
     list_id: number;
 }
@@ -72,8 +68,20 @@ export interface SIOCardEvent {
     card_id: number;
 }
 
+export interface SIODeleteEvent extends SIOCardEvent {
+    entity_id: number;
+}
+
 export interface SIOCardMemberEvent extends SIOCardEvent {
     entity: CardMember;
+}
+
+export interface SIOCardUpdateEvent extends SIOCardEvent {
+    entity: Card;
+}
+
+export interface SIOCardDateEvent extends SIOCardEvent {
+    entity: SIOCardDate;
 }
 
 
@@ -92,7 +100,7 @@ export const SIOBoardEventListeners = {
         store.commit.board.saveCard(data);
         console.groupEnd();
     },
-    cardUpdate: (data: SIOCardUpdatePayload) => {
+    cardUpdate: (data: SIOCardUpdateEvent) => {
         console.group("[Socket.IO]: Card update");
         console.debug(data);
 
@@ -107,11 +115,12 @@ export const SIOBoardEventListeners = {
         store.commit.board.updateCardOrder(data);
         console.groupEnd();
     },
-    cardDelete: (data: Card) => {
+    cardDelete: (data: SIODeleteEvent) => {
         console.group("[Socket.IO]: Card delete");
         console.debug("Remove from store");
         console.debug(data);
-        store.commit.board.removeCard(data);
+        // store.commit.board.SIODeleteCard(data);
+        // store.commit.board.removeCard(data);
         console.groupEnd();
     },
     newList: (data: BoardList) => {
@@ -120,23 +129,37 @@ export const SIOBoardEventListeners = {
         store.commit.board.saveList(data);
         console.groupEnd();
     },
-    newCardDate: (cardDate: SIOCardDate) => {
+    newCardDate: (cardDate: SIOCardDateEvent) => {
         console.group("[Socket.IO]: New card date");
         console.debug(cardDate);
-        store.commit.board.SIOHandleCardDate({ cardDate, delete: false });
+        store.commit.board.SIOAddEntityToCard({
+            event: { list_id: cardDate.list_id, card_id: cardDate.card_id },
+            entityType: "date",
+            entity: cardDate.entity
+        });
         console.groupEnd();
     },
-    updateCardDate: (cardDate: SIOCardDate) => {
+    updateCardDate: (cardDate: SIOCardDateEvent) => {
         console.group("[Socket.IO]: Update card date");
         console.debug(cardDate);
-        store.commit.board.SIOHandleCardDate({ cardDate, delete: false });
+        // store.commit.board.SIOHandleCardDate({ cardDate, delete: false });
+        store.commit.board.SIOUpdateCardEntity({
+            event: { list_id: cardDate.list_id, card_id: cardDate.card_id },
+            entityType: "date",
+            entity: cardDate.entity
+        });
         console.groupEnd();
 
     },
-    deleteCardDate: (cardDate: SIOCardDate) => {
+    deleteCardDate: (cardDate: SIODeleteEvent) => {
         console.group("[Socket.IO]: Delete card date");
         console.debug(cardDate);
-        store.commit.board.SIOHandleCardDate({ cardDate, delete: true });
+        // store.commit.board.SIOHandleCardDate({ cardDate, delete: true });
+        store.commit.board.SIODeleteCardEntity({
+            event: { list_id: cardDate.list_id, card_id: cardDate.card_id },
+            entityType: "date",
+            entity_id: cardDate.entity_id
+        });
         console.groupEnd();
     },
     listUpdateOrder: (data: number[]) => {
@@ -167,7 +190,7 @@ export const SIOBoardEventListeners = {
         console.group(`[Socket.IO]: Card member assignment`);
         console.log(data);
         // Add assignment to board assigned
-        store.commit.board.SIOHandleCardMember({ data, delete: false });
+        // store.commit.board.SIOHandleCardMember({ data, delete: false });
 
         // Add assignment to card if it's active
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
@@ -178,7 +201,7 @@ export const SIOBoardEventListeners = {
     cardMemberDeAssigned: (data: SIOCardMemberEvent) => {
         console.group(`[Socket.IO]: Card member deassignment`);
         console.log(data);
-        store.commit.board.SIOHandleCardMember({ data, delete: true });
+        // store.commit.board.SIOHandleCardMember({ data, delete: true });
 
         // Delete assignment to card if it's active
         if (store.state.card.card && store.state.card.card.id === data.card_id) {

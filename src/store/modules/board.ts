@@ -4,8 +4,8 @@ import { State } from "../index";
 import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
-import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftBoardList, BoardAllowedUser } from "@/api/types";
-import { SIOCardDate, SIOCardMemberEvent, SIOCardUpdateOrder, SIOCardUpdatePayload } from "@/socket";
+import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftBoardList, BoardAllowedUser, CardDate, CardMember } from "@/api/types";
+import { SIOCardUpdateOrder, SIOCardUpdateEvent, CardEntity, SIOCardEvent } from "@/socket";
 
 export interface BoardState {
     boards: Board[];
@@ -135,80 +135,94 @@ export default {
                 }
             }
         },
-        removeCard(state: BoardState, card: Card) {
+        removeCard(state: BoardState, payload: { event: SIOCardEvent, entityType: CardEntity, entity_id: number; }) {
             if (state.board !== null) {
-                const listIndex = state.board.lists.findIndex((el) => el.id == card.list_id);
-                if (listIndex > -1) {
-                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == card.id);
-                    if (cardIndex > -1) {
-                        state.board.lists[listIndex].cards.splice(cardIndex, 1);
-                    }
+                const cardPos = findCardIndex(state.board.lists, payload.event.list_id, payload.event.card_id);
+                state.board.lists[cardPos.listIndex].cards.splice(cardPos.cardIndex, 1);
+
+            }
+        },
+        SIOAddEntityToCard(state: BoardState, payload: { event: SIOCardEvent, entityType: CardEntity, entity: unknown; }) {
+            if (state.board) {
+                const cPos = findCardIndex(state.board.lists, payload.event.list_id, payload.event.card_id);
+                console.log(cPos);
+                switch (payload.entityType) {
+                    case "date":
+                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].dates.push(
+                            CardAPI.parseCardDate(payload.entity as CardDate)
+                        );
+                        break;
+                    case "member":
+                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members.push(payload.entity as CardMember);
+                        break;
                 }
             }
         },
-        SIOUpdateCard(state: BoardState, payload: SIOCardUpdatePayload) {
+        SIOUpdateCardEntity(state: BoardState, payload: { event: SIOCardEvent, entityType: CardEntity, entity: unknown; }) {
+            if (state.board) {
+                const cPos = findCardIndex(state.board.lists, payload.event.list_id, payload.event.card_id);
+
+                if (payload.entityType === "date") {
+                    const entity = payload.entity as CardDate;
+                    const entityIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].dates
+                        .findIndex((el) => el.id == entity.id);
+
+                    if (entityIndex > -1) {
+                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].dates[entityIndex] = CardAPI.parseCardDate(entity);
+                    }
+                }
+                else if (payload.entityType === "member") {
+                    const entity = payload.entity as CardMember;
+                    const entityIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members
+                        .findIndex((el) => el.id == entity.id);
+
+                    if (entityIndex > -1) {
+                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members[entityIndex] = entity;
+                    }
+
+                }
+            }
+        },
+        SIODeleteCardEntity(state: BoardState, payload: { event: SIOCardEvent, entityType: CardEntity, entity_id: number; }) {
+            if (state.board) {
+                const cPos = findCardIndex(state.board.lists, payload.event.list_id, payload.event.card_id);
+
+                if (payload.entityType === "date") {
+                    const entityIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].dates.findIndex(
+                        (el) => el.id === payload.entity_id);
+                    if (entityIndex > -1)
+                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].dates.splice(entityIndex, 1);
+                }
+                else if (payload.entityType === "member") {
+                    const entityIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members.findIndex(
+                        (el) => el.id === payload.entity_id);
+                    if (entityIndex > -1)
+                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members.splice(entityIndex, 1);
+                }
+            }
+        },
+        SIOUpdateCard(state: BoardState, payload: SIOCardUpdateEvent) {
             if (state.board !== null) {
-                const listIndex = state.board.lists.findIndex((el) => el.id == payload.from_list_id);
+                const listIndex = state.board.lists.findIndex((el) => el.id == payload.list_id);
                 if (listIndex > -1) {
                     // Find card  and update it
-                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == payload.card.id);
+                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == payload.entity.id);
                     if (cardIndex > -1) {
-                        if (payload.from_list_id === payload.card.list_id) {
+                        if (payload.list_id === payload.entity.list_id) {
                             // Just update the card
-                            state.board.lists[listIndex].cards[cardIndex] = CardAPI.parseCard(payload.card);
+                            state.board.lists[listIndex].cards[cardIndex] = CardAPI.parseCard(payload.entity);
                         }
                         else {
                             // We have to move the card to other list
                             // Delete from original list if card list have changed 
                             state.board.lists[listIndex].cards.splice(cardIndex, 1);
                             // And put it on the new list.
-                            const newListIndex = state.board.lists.findIndex((el) => el.id === payload.card.list_id);
+                            const newListIndex = state.board.lists.findIndex((el) => el.id === payload.entity.list_id);
                             if (newListIndex > -1) {
-                                state.board.lists[newListIndex].cards.push(CardAPI.parseCard(payload.card));
+                                state.board.lists[newListIndex].cards.push(CardAPI.parseCard(payload.entity));
                             }
                         }
                     }
-                }
-            }
-        },
-        SIOHandleCardDate(state: BoardState, payload: { cardDate: SIOCardDate, delete: boolean; }) {
-            if (state.board !== null) {
-                const listIndex = state.board.lists.findIndex((el) => el.id == payload.cardDate.list_id);
-                if (listIndex > -1) {
-                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == payload.cardDate.card_id);
-
-                    if (cardIndex > -1) {
-                        // Check if card date already exist
-                        const dateIndex = state.board.lists[listIndex].cards[cardIndex].dates.findIndex((el) => el.id == payload.cardDate.id);
-                        if (dateIndex === -1) {
-                            state.board.lists[listIndex].cards[cardIndex].dates.push(CardAPI.parseCardDate(payload.cardDate));
-                        }
-                        else {
-                            if (!payload.delete) {
-                                // Update card date
-                                state.board.lists[listIndex].cards[cardIndex].dates[dateIndex] = CardAPI.parseCardDate(payload.cardDate);
-                            }
-                            else {
-                                // Delete card date
-                                state.board.lists[listIndex].cards[cardIndex].dates.splice(dateIndex, 1);
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        SIOHandleCardMember(state: BoardState, payload: { data: SIOCardMemberEvent, delete: boolean; }) {
-            if (state.board !== null) {
-                const cpos = findCardIndex(state.board.lists, payload.data.list_id, payload.data.card_id);
-                if (!payload.delete) {
-                    state.board.lists[cpos.listIndex].cards[cpos.cardIndex].assigned_members.push(payload.data.entity);
-                }
-                else {
-                    // Find entity for deletion.
-                    const memberIndex = state.board.lists[cpos.listIndex].cards[cpos.cardIndex].assigned_members.findIndex((el) => el.id === payload.data.entity.id);
-                    console.log(memberIndex);
-                    if (memberIndex > -1)
-                        state.board.lists[cpos.listIndex].cards[cpos.cardIndex].assigned_members.splice(memberIndex, 1);
                 }
             }
         },
