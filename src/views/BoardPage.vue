@@ -66,34 +66,6 @@ import { useSocketIO, SIOEvent, SIOBoardEventListeners } from "@/socket";
 
 const $q = useQuasar();
 const { socket } = useSocketIO();
-
-/*
-Socket.IO handler for boards.
-*/
-socket.on(SIOEvent.SIOError, SIOBoardEventListeners.onError);
-socket.on(SIOEvent.SIOConnect, SIOBoardEventListeners.onConnect);
-socket.onAny((event: string) => {
-    console.debug(`[Socket.IO]: Got event: ${event}`);
-});
-
-socket.on(SIOEvent.CARD_NEW, SIOBoardEventListeners.newCard);
-socket.on(SIOEvent.CARD_UPDATE, SIOBoardEventListeners.cardUpdate);
-socket.on(SIOEvent.CARD_UPDATE_ORDER, SIOBoardEventListeners.cardOrderUpdate);
-socket.on(SIOEvent.CARD_DELETE, SIOBoardEventListeners.cardDelete);
-
-socket.on(SIOEvent.CARD_DATE_NEW, SIOBoardEventListeners.newCardDate);
-socket.on(SIOEvent.CARD_DATE_UPDATE, SIOBoardEventListeners.updateCardDate);
-socket.on(SIOEvent.CARD_DATE_DELETE, SIOBoardEventListeners.deleteCardDate);
-
-socket.on(SIOEvent.CARD_MEMBER_ASSIGNED, SIOBoardEventListeners.cardMemberAssigned);
-socket.on(SIOEvent.CARD_MEMBER_DEASSIGNED, SIOBoardEventListeners.cardMemberDeAssigned);
-
-socket.on(SIOEvent.LIST_NEW, SIOBoardEventListeners.newList);
-socket.on(SIOEvent.LIST_UPDATE_ORDER, SIOBoardEventListeners.listUpdateOrder);
-socket.on(SIOEvent.LIST_UPDATE, SIOBoardEventListeners.listUpdate);
-socket.on(SIOEvent.LIST_DELETE, SIOBoardEventListeners.deleteList);
-
-
 const board = computed(() => store.state.board.board);
 
 const boardLists = computed({
@@ -228,6 +200,31 @@ onMounted(() => {
         if (!socket.connected)
             socket.connect();
         socket.emit("board_change", { board_id: route.params.boardId });
+        /*
+        Socket.IO handler for boards.
+        */
+        socket.on(SIOEvent.SIOError, SIOBoardEventListeners.onError);
+        socket.on(SIOEvent.SIOConnect, SIOBoardEventListeners.onConnect);
+        socket.onAny((event: string) => {
+            console.debug(`[Socket.IO]: Got event: ${event}`);
+        });
+
+        socket.on(SIOEvent.CARD_NEW, SIOBoardEventListeners.newCard);
+        socket.on(SIOEvent.CARD_UPDATE, SIOBoardEventListeners.cardUpdate);
+        socket.on(SIOEvent.CARD_UPDATE_ORDER, SIOBoardEventListeners.cardOrderUpdate);
+        socket.on(SIOEvent.CARD_DELETE, SIOBoardEventListeners.cardDelete);
+
+        socket.on(SIOEvent.CARD_DATE_NEW, SIOBoardEventListeners.newCardDate);
+        socket.on(SIOEvent.CARD_DATE_UPDATE, SIOBoardEventListeners.updateCardDate);
+        socket.on(SIOEvent.CARD_DATE_DELETE, SIOBoardEventListeners.deleteCardDate);
+
+        socket.on(SIOEvent.CARD_MEMBER_ASSIGNED, SIOBoardEventListeners.cardMemberAssigned);
+        socket.on(SIOEvent.CARD_MEMBER_DEASSIGNED, SIOBoardEventListeners.cardMemberDeAssigned);
+
+        socket.on(SIOEvent.LIST_NEW, SIOBoardEventListeners.newList);
+        socket.on(SIOEvent.LIST_UPDATE_ORDER, SIOBoardEventListeners.listUpdateOrder);
+        socket.on(SIOEvent.LIST_UPDATE, SIOBoardEventListeners.listUpdate);
+        socket.on(SIOEvent.LIST_DELETE, SIOBoardEventListeners.deleteList);
     }
 });
 

@@ -63,6 +63,7 @@ export interface SIOCardDate extends CardDate {
 Initial payload for Socket.IO events.
 Helps frontend to find list and card by ID easier.
 */
+
 export interface SIOCardEvent {
     list_id: number;
     card_id: number;
@@ -119,8 +120,7 @@ export const SIOBoardEventListeners = {
         console.group("[Socket.IO]: Card delete");
         console.debug("Remove from store");
         console.debug(data);
-        // store.commit.board.SIODeleteCard(data);
-        // store.commit.board.removeCard(data);
+        store.commit.board.removeCard(data);
         console.groupEnd();
     },
     newList: (data: BoardList) => {
@@ -190,22 +190,31 @@ export const SIOBoardEventListeners = {
         console.group(`[Socket.IO]: Card member assignment`);
         console.log(data);
         // Add assignment to board assigned
-        // store.commit.board.SIOHandleCardMember({ data, delete: false });
-
+        store.commit.board.SIOAddEntityToCard(
+            {
+                event: { list_id: data.list_id, card_id: data.card_id },
+                entityType: "member",
+                entity: data.entity
+            }
+        );
         // Add assignment to card if it's active
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
             store.commit.card.addCardAsisgnment(data.entity);
         }
         console.groupEnd();
     },
-    cardMemberDeAssigned: (data: SIOCardMemberEvent) => {
+    cardMemberDeAssigned: (data: SIODeleteEvent) => {
         console.group(`[Socket.IO]: Card member deassignment`);
         console.log(data);
         // store.commit.board.SIOHandleCardMember({ data, delete: true });
-
+        store.commit.board.SIODeleteCardEntity({
+            event: { list_id: data.list_id, card_id: data.card_id },
+            entityType: "member",
+            entity_id: data.entity_id
+        });
         // Delete assignment to card if it's active
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.removeCardAssignment(data.entity);
+            store.commit.card.removeCardAssignment(data.entity_id);
         }
         console.groupEnd();
     }

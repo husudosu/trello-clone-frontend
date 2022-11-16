@@ -107,10 +107,12 @@ export default {
         addCardAsisgnment(state: CardState, member: CardMember) {
             state.card?.assigned_members.push(member);
         },
-        removeCardAssignment(state: CardState, member: CardMember) {
+        removeCardAssignment(state: CardState, member_id: number) {
             // Find card member
             if (state.card) {
-                const index = state.card.assigned_members.findIndex((el) => el.id == member.id);
+                console.log(member_id);
+                const index = state.card.assigned_members.findIndex((el) => el.id == member_id);
+                console.log(`Index of assigned member: ${index}`);
                 if (index > -1) {
                     state.card.assigned_members.splice(index, 1);
                 }
