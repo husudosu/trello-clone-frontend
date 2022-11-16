@@ -132,7 +132,7 @@ const onDeleteBoardList = () => {
         }
     }).onOk(() => {
         BoardListAPI.deleteBoardList(props.boardList.id);
-        // store.dispatch.board.removeBoardList(props.boardList);
+        showMenu.value = false;
     });
 };
 
