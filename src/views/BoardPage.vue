@@ -38,8 +38,8 @@
                     </div>
                 </template>
                 <template v-else>
-                    <draft-board-list :boardId="board.id" :onCancel="() => { showAddDraftList = false; }"
-                        :onSaveSuccess="() => { showAddDraftList = false; }"></draft-board-list>
+                    <draft-board-list :boardId="board.id" @on-cancel="showAddDraftList = false"
+                        @on-save-success="showAddDraftList = false"></draft-board-list>
                 </template>
             </div>
         </div>
