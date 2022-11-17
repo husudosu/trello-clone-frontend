@@ -47,8 +47,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onMounted, ref } from "vue";
-import { onBeforeRouteUpdate, useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
 
@@ -79,6 +79,7 @@ const boardLists = computed({
 
 const hasPermission = store.getters.board.hasPermission;
 const isAdmin = computed(() => store.getters.board.isAdmin);
+const socketWereDisconnected = ref(false);
 
 const route = useRoute();
 const router = useRouter();
@@ -196,15 +197,38 @@ onBeforeRouteUpdate(async (to, from) => {
 
 onMounted(() => {
     if (typeof route.params.boardId === "string") {
-        loadBoard(parseInt(route.params.boardId));
-        if (!socket.connected)
-            socket.connect();
-        socket.emit("board_change", { board_id: route.params.boardId });
+        const boardId = parseInt(route.params.boardId);
         /*
         Socket.IO handler for boards.
         */
+        socket.on(SIOEvent.SIODisconnect, (reason) => {
+            console.log("Disconnected from SIO server");
+
+            if (reason === "transport close") {
+                socketWereDisconnected.value = true;
+                $q.notify({
+                    message: "Connection lost to server",
+                    type: "negative",
+                    position: "bottom-right"
+                });
+            }
+        });
+        socket.on(SIOEvent.SIOConnect, async () => {
+            console.log("Connected to server");
+            await loadBoard(boardId);
+            socket.emit("board_change", { board_id: route.params.boardId });
+
+            if (socketWereDisconnected.value) {
+                $q.notify({
+                    message: "Reconnected",
+                    type: "positive",
+                    position: "bottom-right"
+                });
+                socketWereDisconnected.value = false;
+            }
+        });
+
         socket.on(SIOEvent.SIOError, SIOBoardEventListeners.onError);
-        socket.on(SIOEvent.SIOConnect, SIOBoardEventListeners.onConnect);
         socket.onAny((event: string) => {
             console.debug(`[Socket.IO]: Got event: ${event}`);
         });
@@ -225,15 +249,17 @@ onMounted(() => {
         socket.on(SIOEvent.LIST_UPDATE_ORDER, SIOBoardEventListeners.listUpdateOrder);
         socket.on(SIOEvent.LIST_UPDATE, SIOBoardEventListeners.listUpdate);
         socket.on(SIOEvent.LIST_DELETE, SIOBoardEventListeners.deleteList);
+
+        if (!socket.connected)
+            socket.connect();
     }
 });
 
-onBeforeRouteLeave(() => {
+onBeforeUnmount(() => {
     console.debug("[Socket.IO]: Leaving board route so disconnect from server.");
     store.commit.board.unLoadBoard();
     socket.disconnect();
-})
-
+});
 </script>
 <style lang="scss">
 @import "../styles/board.scss";

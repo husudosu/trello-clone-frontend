@@ -21,6 +21,7 @@ export type CardEntity = "activity" | "date" | "member" | "checklist";
 export enum SIOEvent {
     SIOError = "error",
     SIOConnect = "connect",
+    SIODisconnect = "disconnect",
 
     CARD_NEW = "card.new",
     CARD_UPDATE = "card.update",
@@ -142,7 +143,6 @@ export const SIOBoardEventListeners = {
     updateCardDate: (cardDate: SIOCardDateEvent) => {
         console.group("[Socket.IO]: Update card date");
         console.debug(cardDate);
-        // store.commit.board.SIOHandleCardDate({ cardDate, delete: false });
         store.commit.board.SIOUpdateCardEntity({
             event: { list_id: cardDate.list_id, card_id: cardDate.card_id },
             entityType: "date",
@@ -154,7 +154,6 @@ export const SIOBoardEventListeners = {
     deleteCardDate: (cardDate: SIODeleteEvent) => {
         console.group("[Socket.IO]: Delete card date");
         console.debug(cardDate);
-        // store.commit.board.SIOHandleCardDate({ cardDate, delete: true });
         store.commit.board.SIODeleteCardEntity({
             event: { list_id: cardDate.list_id, card_id: cardDate.card_id },
             entityType: "date",
@@ -206,7 +205,6 @@ export const SIOBoardEventListeners = {
     cardMemberDeAssigned: (data: SIODeleteEvent) => {
         console.group(`[Socket.IO]: Card member deassignment`);
         console.log(data);
-        // store.commit.board.SIOHandleCardMember({ data, delete: true });
         store.commit.board.SIODeleteCardEntity({
             event: { list_id: data.list_id, card_id: data.card_id },
             entityType: "member",
