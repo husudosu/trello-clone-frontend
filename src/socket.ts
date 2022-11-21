@@ -109,6 +109,10 @@ export const SIOBoardEventListeners = {
         console.debug("Update card on store");
         // If list_id changed move to other list on store aswell
         store.commit.board.SIOUpdateCard(data);
+        // FIXME: This overwrites the whole card which is bad
+        // if (store.state.card.card && store.state.card.card.id === data.card_id) {
+        //     store.commit.card.setCard(data.entity);
+        // }
         console.groupEnd();
     },
     cardOrderUpdate: (data: SIOCardUpdateOrder) => {
@@ -138,6 +142,10 @@ export const SIOBoardEventListeners = {
             entityType: "date",
             entity: cardDate.entity
         });
+
+        if (store.state.card.card && store.state.card.card.id == cardDate.card_id) {
+            store.commit.card.addCardDate(cardDate.entity);
+        }
         console.groupEnd();
     },
     updateCardDate: (cardDate: SIOCardDateEvent) => {
@@ -148,6 +156,10 @@ export const SIOBoardEventListeners = {
             entityType: "date",
             entity: cardDate.entity
         });
+
+        if (store.state.card.card && store.state.card.card.id == cardDate.card_id) {
+            store.commit.card.updateCardDate(cardDate.entity);
+        }
         console.groupEnd();
 
     },
@@ -159,6 +171,10 @@ export const SIOBoardEventListeners = {
             entityType: "date",
             entity_id: cardDate.entity_id
         });
+
+        if (store.state.card.card && store.state.card.card.id == cardDate.card_id) {
+            store.commit.card.deleteCardDate(cardDate.entity_id);
+        }
         console.groupEnd();
     },
     listUpdateOrder: (data: number[]) => {

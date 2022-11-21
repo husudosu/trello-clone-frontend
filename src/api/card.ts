@@ -92,8 +92,6 @@ export const CardAPI = {
         return data;
     },
     deassignCardMember: async (cardId: number, boardUserId: number) => {
-        console.log(cardId);
-        console.log(boardUserId);
         const { data } = await API.post<CardMember>(`/card/${cardId}/deassign-member`, { board_user_id: boardUserId });
         return data;
     },

@@ -1,17 +1,12 @@
 import { ActionContext } from "vuex";
 import { State } from "../index";
 
-import { Card, CardActivity, CardChecklist, ChecklistItem, DraftChecklistItem, PaginatedResponse, CardActivityQueryType, DraftCardMember, CardMember, DraftCardDate, CardDate, BoardAllowedUser } from "@/api/types";
+import { Card, CardActivity, CardChecklist, ChecklistItem, DraftChecklistItem, CardActivityQueryType, DraftCardMember, CardMember, DraftCardDate, CardDate, BoardAllowedUser } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
 
 export interface CardState {
-    visible: boolean;
     card: null | Card;
-    cardLoading: boolean;
-    activitiesLoading: boolean;
-    activities: CardActivity[];
-    activityPagination: PaginatedResponse | null;
     cardActivityQueryType: CardActivityQueryType;
     cardMoved: boolean;
 }
@@ -21,33 +16,17 @@ type Context = ActionContext<CardState, State>;
 export default {
     namespaced: true as const,
     state: {
-        visible: false,
         card: null,
-        cardLoading: false,
-        activitiesLoading: false,
-        activityPagination: null,
         cardActivityQueryType: localStorage.getItem("cardActivityQueryType") || "comment",
         cardMoved: false
     } as CardState,
     getters: {},
     mutations: {
-        setVisible(state: CardState, value: boolean) {
-            state.visible = value;
-        },
         setCard(state: CardState, value: Card) {
             state.card = value;
         },
         addCardActivity(state: CardState, activity: CardActivity) {
             state.card?.activities.unshift(CardAPI.parseCardActivity(activity));
-        },
-        setCardActivitiesPagination(state: CardState, value: PaginatedResponse) {
-            state.activityPagination = value;
-        },
-        setActivitiesLoading(state: CardState, value: boolean) {
-            state.activitiesLoading = value;
-        },
-        setCardLoading(state: CardState, value: boolean) {
-            state.cardLoading = value;
         },
         addChecklist(state: CardState, checklist: CardChecklist) {
             state.card?.checklists?.push(checklist);
@@ -97,8 +76,6 @@ export default {
         },
         unloadCard(state: CardState) {
             state.card = null;
-            state.activities = [];
-            state.activityPagination = null;
         },
         setCardActivityQueryType(state: CardState, value: CardActivityQueryType) {
             state.cardActivityQueryType = value;
@@ -134,9 +111,9 @@ export default {
                 }
             }
         },
-        deleteCardDate(state: CardState, item: CardDate) {
+        deleteCardDate(state: CardState, item_id: number) {
             if (state.card) {
-                const index = state.card.dates.findIndex((el) => el.id == item.id);
+                const index = state.card.dates.findIndex((el) => el.id == item_id);
                 if (index > -1) {
                     state.card.dates.splice(index, 1);
                 }
@@ -146,15 +123,11 @@ export default {
     actions: {
         async loadCard(context: Context, cardId: number) {
             try {
-                context.commit("setCardLoading", true);
                 const card: Card = await CardAPI.getCard(cardId);
                 context.commit("setCard", card);
             }
             catch (err) {
                 console.log(err);
-            }
-            finally {
-                context.commit("setCardLoading", false);
             }
         },
         async addCardComment(context: Context, payload: string) {
@@ -231,7 +204,7 @@ export default {
         },
         async deleteCardDate(context: Context, item: CardDate) {
             await CardAPI.deleteCardDate(item.id);
-            context.commit("deleteCardDate", item);
+            context.commit("deleteCardDate", item.id);
         },
         async assignMemberToChecklistItem(context: Context, payload: { member: BoardAllowedUser, item: ChecklistItem; }) {
             const data = await ChecklistAPI.assignMemberToChecklistItem(payload.item.id, payload.member);

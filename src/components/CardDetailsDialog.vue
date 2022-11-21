@@ -89,7 +89,7 @@
                         <div class="q-ml-xs q-mb-xs on-right">
                             <q-btn color="primary" size="sm" style="top: 10px;" @click="onCardDetailsButtonClicked">
                                 {{ cardActivityQueryType == "all" ? "Hide details" :
-                                        "Show details"
+                                "Show details"
                                 }}
                             </q-btn>
                         </div>
@@ -101,7 +101,7 @@
                         <q-btn class="q-mt-sm" size="sm" color="primary" :disable="newComment.length == 0"
                             @click="addNewComment">Save</q-btn>
                     </div>
-                    <div class="card-comments" v-if="!activitiesLoading">
+                    <div class="card-comments">
                         <q-list padding bordered>
                             <template v-if="card.activities.length > 0">
                                 <card-activity v-for="activity in card.activities" :key="activity.id"
@@ -109,14 +109,11 @@
                                 </card-activity>
                             </template>
                             <template v-else>
-                                <span class="q-ma-sm" v-if="!activitiesLoading">
+                                <span class="q-ma-sm">
                                     {{ cardActivityQueryType == "all" ? "No activity yet" : "No comments yet" }}
                                 </span>
                             </template>
                         </q-list>
-                    </div>
-                    <div v-else>
-                        <q-spinner-comment size="5em" />
                     </div>
                 </q-page>
             </q-page-container>
@@ -144,6 +141,7 @@ import CardDates from './Board/Card/Details/CardDates.vue';
 
 import { useSocketIO, SIOBoardEventListeners, SIOEvent } from "@/socket";
 import * as DOMPurify from 'dompurify';
+import axios from 'axios';
 
 interface Props {
     cardId: number;
@@ -158,7 +156,6 @@ const hasPermission = store.getters.board.hasPermission;
 
 const card = computed(() => store.state.card.card);
 
-const activitiesLoading = computed(() => store.state.card.activitiesLoading);
 const rightDrawerVisible = ref(false);
 const cardActivityQueryType = computed(() => store.state.card.cardActivityQueryType);
 
@@ -236,11 +233,37 @@ const onCloseDialog = () => {
     }
 };
 
-const addNewComment = () => {
+const addNewComment =async () => {
     if (card.value) {
-        store.dispatch.card.addCardComment(newComment.value).then(() => newComment.value = "");
-        // TODO: We need to transform CardDetailsDialog and CardActivity rendering for this!
-        // CardAPI.postCardComment(card.value.id, { comment: newComment.value });
+        try {
+            await CardAPI.postCardComment(card.value.id, { comment: newComment.value });
+            newComment.value = ""
+        } catch(err) {
+            let errMsg = ""
+            if (axios.isAxiosError(err)) {
+                switch (err.response?.status) {
+                    case 404:
+                        errMsg = "Card not exists anymore."
+                        break;
+                    default:
+                        errMsg = err.response?.statusText || "Unknown error"
+                        break;
+                }
+                $q.notify({
+                    position: "bottom-right",
+                    type: "negative",
+                    message: errMsg,
+                });
+            }
+            else if (err instanceof ValidationError) {
+                $q.notify({
+                    position: "bottom-right",
+                    type: "negative",
+                    message: DOMPurify.sanitize(`Server validation error: ${err.formatErrors()}`),
+                    html: true
+                });
+            }
+        }
     }
 
 };
@@ -341,7 +364,7 @@ const onAddDateClicked = () => {
     $q.dialog({
         component: CardDateDialog
     }).onOk((data: DraftCardDate) => {
-        store.dispatch.card.addCardDate(data);
+        CardAPI.postCardDate(props.cardId, data)
     });
 };
 
