@@ -165,6 +165,7 @@ const cardActivityQueryType = computed(() => store.state.card.cardActivityQueryT
 const newComment = ref("");
 const editCardDescription = ref(false);
 const editCardTitle = ref(false);
+const socketWereDisconnected = ref(false);
 
 
 defineEmits([
@@ -175,9 +176,32 @@ const { dialogRef, onDialogHide } = useDialogPluginComponent();
 onMounted(async () => {
     try {
         $q.loading.show({ delay: 150 });
-        await store.dispatch.card.loadCard(props.cardId);
+
         socket.on(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
-        socket.emit("card_change", { card_id: props.cardId });
+        socket.on(SIOEvent.SIODisconnect, (reason) => {
+            if (reason === "transport close") {
+                socketWereDisconnected.value = true;
+                $q.notify({
+                    message: "Connection lost to server",
+                    type: "negative",
+                    position: "bottom-right"
+                });
+            }
+        });
+
+        socket.on(SIOEvent.SIOConnect, async () => {
+            socket.emit("card_change", { card_id: props.cardId });
+            await store.dispatch.card.loadCard(props.cardId);
+            if (socketWereDisconnected.value) {
+                $q.notify({
+                    message: "Reconnected",
+                    type: "positive",
+                    position: "bottom-right"
+                });
+                socketWereDisconnected.value = false;
+            }
+        });
+
     }
     catch (err) {
         console.log(err);
