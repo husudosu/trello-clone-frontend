@@ -31,9 +31,9 @@ export default {
         addChecklist(state: CardState, checklist: CardChecklist) {
             state.card?.checklists?.push(checklist);
         },
-        removeChecklist(state: CardState, checklist: CardChecklist) {
+        removeChecklist(state: CardState, checklist_id: number) {
             if (state.card?.checklists) {
-                const index = state.card.checklists?.findIndex((el) => el.id == checklist.id);
+                const index = state.card.checklists?.findIndex((el) => el.id == checklist_id);
                 if (index > -1) {
                     state.card.checklists.splice(index, 1);
                 }

@@ -98,7 +98,7 @@ const onItemMoveEnd = () => {
 
 const updateTitle = () => {
     editTitle.value = false;
-    store.dispatch.card.updateCardChecklist({ ...checklist.value, title: newTitle.value });
+    ChecklistAPI.patchCardChecklist(props.checklist.id, { ...checklist.value, title: newTitle.value });
 };
 
 const onTitleKeyUp = (ev: KeyboardEvent) => {

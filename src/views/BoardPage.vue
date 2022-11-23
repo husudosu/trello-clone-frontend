@@ -242,6 +242,10 @@ onMounted(() => {
         socket.on(SIOEvent.CARD_DATE_UPDATE, SIOBoardEventListeners.updateCardDate);
         socket.on(SIOEvent.CARD_DATE_DELETE, SIOBoardEventListeners.deleteCardDate);
 
+        socket.on(SIOEvent.CARD_CHECKLIST_NEW, SIOBoardEventListeners.newCardChecklist);
+        socket.on(SIOEvent.CARD_CHECKLIST_UPDATE, SIOBoardEventListeners.updateCardChecklist);
+        socket.on(SIOEvent.CARD_CHECKLIST_DELETE, SIOBoardEventListeners.deleteCardChecklist);
+
         socket.on(SIOEvent.CARD_MEMBER_ASSIGNED, SIOBoardEventListeners.cardMemberAssigned);
         socket.on(SIOEvent.CARD_MEMBER_DEASSIGNED, SIOBoardEventListeners.cardMemberDeAssigned);
 

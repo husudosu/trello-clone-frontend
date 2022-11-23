@@ -142,6 +142,7 @@ import CardDates from './Board/Card/Details/CardDates.vue';
 import { useSocketIO, SIOBoardEventListeners, SIOEvent } from "@/socket";
 import * as DOMPurify from 'dompurify';
 import axios from 'axios';
+import { ChecklistAPI } from '@/api/checklist';
 
 interface Props {
     cardId: number;
@@ -331,7 +332,8 @@ const onCreateChecklistClicked = () => {
         cancel: true,
         persistent: true
     }).onOk(data => {
-        store.dispatch.card.addCardChecklist({ title: data });
+        // store.dispatch.card.addCardChecklist({ title: data });
+        ChecklistAPI.postCardChecklist(props.cardId, {title: data})
     });
 };
 
