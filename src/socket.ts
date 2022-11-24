@@ -43,6 +43,7 @@ export enum SIOEvent {
     CHECKLIST_ITEM_NEW = "checklist.item.new",
     CHECKLIST_ITEM_UPDATE = "checklist.item.update",
     CHECKLIST_ITEM_DELETE = "checklist.item.delete",
+    CHECKLIST_ITEM_UPDATE_ORDER = "checklist.item.update.order",
 
     CARD_ACTIVITY = "card.activity",
 
@@ -54,6 +55,12 @@ export enum SIOEvent {
 
 export interface SIOCardUpdateOrder {
     list_id: number;
+    order: number[];
+}
+
+export interface SIOChecklistItemUpdateOrder {
+    card_id: number;
+    checklist_id: number;
     order: number[];
 }
 
@@ -306,10 +313,17 @@ export const SIOBoardEventListeners = {
         console.log(data);
 
         // TODO: We should implement Checklist state component for card.
-        // TODO: We need checklist id too!
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
             store.commit.card.removeChecklistItem(data);
         }
         console.groupEnd();
     },
+    updateChecklistItemOrder: (data: SIOChecklistItemUpdateOrder) => {
+        console.group("[Socket.IO]: Checklist item update order");
+        console.log(data);
+
+        if (store.state.card.card && store.state.card.card.id === data.card_id) {
+            store.commit.card.updateChecklistItemOrder(data);
+        }
+    }
 };

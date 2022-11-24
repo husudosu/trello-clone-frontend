@@ -176,6 +176,8 @@ onMounted(async () => {
         $q.loading.show({ delay: 150 });
 
         socket.on(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
+        socket.on(SIOEvent.CHECKLIST_ITEM_UPDATE_ORDER, SIOBoardEventListeners.updateChecklistItemOrder)
+
         socket.on(SIOEvent.SIODisconnect, (reason) => {
             if (reason === "transport close") {
                 socketWereDisconnected.value = true;

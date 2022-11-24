@@ -4,7 +4,7 @@ import { State } from "../index";
 import { Card, CardActivity, CardChecklist, ChecklistItem, CardActivityQueryType, CardMember, CardDate } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
-import { SIOChecklistItemDeleteEvent } from "@/socket";
+import { SIOChecklistItemDeleteEvent, SIOChecklistItemUpdateOrder } from "@/socket";
 
 export interface CardState {
     card: null | Card;
@@ -76,6 +76,18 @@ export default {
                 const index = state.card.checklists.findIndex((el) => el.id == list.id);
                 if (index > -1) {
                     state.card.checklists[index] = list;
+                }
+            }
+        },
+        updateChecklistItemOrder(state: CardState, event: SIOChecklistItemUpdateOrder) {
+            if (state.card?.checklists) {
+                const checkListIndex = state.card.checklists.findIndex((el) => el.id === event.checklist_id);
+                if (checkListIndex > -1) {
+                    state.card.checklists[checkListIndex].items.sort((a, b) => event.order.indexOf(a.id) - event.order.indexOf(b.id));
+                    // Update position data. FIXME: We need better method for this.
+                    state.card.checklists[checkListIndex].items.forEach((el, index) => {
+                        el.position = index;
+                    });
                 }
             }
         },
