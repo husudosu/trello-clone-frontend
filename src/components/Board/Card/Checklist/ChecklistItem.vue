@@ -7,7 +7,7 @@
 }}</b>
         </q-tooltip>
         <q-item-section avatar top>
-            <q-checkbox v-model="item.completed" size="sm" @update:model-value="onChecklistValueChanged"
+            <q-checkbox :model-value="props.item.completed" size="sm" @update:model-value="onChecklistValueChanged"
                 :disable="!hasPermission(BoardPermission.CHECKLIST_ITEM_MARK)" />
         </q-item-section>
         <q-item-section>
@@ -53,6 +53,7 @@ import { useQuasar } from 'quasar';
 import AssignMember from "@/components/Board/Card/AssignMember.vue";
 import UserAvatar from '@/components/UserAvatar.vue';
 import DateToItemDialog from './DateToItemDialog.vue';
+import { ChecklistAPI } from '@/api/checklist';
 const hasPermission = store.getters.board.hasPermission;
 
 const $q = useQuasar();
@@ -62,12 +63,11 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const item = ref(props.item);
 const editItem = ref(false);
 const newItemTitle = ref(props.item.title);
 
 const onChecklistValueChanged = () => {
-    store.dispatch.card.markChecklistItem(item.value);
+    ChecklistAPI.patchChecklistItem(props.item.id, { completed: !props.item.completed });
 };
 
 const onChecklistItemClicked = () => {
@@ -81,12 +81,12 @@ const dissmisTitleChange = (ev: Event) => {
 };
 
 const saveTitleChange = () => {
-    store.dispatch.card.updateChecklistItem({ ...props.item, title: newItemTitle.value });
+    ChecklistAPI.patchChecklistItem(props.item.id, { title: newItemTitle.value });
     editItem.value = false;
 };
 
 const onItemDelete = () => {
-    store.dispatch.card.deleteChecklistItem(props.item);
+    ChecklistAPI.deleteChecklistItem(props.item.id);
 };
 
 const onAssignMember = () => {
@@ -97,19 +97,19 @@ const onAssignMember = () => {
         }
     }
     ).onOk((data: BoardAllowedUser) => {
-        store.dispatch.card.assignMemberToChecklistItem({ member: data, item: props.item });
+        ChecklistAPI.assignMemberToChecklistItem(props.item.id, data);
     });
 };
 
 const onDeassignMember = () => {
-    store.dispatch.card.deassignMemberFromChecklistItem(props.item);
+    ChecklistAPI.deassignMemberToChecklistItem(props.item.id);
 };
 
 const onAssignDueDate = () => {
     $q.dialog({
         component: DateToItemDialog,
     }).onOk((data) => {
-        store.dispatch.card.updateChecklistItem({ ...item.value, due_date: data });
+        ChecklistAPI.patchChecklistItem(props.item.id, { due_date: data });
     });
 };
 </script>

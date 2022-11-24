@@ -105,7 +105,7 @@ export const CardAPI = {
         const { data } = await API.post<CardDate>(`/card/${cardId}/date`, dt);
         return CardAPI.parseCardDate(data);
     },
-    patchCardDate: async (cardDateId: number, dt: CardDate): Promise<CardDate> => {
+    patchCardDate: async (cardDateId: number, dt: Partial<CardDate>): Promise<CardDate> => {
 
         // Make clone of dt before conversion
         const cdt = { ...dt };

@@ -11,10 +11,10 @@
                 <q-checkbox v-model="dt.complete" size="sm" @update:model-value="onDateMark(dt)"></q-checkbox>
             </q-item-section>
             <q-item-section @click="onDateEditClicked(dt)">
-                <q-item-label :class="{checklistItemDone: dt.complete}">
-                    <b>{{ dt.description}}</b>
-                    {{ dt.dt_from ? dt.dt_from.format("YYYY-MM-DD HH:mm") + ' - ' : ''}}
-                    {{ dt.dt_to.format("YYYY-MM-DD HH:mm")}}
+                <q-item-label :class="{ checklistItemDone: dt.complete }">
+                    <b>{{ dt.description }}</b>
+                    {{ dt.dt_from ? dt.dt_from.format("YYYY-MM-DD HH:mm") + ' - ' : '' }}
+                    {{ dt.dt_to.format("YYYY-MM-DD HH:mm") }}
                 </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -34,6 +34,7 @@ import { CardDate, BoardPermission } from '@/api/types';
 import store from "@/store";
 import { useQuasar } from "quasar";
 import CardDateDialog from "../CardDateDialog.vue";
+import { CardAPI } from "@/api/card";
 
 const hasPermission = store.getters.board.hasPermission;
 const card = computed(() => store.state.card.card);
@@ -41,11 +42,11 @@ const card = computed(() => store.state.card.card);
 const $q = useQuasar();
 
 const onDateMark = async (cardDate: CardDate) => {
-    await store.dispatch.card.updateCardDate(cardDate);
+    CardAPI.patchCardDate(cardDate.id, { complete: cardDate.complete });
 };
 
 const onDateDelete = async (cardDate: CardDate) => {
-    await store.dispatch.card.deleteCardDate(cardDate);
+    CardAPI.deleteCardDate(cardDate.id);
 };
 
 const onDateEditClicked = async (cardDate: CardDate) => {
@@ -53,8 +54,7 @@ const onDateEditClicked = async (cardDate: CardDate) => {
         component: CardDateDialog,
         componentProps: { cardDate }
     }).onOk((data: CardDate) => {
-        console.log(data);
-        store.dispatch.card.updateCardDate(data);
+        CardAPI.patchCardDate(data.id, data);
     });
 };
 </script>

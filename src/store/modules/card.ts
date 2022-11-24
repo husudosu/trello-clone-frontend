@@ -1,9 +1,10 @@
 import { ActionContext } from "vuex";
 import { State } from "../index";
 
-import { Card, CardActivity, CardChecklist, ChecklistItem, DraftChecklistItem, CardActivityQueryType, DraftCardMember, CardMember, DraftCardDate, CardDate, BoardAllowedUser } from "@/api/types";
+import { Card, CardActivity, CardChecklist, ChecklistItem, CardActivityQueryType, CardMember, CardDate } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
+import { SIOChecklistItemDeleteEvent } from "@/socket";
 
 export interface CardState {
     card: null | Card;
@@ -43,15 +44,19 @@ export default {
             if (state.card?.checklists) {
                 const index = state.card.checklists.findIndex((el) => el.id == item.checklist_id);
                 if (index > -1) {
-                    state.card.checklists[index].items.push(item);
+                    state.card.checklists[index].items.push(ChecklistAPI.parseChecklistItem(item));
                 }
             }
         },
-        removeChecklistItem(state: CardState, item: ChecklistItem) {
+        removeChecklistItem(state: CardState, deleteEvent: SIOChecklistItemDeleteEvent) {
             if (state.card?.checklists) {
-                const index = state.card.checklists.findIndex((el) => el.id == item.checklist_id);
+                const index = state.card.checklists.findIndex((el) => el.id == deleteEvent.checklist_id);
                 if (index > -1) {
-                    state.card.checklists[index].items.splice(state.card.checklists[index].items.indexOf(item), 1);
+                    const itemIndex = state.card.checklists[index].items.findIndex((el) => el.id == deleteEvent.entity_id);
+
+                    if (itemIndex > -1) {
+                        state.card.checklists[index].items.splice(itemIndex, 1);
+                    }
                 }
             }
         },
@@ -61,7 +66,7 @@ export default {
                 if (index > -1) {
                     const itemIndex = state.card.checklists[index].items.findIndex((el) => el.id == item.id);
                     if (itemIndex > -1) {
-                        state.card.checklists[index].items[itemIndex] = item;
+                        state.card.checklists[index].items[itemIndex] = ChecklistAPI.parseChecklistItem(item);
                     }
                 }
             }
@@ -87,9 +92,7 @@ export default {
         removeCardAssignment(state: CardState, member_id: number) {
             // Find card member
             if (state.card) {
-                console.log(member_id);
                 const index = state.card.assigned_members.findIndex((el) => el.id == member_id);
-                console.log(`Index of assigned member: ${index}`);
                 if (index > -1) {
                     state.card.assigned_members.splice(index, 1);
                 }
@@ -129,90 +132,6 @@ export default {
             catch (err) {
                 console.log(err);
             }
-        },
-        async addCardComment(context: Context, payload: string) {
-            if (context.state.card && context.state.card.id) {
-                await CardAPI.postCardComment(context.state.card.id, { comment: payload });
-            }
-        },
-        async deleteCardFromAPI(context: Context, card: Card) {
-            // Close dialog
-            context.commit("setVisible", false);
-            if (card.id) {
-                await CardAPI.deleteCard(card.id);
-                context.commit("board/removeCard", card, { root: true });
-            }
-        },
-        async addCardChecklist(context: Context, checklist: Partial<CardChecklist>) {
-            if (context.state.card?.id) {
-                const data = await ChecklistAPI.postCardChecklist(context.state.card.id, checklist);
-                context.commit("addChecklist", data);
-            }
-        },
-        async updateCardChecklist(context: Context, checklist: CardChecklist) {
-            const data = await ChecklistAPI.patchCardChecklist(checklist.id, checklist);
-            context.commit("updateChecklist", data);
-        },
-        async deleteCardChecklist(context: Context, checklist: CardChecklist) {
-            await ChecklistAPI.deleteCardchecklist(checklist.id);
-            context.commit("removeChecklist", checklist);
-        },
-        async addChecklistItem(context: Context, payload: { checklistId: number; item: DraftChecklistItem; }) {
-            const data = await ChecklistAPI.postChecklistItem(payload.checklistId, payload.item);
-            context.commit("addChecklistItem", data);
-        },
-        async deleteChecklistItem(context: Context, item: ChecklistItem) {
-            await ChecklistAPI.deleteChecklistItem(item.id);
-            context.commit("removeChecklistItem", item);
-        },
-        async markChecklistItem(context: Context, item: ChecklistItem) {
-            const data = await ChecklistAPI.markChecklistItem(item.id, item.completed);
-            context.commit("updateChecklistItem", data);
-        },
-        async updateChecklistItem(context: Context, item: ChecklistItem) {
-            const data = await ChecklistAPI.patchChecklistItem(item.id, item);
-            context.commit("updateChecklistItem", data);
-        },
-        async assignCardMember(context: Context, item: DraftCardMember) {
-            if (context.state.card) {
-                const data = await CardAPI.assignCardMember(context.state.card.id, item);
-                context.commit("addCardAsisgnment", data);
-                context.commit("board/saveCard", context.state.card, { root: true });
-            }
-        },
-        async deassignCardMember(context: Context, item: CardMember) {
-            if (context.state.card) {
-                await CardAPI.deassignCardMember(context.state.card.id, item.board_user.id);
-                context.commit("removeCardAssignment", item);
-                context.commit("board/saveCard", context.state.card, { root: true });
-            }
-        },
-        async updateCard(context: Context, item: Card) {
-            const updatedCard = await CardAPI.patchCard(item.id, item);
-            // Update card on board lists card
-            context.commit("board/saveCard", updatedCard, { root: true });
-        },
-        async addCardDate(context: Context, item: DraftCardDate) {
-            if (context.state.card) {
-                const dt = await CardAPI.postCardDate(context.state.card.id, item);
-                context.commit("addCardDate", dt);
-            }
-        },
-        async updateCardDate(context: Context, item: CardDate) {
-            const dt = await CardAPI.patchCardDate(item.id, item);
-            context.commit("updateCardDate", dt);
-        },
-        async deleteCardDate(context: Context, item: CardDate) {
-            await CardAPI.deleteCardDate(item.id);
-            context.commit("deleteCardDate", item.id);
-        },
-        async assignMemberToChecklistItem(context: Context, payload: { member: BoardAllowedUser, item: ChecklistItem; }) {
-            const data = await ChecklistAPI.assignMemberToChecklistItem(payload.item.id, payload.member);
-            context.commit("updateChecklistItem", data);
-        },
-        async deassignMemberFromChecklistItem(context: Context, item: ChecklistItem) {
-            const data = await ChecklistAPI.deassignMemberToChecklistItem(item.id);
-            context.commit("updateChecklistItem", data);
         },
     }
 };

@@ -81,9 +81,6 @@ const onCancelClicked = (ev: Event) => {
 };
 
 const saveCard = async () => {
-    // store.dispatch.card.updateCard(cardUpdate.value).then(() => {
-    //     editMode.value = false;
-    // }).catch((err) => console.log(err));
     await CardAPI.patchCard(props.card.id, cardUpdate.value);
     editMode.value = false;
 };
@@ -118,7 +115,6 @@ const onEditClick = (ev: Event) => {
 const onDateMark = (ev: Event, cardDate: CardDate) => {
     ev.stopPropagation();
     cardDate.complete = !cardDate.complete;
-    // store.dispatch.card.updateCardDate(cardDate);
     CardAPI.patchCardDate(cardDate.id, cardDate);
 };
 

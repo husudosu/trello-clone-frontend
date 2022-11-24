@@ -22,7 +22,6 @@ export const ChecklistAPI = {
         const { data } = await API.patch<CardChecklist>(`/checklist/${checklistId}`, checklist);
         return data;
     },
-
     deleteCardchecklist: async (checklistId: number) => {
         await API.delete(`/checklist/${checklistId}`);
         return {};
@@ -31,11 +30,13 @@ export const ChecklistAPI = {
         const { data } = await API.post<ChecklistItem>(`/checklist/${checklistId}/item`, item);
         return ChecklistAPI.parseChecklistItem(data);
     },
-    patchChecklistItem: async (itemId: number, item: ChecklistItem): Promise<ChecklistItem> => {
+    patchChecklistItem: async (itemId: number, item: Partial<ChecklistItem>): Promise<ChecklistItem> => {
         // Make clone of dt before conversion
         let due_date: undefined | moment.Moment | string = item.due_date;
-        // Convert date to UTC before pushing to API
-        due_date = moment.tz(item.due_date, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
+        if (item.due_date) {
+            // Convert date to UTC before pushing to API
+            due_date = moment.tz(item.due_date, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
+        }
         const { data } = await API.patch<ChecklistItem>(`/checklist/item/${itemId}`, { ...item, due_date });
         return ChecklistAPI.parseChecklistItem(data);
     },

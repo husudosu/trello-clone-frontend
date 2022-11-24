@@ -1,5 +1,5 @@
 import SocketIO from 'socket.io-client';
-import { BoardList, Card, CardActivity, CardChecklist, CardDate, CardMember } from './api/types';
+import { BoardList, Card, CardActivity, CardChecklist, CardDate, CardMember, ChecklistItem } from './api/types';
 
 const options = { withCredentials: true, debug: true };
 import store from "@/store/index";
@@ -98,6 +98,13 @@ export interface SIOCardChecklistEvent extends SIOCardEvent {
     entity: CardChecklist;
 }
 
+export interface SIOChecklistItemEvent extends SIOCardEvent {
+    entity: ChecklistItem;
+}
+
+export interface SIOChecklistItemDeleteEvent extends SIODeleteEvent {
+    checklist_id: number;
+}
 
 // Event listeners for Board namespace
 export const SIOBoardEventListeners = {
@@ -273,5 +280,36 @@ export const SIOBoardEventListeners = {
             store.commit.card.removeChecklist(data.entity_id);
         }
         console.groupEnd();
-    }
+    },
+    newChecklistItem: (data: SIOChecklistItemEvent) => {
+        console.group(`[Socket.IO]: Checklist item create`);
+        console.log(data);
+
+        // TODO: We should implement Checklist state component for card.
+        if (store.state.card.card && store.state.card.card.id === data.card_id) {
+            store.commit.card.addChecklistItem(data.entity);
+        }
+        console.groupEnd();
+    },
+    updateChecklistItem: (data: SIOChecklistItemEvent) => {
+        console.group(`[Socket.IO]: Checklist item update`);
+        console.log(data);
+
+        // TODO: We should implement Checklist state component for card.
+        if (store.state.card.card && store.state.card.card.id === data.card_id) {
+            store.commit.card.updateChecklistItem(data.entity);
+        }
+        console.groupEnd();
+    },
+    deleteChecklistItem: (data: SIOChecklistItemDeleteEvent) => {
+        console.group(`[Socket.IO]: Checklist item delete`);
+        console.log(data);
+
+        // TODO: We should implement Checklist state component for card.
+        // TODO: We need checklist id too!
+        if (store.state.card.card && store.state.card.card.id === data.card_id) {
+            store.commit.card.removeChecklistItem(data);
+        }
+        console.groupEnd();
+    },
 };

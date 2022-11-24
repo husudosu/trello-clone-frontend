@@ -75,16 +75,21 @@ const onChecklistDelete = () => {
             color: "negative"
         }
     }).onOk(() => {
-        store.dispatch.card.deleteCardChecklist(checklist.value);
+        ChecklistAPI.deleteCardchecklist(checklist.value.id);
     });
 };
 
-const onNewItemAdd = () => {
-    store.dispatch.card.addChecklistItem({ checklistId: checklist.value.id, item: { title: newItemTitle.value, completed: false } })
-        .then(() => {
-            addNewItem.value = false;
-            newItemTitle.value = "";
-        });
+const onNewItemAdd = async () => {
+    try {
+        await ChecklistAPI.postChecklistItem(checklist.value.id, { title: newItemTitle.value, completed: false });
+    }
+    catch (err) {
+        console.log(err);
+    }
+    finally {
+        addNewItem.value = false;
+        newItemTitle.value = "";
+    }
 };
 
 const onItemTitleKeyup = (event: KeyboardEvent) => {

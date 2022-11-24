@@ -303,8 +303,12 @@ const onDeleteClicked = () => {
             color: "negative"
         }
     }).onOk(() => {
-        if (card.value)
-            store.dispatch.card.deleteCardFromAPI(card.value);
+        if (card.value){
+            socket.disconnect();
+            CardAPI.deleteCard(card.value.id)
+            store.commit.card.unloadCard();
+            onDialogHide()
+        }
     });
 };
 
