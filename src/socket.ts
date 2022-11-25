@@ -46,6 +46,9 @@ export enum SIOEvent {
     CHECKLIST_ITEM_UPDATE_ORDER = "checklist.item.update.order",
 
     CARD_ACTIVITY = "card.activity",
+    // These two currently used for only card comments
+    CARD_ACTIVITY_UPDATE = "card.activity.update",
+    CARD_ACTIVITY_DELETE = "card.activity.delete",
 
     LIST_NEW = "list.new",
     LIST_UPDATE_ORDER = "list.update.order",
@@ -112,6 +115,7 @@ export interface SIOChecklistItemEvent extends SIOCardEvent {
 export interface SIOChecklistItemDeleteEvent extends SIODeleteEvent {
     checklist_id: number;
 }
+
 
 // Event listeners for Board namespace
 export const SIOBoardEventListeners = {
@@ -325,5 +329,17 @@ export const SIOBoardEventListeners = {
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
             store.commit.card.updateChecklistItemOrder(data);
         }
+        console.groupEnd();
+    },
+    updateCardActivity: (data: CardActivity) => {
+        console.group("[Socket.IO]: Card activity update");
+        console.log(data);
+        console.groupEnd();
+    },
+    deleteCardActivity: (data: number) => {
+        console.group("[Socket.IO]: Card activity delete");
+        console.log(data);
+        store.commit.card.deleteCardActivity(data);
+        console.groupEnd();
     }
 };

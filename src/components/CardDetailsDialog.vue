@@ -178,6 +178,9 @@ onMounted(async () => {
         socket.on(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
         socket.on(SIOEvent.CHECKLIST_ITEM_UPDATE_ORDER, SIOBoardEventListeners.updateChecklistItemOrder)
 
+        socket.on(SIOEvent.CARD_ACTIVITY_UPDATE, SIOBoardEventListeners.updateCardActivity)
+        socket.on(SIOEvent.CARD_ACTIVITY_DELETE, SIOBoardEventListeners.deleteCardActivity)
+
         socket.on(SIOEvent.SIODisconnect, (reason) => {
             if (reason === "transport close") {
                 socketWereDisconnected.value = true;

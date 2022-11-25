@@ -134,6 +134,14 @@ export default {
                 }
             }
         },
+        deleteCardActivity(state: CardState, activity_id: number) {
+            if (state.card) {
+                const index = state.card.activities.findIndex((el) => el.id == activity_id);
+                if (index > -1) {
+                    state.card.activities.splice(index, 1);
+                }
+            }
+        }
     },
     actions: {
         async loadCard(context: Context, cardId: number) {

@@ -121,5 +121,8 @@ export const CardAPI = {
     },
     deleteCardDate: async (cardDateId: number) => {
         await API.delete(`/date/${cardDateId}`);
+    },
+    deleteComment: async (commentId: number) => {
+        await API.delete(`/comment/${commentId}`);
     }
 };
