@@ -11,6 +11,7 @@ export interface CardState {
     cardActivityQueryType: CardActivityQueryType;
     cardMoved: boolean;
 }
+import deepClone from "lodash.clonedeep";
 
 type Context = ActionContext<CardState, State>;
 
@@ -25,6 +26,15 @@ export default {
     mutations: {
         setCard(state: CardState, value: Card) {
             state.card = value;
+        },
+        updateCard(state: CardState, payload: Partial<Card>) {
+            if (state.card) {
+                // FIXME: We don't recieve activites from API on update so we have to do this. Not fancy.
+                const oldActivities = deepClone(state.card.activities);
+                const updatedCard = payload as Card;
+                updatedCard.activities = oldActivities;
+                state.card = updatedCard;
+            }
         },
         addCardActivity(state: CardState, activity: CardActivity) {
             state.card?.activities.unshift(CardAPI.parseCardActivity(activity));

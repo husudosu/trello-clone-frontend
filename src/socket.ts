@@ -97,7 +97,7 @@ export interface SIOCardMemberEvent extends SIOCardEvent {
 }
 
 export interface SIOCardUpdateEvent extends SIOCardEvent {
-    entity: Card;
+    entity: Card | Partial<Card>;
 }
 
 export interface SIOCardDateEvent extends SIOCardEvent {
@@ -136,13 +136,11 @@ export const SIOBoardEventListeners = {
         console.group("[Socket.IO]: Card update");
         console.debug(data);
 
-        console.debug("Update card on store");
         // If list_id changed move to other list on store aswell
         store.commit.board.SIOUpdateCard(data);
-        // FIXME: This overwrites the whole card which is bad
-        // if (store.state.card.card && store.state.card.card.id === data.card_id) {
-        //     store.commit.card.setCard(data.entity);
-        // }
+        if (store.state.card.card && store.state.card.card.id === data.card_id) {
+            store.commit.card.updateCard(data.entity);
+        }
         console.groupEnd();
     },
     cardOrderUpdate: (data: SIOCardUpdateOrder) => {

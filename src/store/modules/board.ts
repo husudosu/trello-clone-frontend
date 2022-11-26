@@ -6,7 +6,6 @@ import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
 import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftBoardList, BoardAllowedUser, CardDate, CardMember } from "@/api/types";
 import { SIOCardUpdateOrder, SIOCardUpdateEvent, CardEntity, SIOCardEvent, SIODeleteEvent } from "@/socket";
-
 export interface BoardState {
     boards: Board[];
     board: null | Board;
@@ -209,7 +208,10 @@ export default {
                     if (cardIndex > -1) {
                         if (payload.list_id === payload.entity.list_id) {
                             // Just update the card
-                            state.board.lists[listIndex].cards[cardIndex] = CardAPI.parseCard(payload.entity);
+                            // FIXME: We don't recieve activites from API on update so we have to do this. Not fancy.
+                            const updatedCard = payload.entity as Card;
+                            updatedCard.activities = [];
+                            state.board.lists[listIndex].cards[cardIndex] = CardAPI.parseCard(updatedCard);
                         }
                         else {
                             // We have to move the card to other list
@@ -218,7 +220,11 @@ export default {
                             // And put it on the new list.
                             const newListIndex = state.board.lists.findIndex((el) => el.id === payload.entity.list_id);
                             if (newListIndex > -1) {
-                                state.board.lists[newListIndex].cards.push(CardAPI.parseCard(payload.entity));
+                                // FIXME: We don't recieve activites from API on update so we have to do this. Not fancy.
+                                const updatedCard = payload.entity as Card;
+                                updatedCard.activities = [];
+
+                                state.board.lists[newListIndex].cards.push(CardAPI.parseCard(updatedCard));
                             }
                         }
                     }

@@ -202,7 +202,7 @@ onMounted(() => {
         Socket.IO handler for boards.
         */
         socket.on(SIOEvent.SIODisconnect, (reason) => {
-            console.log("Disconnected from SIO server");
+            console.log(`Disconnected from SIO server reason: ${reason}`);
 
             if (reason === "transport close") {
                 socketWereDisconnected.value = true;
