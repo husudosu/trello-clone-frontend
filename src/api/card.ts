@@ -36,6 +36,7 @@ export const CardAPI = {
     Parses card, for example converts dates into moment object.
     */
     parseCard: (data: Card): Card => {
+        console.log("Parsing card");
         data.dates.forEach((dt) => {
             if (dt.dt_from) {
                 dt.dt_from = moment.utc(dt.dt_from).tz(store.getters.auth.timezone);
