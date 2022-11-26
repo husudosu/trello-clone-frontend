@@ -11,9 +11,8 @@
                 <q-card-section>
                     <q-input v-model="addMemberFormUsername" label="User *" hint="Username or Email"
                         :rules="[validateUser]" debounce="300" autofocus />
-                    <q-select v-model="addMemberForm.board_role_id" label="Role *" hint="Role" :options="boardRoles"
-                        option-value="id" option-label="name" emit-value map-options
-                        :rules="[val => !!val || 'Role required!']">
+                    <q-select v-model="board_role_id" label="Role *" hint="Role" :options="boardRoles" option-value="id"
+                        option-label="name" emit-value map-options :rules="[val => !!val || 'Role required!']">
                     </q-select>
                 </q-card-section>
                 <q-card-actions class="form_actions" align="right">
@@ -33,7 +32,6 @@ import store from "@/store/index";
 
 import { UserAPI } from "@/api/user";
 import { BoardAPI } from "@/api/board";
-import { AddBoardMemberType } from "@/api/types";
 
 defineEmits([
     ...useDialogPluginComponent.emits
@@ -41,17 +39,19 @@ defineEmits([
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent();
 
-// FIXME: Fix types here!
-const addMemberForm = ref<AddBoardMemberType>();
-
 const addMemberFormUsername = ref("");
 const boardRoles = computed(() => store.state.board.roles);
 const form = ref();
 
+// These goes into type
+const board_role_id = ref();
+const user_id = ref();
+
+
 const onAddMemberSubmit = () => {
     form.value.validate().then((success: boolean) => {
         if (success && store.state.board.board) {
-            BoardAPI.addBoardMember(store.state.board.board.id, addMemberForm.value);
+            BoardAPI.addBoardMember(store.state.board.board.id, { board_role_id: board_role_id.value, user_id: user_id.value });
             onDialogOK();
         }
     });
@@ -65,7 +65,7 @@ const validateUser = (val: string): Promise<string | boolean> => {
     return new Promise((resolve) => {
         if (val.length > 0) {
             UserAPI.findUser(val).then((data) => {
-                addMemberForm.value.user_id = data.id;
+                user_id.value = data.id;
                 if (store.state.board.board) {
                     // If board member returns 404 we good to go!
                     BoardAPI.getBoardMember(store.state.board.board.id, data.id).then(() => {
