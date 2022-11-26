@@ -10,8 +10,11 @@
 
                     <b>{{ props.activity.board_user.user.name }} ({{ props.activity.board_user.user.username }})</b>
                     <span>
-                        <template v-if="props.activity.event == CardActivityEvent.CARD_COMMENT">
-                            <q-btn v-if="canEdit" @click="deleteCardActivity" flat size="sm" dense class="q-ml-xs">
+                        <template v-if="props.activity.event == CardActivityEvent.CARD_COMMENT && canEdit">
+                            <q-btn @click="onEditClicked" flat size="sm" dense class="q-ml-xs">
+                                <q-icon name="edit"></q-icon>
+                            </q-btn>
+                            <q-btn @click="deleteCardActivity" flat size="sm" dense class="q-ml-xs">
                                 <q-icon name="delete"></q-icon>
                             </q-btn>
                         </template>
@@ -25,10 +28,18 @@
             </q-item-label>
             <q-item-label caption>
                 <template v-if="props.activity.event == CardActivityEvent.CARD_COMMENT">
-                    <div class="rounded-borders	q-pa-sm cardComment">
-                        <span style="white-space: pre-wrap;">{{ activity?.comment?.comment
-                        }}</span>
-                    </div>
+
+                    <template v-if="!editMode">
+                        <div class="rounded-borders	q-pa-sm cardComment">
+                            <span style="white-space: pre-wrap;">{{ activity?.comment?.comment
+                            }}</span>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <q-input v-model="updatedComment" type="textarea"></q-input>
+                        <q-btn color="primary" flat @click="onSaveClicked">Save</q-btn>
+                        <q-btn color="primary" flat @click="editMode = false">Cancel</q-btn>
+                    </template>
                 </template>
                 <template v-else-if="props.activity.event == CardActivityEvent.CARD_MOVE_TO_LIST">Moved
                     from
@@ -70,7 +81,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from "vue";
+import { defineProps, ref } from "vue";
 import { CardActivityEvent, CardActivity } from "@/api/types";
 import UserAvatar from "@/components/UserAvatar.vue";
 import store from "@/store";
@@ -82,7 +93,23 @@ interface Props {
 }
 const props = defineProps<Props>();
 const $q = useQuasar();
+
 const canEdit = store.getters.board.boardUser?.id === props.activity.board_user_id || store.getters.board.isAdmin;
+const editMode = ref(false);
+const updatedComment = ref("");
+
+const onEditClicked = () => {
+    editMode.value = !editMode.value;
+    if (props.activity.comment?.comment)
+        updatedComment.value = props.activity.comment.comment;
+};
+
+const onSaveClicked = () => {
+    editMode.value = false;
+    if (props.activity.comment?.id) {
+        CardAPI.patchCardComment(props.activity.comment.id, { comment: updatedComment.value });
+    }
+};
 
 const deleteCardActivity = () => {
     $q.dialog({
@@ -96,8 +123,7 @@ const deleteCardActivity = () => {
         if (props.activity.comment && props.activity.comment.id)
             CardAPI.deleteComment(props.activity.comment.id);
     });
-}
-
+};
 </script>
 
 <style scoped lang="scss">

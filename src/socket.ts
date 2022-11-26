@@ -332,6 +332,7 @@ export const SIOBoardEventListeners = {
     updateCardActivity: (data: CardActivity) => {
         console.group("[Socket.IO]: Card activity update");
         console.log(data);
+        store.commit.card.updateCardActivity(data);
         console.groupEnd();
     },
     deleteCardActivity: (data: number) => {

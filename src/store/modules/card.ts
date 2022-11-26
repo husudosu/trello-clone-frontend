@@ -144,6 +144,14 @@ export default {
                 }
             }
         },
+        updateCardActivity(state: CardState, activity: CardActivity) {
+            if (state.card) {
+                const index = state.card.activities.findIndex((el) => el.id == activity.id);
+                if (index > -1) {
+                    state.card.activities[index] = CardAPI.parseCardActivity(activity);
+                }
+            }
+        },
         deleteCardActivity(state: CardState, activity_id: number) {
             if (state.card) {
                 const index = state.card.activities.findIndex((el) => el.id == activity_id);

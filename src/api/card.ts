@@ -81,6 +81,10 @@ export const CardAPI = {
         }
         return data;
     },
+    patchCardComment: async (commentId: number, comment: Partial<CardComment>): Promise<CardComment> => {
+        const { data } = await API.patch<CardComment>(`comment/${commentId}`, comment);
+        return data;
+    },
     getCardActivities: async (cardId: number, params: CardActivityQueryParams) => {
         const { data } = await API.get<PaginatedCardActivity>(`/card/${cardId}/activities`, { params });
         data.data.forEach((el) => {
