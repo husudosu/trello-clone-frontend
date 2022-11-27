@@ -22,16 +22,16 @@
             </header>
             <ul ref="cardsWrapper">
                 <draggable :data-id="props.boardList.id" class="list-group" v-model="cards" group="board-cards"
-                    itemKey="id" @end="onEnd" draggable=".listCard" :delayOnTouchOnly="true" :touchStartThreshold="100"
-                    :delay="100" v-if="props.boardList.id" :scroll-sensitivity="200" :fallback-tolerance="1"
-                    :force-fallback="true" :animation="200">
+                    itemKey="id" @end="$emit('onCardMoveEnd', $event)" draggable=".listCard" :delayOnTouchOnly="true"
+                    :touchStartThreshold="100" :delay="100" v-if="props.boardList.id" :scroll-sensitivity="200"
+                    :fallback-tolerance="1" :force-fallback="true" :animation="200">
                     <template #item="{ element }">
                         <list-card :card="element" :boardListId="props.boardList.id"></list-card>
                     </template>
                 </draggable>
                 <template v-if="showAddCard">
-                    <draft-card :boardListId="props.boardList.id" :onCancel="() => { showAddCard = false; }"
-                        :onSaveSuccess="() => { showAddCard = false; }"></draft-card>
+                    <draft-card :boardListId="props.boardList.id" @on-save-success="showAddCard = false"
+                        @oncancel="showAddCard = false"></draft-card>
                 </template>
             </ul>
             <footer @click="onAddCardClick">
@@ -49,7 +49,7 @@
 
 <script lang="ts" setup>
 import { BoardList, BoardPermission } from '@/api/types';
-import { defineProps, ref, nextTick, onMounted, computed } from 'vue';
+import { defineProps, ref, nextTick, onMounted, computed, defineEmits } from 'vue';
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
 
@@ -57,6 +57,7 @@ import store from "@/store";
 
 import ListCard from "@/components/Board/Card/ListCard.vue";
 import DraftCard from "@/components/Board/Card/DraftCard.vue";
+import { BoardListAPI } from '@/api/boardList';
 
 /* TODO: Implement events of VueDraggable, Vue3 version off draggable is not contains event types
 Vue v2 sortable.js:
@@ -65,12 +66,12 @@ Vue v3 sortable.js:
 https://github.com/SortableJS/vue.draggable.next/blob/master/types/vuedraggable.d.ts
 */
 
-type OnEnd = (ev: any) => void;
+defineEmits(['onCardMoveEnd']);
 
 interface Props {
     boardList: BoardList;
-    onEnd: OnEnd;
 }
+
 const listWrapperRef = ref();
 const props = defineProps<Props>();
 const hasPermission = store.getters.board.hasPermission;
@@ -92,28 +93,22 @@ const cards = computed({
 });
 const showAddCard = ref(false);
 
-const onListSave = () => {
+const onListSave = async () => {
     if (props.boardList.id && newListTitle.value.length > 0) {
-        store.dispatch.board.updateBoardList({ ...props.boardList, title: newListTitle.value })
-            .finally(() => {
-                editListTitle.value = false;
-            });
+        // store.dispatch.board.updateBoardList({ ...props.boardList, title: newListTitle.value })
+        //     .finally(() => {
+        //         editListTitle.value = false;
+        //     });
+        await BoardListAPI.patchBoardList(props.boardList.id, { ...props.boardList, title: newListTitle.value });
+        editListTitle.value = false;
         listWrapperRef.value.classList.remove("draftBoardList");
-    }
-    else {
-        store.commit.board.removeList(props.boardList);
     }
 };
 
 
 const onCancelClicked = () => {
-    if (props.boardList.id) {
+    if (props.boardList.id)
         editListTitle.value = false;
-    }
-    else {
-        // Delete draft card
-        store.commit.board.removeList(props.boardList);
-    }
 };
 
 const onAddCardClick = () => {
@@ -136,7 +131,8 @@ const onDeleteBoardList = () => {
             color: "negative"
         }
     }).onOk(() => {
-        store.dispatch.board.removeBoardList(props.boardList);
+        BoardListAPI.deleteBoardList(props.boardList.id);
+        showMenu.value = false;
     });
 };
 

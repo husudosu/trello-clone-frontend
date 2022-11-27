@@ -74,9 +74,11 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { validateUser, requiredTextField } from "@/formValidators";
 import timezonesData from "../json/timezones.json";
-
+import { ValidationError } from "@/api/exceptions";
+import { useQuasar } from "quasar";
+import * as DOMPurify from 'dompurify';
 const router = useRouter();
-
+const $q = useQuasar();
 const timezones = ref(timezonesData);
 const form = ref();
 
@@ -113,10 +115,17 @@ const onRegisterClicked = async () => {
             }
         });
     }
-    catch (err: any) {
-        if (err.response.data.message === "validation_error") {
-            validationErrors.value = err.response.data.errors;
-            console.log(err.response.data.errors);
+    catch (err) {
+        if (err instanceof ValidationError) {
+            $q.notify({
+                position: "bottom-right",
+                type: "negative",
+                message: DOMPurify.sanitize(`Server validation error: ${err.formatErrors()}`),
+                html: true
+            });
+        }
+        else {
+            console.log(err);
         }
     }
 };

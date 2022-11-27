@@ -2,7 +2,6 @@ import moment from "moment-timezone";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
-
 export interface PaginatedLinks {
     first: string;
     last: string;
@@ -105,6 +104,7 @@ export interface Card {
     checklists: CardChecklist[];
     assigned_members: CardMember[];
     dates: CardDate[];
+    activities: CardActivity[];
 }
 
 
@@ -169,7 +169,7 @@ export interface CardActivity {
     comment?: CardComment;
     list_change?: CardListChange;
     board_user: BoardMemberInfo;
-    changes: any;
+    changes: string;
 }
 
 export interface PaginatedCardActivity extends PaginatedResponse {
@@ -180,6 +180,8 @@ export type CardActivityQueryType = "all" | "comment";
 
 export interface CardActivityQueryParams extends PaginatedQuery {
     type?: CardActivityQueryType;
+    dt_from?: string;
+    dt_to?: string;
 }
 
 export interface CardComment {

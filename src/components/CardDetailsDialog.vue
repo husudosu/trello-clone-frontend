@@ -1,6 +1,6 @@
 <template>
-    <q-dialog v-model="cardModalVisible" :fullWidth="true" :fullHeight="true" :maximized="$q.screen.xs" v-if="card">
-        <q-layout view="hHh lpR fFf" container class="bg-white">
+    <q-dialog :fullWidth="true" :fullHeight="true" :maximized="$q.screen.xs" @hide="onCloseDialog" ref="dialogRef">
+        <q-layout view="hHh lpR fFf" container class="bg-white" v-if="card">
             <q-header class="bg-primary">
                 <q-toolbar>
                     <q-toolbar-title
@@ -32,6 +32,8 @@
                     </q-btn>
                     <q-btn align="between" class="full-width" icon="schedule" dense @click="onAddDateClicked"
                         :disable="!hasPermission(BoardPermission.CARD_ADD_DATE)">Date
+                    </q-btn>
+                    <q-btn align="between" class="full-width" icon="history" dense @click="onHistoryClicked">History
                     </q-btn>
                     <q-btn align="between" class="full-width" icon="delete" dense @click="onDeleteClicked"
                         :disable="!hasPermission(BoardPermission.CARD_EDIT)">Delete
@@ -89,7 +91,7 @@
                         <div class="q-ml-xs q-mb-xs on-right">
                             <q-btn color="primary" size="sm" style="top: 10px;" @click="onCardDetailsButtonClicked">
                                 {{ cardActivityQueryType == "all" ? "Hide details" :
-                                        "Show details"
+                                "Show details"
                                 }}
                             </q-btn>
                         </div>
@@ -101,27 +103,19 @@
                         <q-btn class="q-mt-sm" size="sm" color="primary" :disable="newComment.length == 0"
                             @click="addNewComment">Save</q-btn>
                     </div>
-                    <div class="card-comments" v-if="!activitiesLoading">
+                    <div class="card-comments">
                         <q-list padding bordered>
-                            <template v-if="activities.length > 0">
-                                <card-activity v-for="activity in activities" :key="activity.id" :activity="activity">
+                            <template v-if="card.activities.length > 0">
+                                <card-activity v-for="activity in card.activities" :key="activity.id"
+                                    :activity="activity">
                                 </card-activity>
                             </template>
                             <template v-else>
-                                <span class="q-ma-sm" v-if="!activitiesLoading">
+                                <span class="q-ma-sm">
                                     {{ cardActivityQueryType == "all" ? "No activity yet" : "No comments yet" }}
                                 </span>
                             </template>
-                            <div class="q-ml-sm q-mr-sm">
-                                <q-btn class="full-width" unelevated outline color="primary"
-                                    v-if="activityPagination && activityPagination?.page < activityPagination?.pages"
-                                    @click="onLoadMoreClicked">
-                                    Load more...</q-btn>
-                            </div>
                         </q-list>
-                    </div>
-                    <div v-else>
-                        <q-spinner-comment size="5em" />
                     </div>
                 </q-page>
             </q-page-container>
@@ -131,11 +125,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
-import { useQuasar } from 'quasar';
+import { useDialogPluginComponent } from 'quasar';
 
+import { computed, ref, defineEmits, defineProps, onMounted } from 'vue';
+import { useQuasar } from 'quasar';
 import store from "@/store";
-import { Card, BoardPermission, BoardAllowedUser, CardMember, DraftCardDate } from "@/api/types";
+import { BoardPermission, BoardAllowedUser, CardMember, DraftCardDate } from "@/api/types";
 import { CardAPI } from '@/api/card';
 import CardActivity from './Board/Card/CardActivity.vue';
 import CardChecklist from './Board/Card/Checklist/CardChecklist.vue';
@@ -145,37 +140,115 @@ import CardDateDialog from './Board/Card/CardDateDialog.vue';
 import UserAvatar from './UserAvatar.vue';
 import CardDates from './Board/Card/Details/CardDates.vue';
 
+import { useSocketIO, SIOBoardEventListeners, SIOEvent } from "@/socket";
+import { ChecklistAPI } from '@/api/checklist';
+import CardHistoryDialog from './Board/Card/CardHistoryDialog.vue';
+
+interface Props {
+    cardId: number;
+}
+
+const props = defineProps<Props>();
+
+const { socket } = useSocketIO();
+
 const $q = useQuasar();
 const hasPermission = store.getters.board.hasPermission;
 
 const card = computed(() => store.state.card.card);
-const activities = computed(() => store.state.card.activities);
-const activityPagination = computed(() => store.state.card.activityPagination);
-const cardModalVisible = computed({
-    get() {
-        return store.state.card.visible;
-    },
-    set(newValue) {
-        store.commit.card.setVisible(newValue);
-        // clear fields
-        if (!newValue) {
-            editCardDescription.value = false;
-            newComment.value = "";
-            store.commit.card.unloadCard();
-        }
-    }
-});
 
-const activitiesLoading = computed(() => store.state.card.activitiesLoading);
 const rightDrawerVisible = ref(false);
 const cardActivityQueryType = computed(() => store.state.card.cardActivityQueryType);
 
 const newComment = ref("");
 const editCardDescription = ref(false);
 const editCardTitle = ref(false);
+const socketWereDisconnected = ref(false);
 
-const addNewComment = () => {
-    store.dispatch.card.addCardComment(newComment.value).then(() => newComment.value = "");
+
+defineEmits([
+    ...useDialogPluginComponent.emits
+]);
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
+
+onMounted(async () => {
+    try {
+        $q.loading.show({ delay: 150 });
+
+        socket.on(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
+        socket.on(SIOEvent.CHECKLIST_ITEM_UPDATE_ORDER, SIOBoardEventListeners.updateChecklistItemOrder)
+
+        socket.on(SIOEvent.CARD_ACTIVITY_UPDATE, SIOBoardEventListeners.updateCardActivity)
+        socket.on(SIOEvent.CARD_ACTIVITY_DELETE, SIOBoardEventListeners.deleteCardActivity)
+
+        socket.on(SIOEvent.SIODisconnect, (reason) => {
+            if (reason === "transport close") {
+                socketWereDisconnected.value = true;
+                $q.notify({
+                    message: "Connection lost to server",
+                    type: "negative",
+                    position: "bottom-right"
+                });
+            }
+        });
+
+        socket.on(SIOEvent.SIOConnect, async () => {
+            socket.emit("card_change", { card_id: props.cardId });
+            await store.dispatch.card.loadCard(props.cardId);
+            if (socketWereDisconnected.value) {
+                $q.notify({
+                    message: "Reconnected",
+                    type: "positive",
+                    position: "bottom-right"
+                });
+                socketWereDisconnected.value = false;
+            }
+        });
+
+    }
+    catch (err) {
+        console.log(err);
+        $q.notify({
+            position: "bottom-right",
+            type: "negative",
+            message: "Cannot load card."
+        });
+        onDialogHide();
+    }
+    finally {
+        $q.loading.hide();
+    }
+});
+
+const onCloseDialog = () => {
+    try {
+        store.commit.card.unloadCard();
+        // Unregister card activity listener
+        socket.disconnect();
+    }
+    catch (err) {
+        console.log(err);
+        $q.notify({
+            position: "bottom-right",
+            type: "negative",
+            message: "Cannot close card properly."
+        });
+    }
+    finally {
+        onDialogHide();
+    }
+};
+
+const addNewComment =async () => {
+    if (card.value) {
+        try {
+            await CardAPI.postCardComment(card.value.id, { comment: newComment.value });
+            newComment.value = ""
+        } catch(err) {
+            console.log(err)
+        }
+    }
+
 };
 
 const onNewCommentKeyddown = async (e: KeyboardEvent) => {
@@ -194,10 +267,18 @@ const onDescriptionEdit = async (e: KeyboardEvent) => {
 const onTitleEdit = async () => {
     if (card.value && card.value.title && card.value.id) {
         editCardTitle.value = false;
-        const updatedCard: Card = await CardAPI.patchCard(card.value.id, { title: card.value.title });
-        store.commit.board.saveCard(updatedCard);
+        // const updatedCard: Card = await CardAPI.patchCard(card.value.id, { title: card.value.title });
+        await CardAPI.patchCard(card.value.id, { title: card.value.title });
+        // store.commit.board.saveCard(updatedCard);
     }
 };
+
+const onHistoryClicked = () => {
+    $q.dialog({
+        component: CardHistoryDialog,
+        componentProps: {cardId: props.cardId}
+    })
+}
 
 const onDeleteClicked = () => {
     $q.dialog({
@@ -210,26 +291,26 @@ const onDeleteClicked = () => {
             color: "negative"
         }
     }).onOk(() => {
-        if (card.value)
-            store.dispatch.card.deleteCardFromAPI(card.value);
+        if (card.value){
+            socket.disconnect();
+            CardAPI.deleteCard(card.value.id)
+            store.commit.card.unloadCard();
+            onDialogHide()
+        }
     });
 };
 
-const onLoadMoreClicked = () => {
-    if (activityPagination.value)
-        store.dispatch.card.loadCardActivities({ page: activityPagination.value?.page + 1 });
-};
 
 const onCardDetailsButtonClicked = () => {
     // First clear activities
-    store.commit.card.unloadCardActivities();
+    // store.commit.card.unloadCardActivities();
     // Set activity type globally
     if (cardActivityQueryType.value == "comment")
         store.commit.card.setCardActivityQueryType("all");
     else
         store.commit.card.setCardActivityQueryType("comment");
     // Reload card activities
-    store.dispatch.card.loadCardActivities({ page: 1 });
+    // store.dispatch.card.loadCardActivities({ page: 1 });
 };
 
 
@@ -244,7 +325,8 @@ const onCreateChecklistClicked = () => {
         cancel: true,
         persistent: true
     }).onOk(data => {
-        store.dispatch.card.addCardChecklist({ title: data });
+        // store.dispatch.card.addCardChecklist({ title: data });
+        ChecklistAPI.postCardChecklist(props.cardId, {title: data})
     });
 };
 
@@ -252,19 +334,25 @@ const onAssignMemberClicked = () => {
     $q.dialog({
         component: AssignMember,
     }).onOk((data: BoardAllowedUser) => {
-        store.dispatch.card.assignCardMember({ board_user_id: data.id, send_notification: true });
+        if (card.value)
+            CardAPI.assignCardMember(card.value.id, { board_user_id: data.id, send_notification: true });
     });
 };
 
-const onDeassignMember = (member: CardMember) => {
-    store.dispatch.card.deassignCardMember(member);
+const onDeassignMember = async (member: CardMember) => {
+    try {
+        await CardAPI.deassignCardMember(props.cardId, member.board_user.id);
+    }
+    catch (err) {
+        console.log(err)
+    }
 };
 
 const onAddDateClicked = () => {
     $q.dialog({
         component: CardDateDialog
     }).onOk((data: DraftCardDate) => {
-        store.dispatch.card.addCardDate(data);
+        CardAPI.postCardDate(props.cardId, data)
     });
 };
 

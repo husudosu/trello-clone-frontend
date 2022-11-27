@@ -1,14 +1,13 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHistory, RouteRecordRaw, RouteLocationNormalized, NavigationGuardNext } from "vue-router";
 import store from "@/store";
 
-// FIXME: Types for to, from, next
-const onlyAnonymousCanAccess = (to: any, from: any, next: any) => {
+
+const onlyAnonymousCanAccess = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
   if (store.state.auth.loggedIn) next({ name: "boards" });
   else next();
 };
 
-// FIXME: Types for to, from, next
-const onlyUserCanAccess = (to: any, from: any, next: any) => {
+const onlyUserCanAccess = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
   if (store.state.auth.loggedIn) next();
   else next({ name: "login" });
 };

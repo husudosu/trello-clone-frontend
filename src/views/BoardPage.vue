@@ -1,7 +1,5 @@
 <template>
     <div class="ui" ref="boardWrapper">
-        <!-- Car details -->
-        <card-details-dialog></card-details-dialog>
         <!-- Add member dialog -->
         <nav class="navbar board" v-if="!$q.screen.xs">
             {{ board?.title }}
@@ -23,7 +21,7 @@
                 :force-fallback="true" :animation="200">
                 <!-- Board list object and reorder handling of cards.-->
                 <template #item="{ element }">
-                    <board-list-vue :onEnd="onCardSortableMoveEnd" :boardList="element">
+                    <board-list-vue @on-card-move-end="onCardSortableMoveEnd" :boardList="element">
                     </board-list-vue>
                 </template>
             </draggable>
@@ -40,8 +38,8 @@
                     </div>
                 </template>
                 <template v-else>
-                    <draft-board-list :boardId="board.id" :onCancel="() => { showAddDraftList = false; }"
-                        :onSaveSuccess="() => { showAddDraftList = false; }"></draft-board-list>
+                    <draft-board-list :boardId="board.id" @on-cancel="showAddDraftList = false"
+                        @on-save-success="showAddDraftList = false"></draft-board-list>
                 </template>
             </div>
         </div>
@@ -49,8 +47,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onMounted, ref } from "vue";
-import { onBeforeRouteUpdate, useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
 
@@ -60,7 +58,6 @@ import { BoardListAPI } from '@/api/boardList';
 import { BoardAPI } from "@/api/board";
 import { BoardPermission } from "@/api/types";
 
-import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import BoardListVue from "@/components/Board/List/BoardList.vue";
 import AddMemberDialog from "@/components/Board/AddMemberDialog.vue";
 import MembersDialog from "@/components/Board/MembersDialog.vue";
@@ -69,31 +66,6 @@ import { useSocketIO, SIOEvent, SIOBoardEventListeners } from "@/socket";
 
 const $q = useQuasar();
 const { socket } = useSocketIO();
-
-/*
-Socket.IO handler for boards.
-*/
-socket.on(SIOEvent.SIOError, SIOBoardEventListeners.onError);
-socket.on(SIOEvent.SIOConnect, SIOBoardEventListeners.onConnect);
-socket.onAny((event, ...args) => {
-    console.debug(`[Socket.IO]: Got event: ${event}`);
-});
-
-socket.on(SIOEvent.CARD_NEW, SIOBoardEventListeners.newCard);
-socket.on(SIOEvent.CARD_UPDATE, SIOBoardEventListeners.cardUpdate);
-socket.on(SIOEvent.CARD_UPDATE_ORDER, SIOBoardEventListeners.cardOrderUpdate);
-socket.on(SIOEvent.CARD_DELETE, SIOBoardEventListeners.cardDelete);
-
-socket.on(SIOEvent.CARD_DATE_NEW, SIOBoardEventListeners.newCardDate);
-socket.on(SIOEvent.CARD_DATE_UPDATE, SIOBoardEventListeners.updateCardDate);
-socket.on(SIOEvent.CARD_DATE_DELETE, SIOBoardEventListeners.deleteCardDate);
-
-socket.on(SIOEvent.LIST_NEW, SIOBoardEventListeners.newList);
-socket.on(SIOEvent.LIST_UPDATE_ORDER, SIOBoardEventListeners.listUpdateOrder);
-socket.on(SIOEvent.LIST_UPDATE, SIOBoardEventListeners.listUpdate);
-socket.on(SIOEvent.LIST_DELETE, SIOBoardEventListeners.deleteList);
-
-
 const board = computed(() => store.state.board.board);
 
 const boardLists = computed({
@@ -107,6 +79,7 @@ const boardLists = computed({
 
 const hasPermission = store.getters.board.hasPermission;
 const isAdmin = computed(() => store.getters.board.isAdmin);
+const socketWereDisconnected = ref(false);
 
 const route = useRoute();
 const router = useRouter();
@@ -143,7 +116,8 @@ const onCardSortableMoveEnd = async (ev: any) => {
         Provide listToId as from_list_id because when this store commit runs.
         The computed variables already by vue-draggable boardLists and cards on BoardPage, BoardList
         */
-        store.commit.board.SIOUpdateCard({ card: updatedCard, from_list_id: listToId });
+        // store.commit.board.SIOUpdateCard({ card: updatedCard, from_list_id: listToId });
+        store.commit.board.SIOUpdateCard({ entity: updatedCard, list_id: listToId, card_id: updatedCard.id });
         // BoardList changed so need to update both fromList and toList
         const listFrom = board.value?.lists.find((el) => el.id == listFromId);
         if (listFrom !== undefined) {
@@ -212,9 +186,6 @@ const onMembersClicked = () => {
         component: MembersDialog,
     });
 };
-onBeforeRouteLeave(() => {
-    store.commit.board.unLoadBoard();
-});
 
 onBeforeRouteUpdate(async (to, from) => {
     store.commit.board.unLoadBoard();
@@ -226,16 +197,77 @@ onBeforeRouteUpdate(async (to, from) => {
 
 onMounted(() => {
     if (typeof route.params.boardId === "string") {
-        loadBoard(parseInt(route.params.boardId));
-        socket.emit("board_change", { board_id: route.params.boardId });
+        const boardId = parseInt(route.params.boardId);
+        /*
+        Socket.IO handler for boards.
+        */
+        socket.on(SIOEvent.SIODisconnect, (reason) => {
+            console.log(`Disconnected from SIO server reason: ${reason}`);
+
+            if (reason === "transport close") {
+                socketWereDisconnected.value = true;
+                $q.notify({
+                    message: "Connection lost to server",
+                    type: "negative",
+                    position: "bottom-right"
+                });
+            }
+        });
+        socket.on(SIOEvent.SIOConnect, async () => {
+            console.log("Connected to server");
+            await loadBoard(boardId);
+            socket.emit("board_change", { board_id: route.params.boardId });
+
+            if (socketWereDisconnected.value) {
+                $q.notify({
+                    message: "Reconnected",
+                    type: "positive",
+                    position: "bottom-right"
+                });
+                socketWereDisconnected.value = false;
+            }
+        });
+
+        socket.on(SIOEvent.SIOError, SIOBoardEventListeners.onError);
+        socket.onAny((event: string) => {
+            console.debug(`[Socket.IO]: Got event: ${event}`);
+        });
+
+        socket.on(SIOEvent.CARD_NEW, SIOBoardEventListeners.newCard);
+        socket.on(SIOEvent.CARD_UPDATE, SIOBoardEventListeners.cardUpdate);
+        socket.on(SIOEvent.CARD_UPDATE_ORDER, SIOBoardEventListeners.cardOrderUpdate);
+        socket.on(SIOEvent.CARD_DELETE, SIOBoardEventListeners.cardDelete);
+
+        socket.on(SIOEvent.CARD_DATE_NEW, SIOBoardEventListeners.newCardDate);
+        socket.on(SIOEvent.CARD_DATE_UPDATE, SIOBoardEventListeners.updateCardDate);
+        socket.on(SIOEvent.CARD_DATE_DELETE, SIOBoardEventListeners.deleteCardDate);
+
+        socket.on(SIOEvent.CARD_CHECKLIST_NEW, SIOBoardEventListeners.newCardChecklist);
+        socket.on(SIOEvent.CARD_CHECKLIST_UPDATE, SIOBoardEventListeners.updateCardChecklist);
+        socket.on(SIOEvent.CARD_CHECKLIST_DELETE, SIOBoardEventListeners.deleteCardChecklist);
+
+        socket.on(SIOEvent.CHECKLIST_ITEM_NEW, SIOBoardEventListeners.newChecklistItem);
+        socket.on(SIOEvent.CHECKLIST_ITEM_UPDATE, SIOBoardEventListeners.updateChecklistItem);
+        socket.on(SIOEvent.CHECKLIST_ITEM_DELETE, SIOBoardEventListeners.deleteChecklistItem);
+
+        socket.on(SIOEvent.CARD_MEMBER_ASSIGNED, SIOBoardEventListeners.cardMemberAssigned);
+        socket.on(SIOEvent.CARD_MEMBER_DEASSIGNED, SIOBoardEventListeners.cardMemberDeAssigned);
+
+        socket.on(SIOEvent.LIST_NEW, SIOBoardEventListeners.newList);
+        socket.on(SIOEvent.LIST_UPDATE_ORDER, SIOBoardEventListeners.listUpdateOrder);
+        socket.on(SIOEvent.LIST_UPDATE, SIOBoardEventListeners.listUpdate);
+        socket.on(SIOEvent.LIST_DELETE, SIOBoardEventListeners.deleteList);
+
+        if (!socket.connected)
+            socket.connect();
     }
 });
 
-onBeforeRouteLeave(() => {
+onBeforeUnmount(() => {
     console.debug("[Socket.IO]: Leaving board route so disconnect from server.");
+    store.commit.board.unLoadBoard();
     socket.disconnect();
-})
-
+});
 </script>
 <style lang="scss">
 @import "../styles/board.scss";

@@ -4,6 +4,7 @@ import { API } from ".";
 import { Card, CardActivity, CardActivityQueryParams, CardComment, CardDate, CardMember, DraftCard, DraftCardDate, DraftCardMember, PaginatedCardActivity } from "./types";
 import store from "@/store";
 import { ChecklistAPI } from "./checklist";
+
 export interface MoveCardParams {
     list_id: number;
     position: number;
@@ -35,6 +36,7 @@ export const CardAPI = {
     Parses card, for example converts dates into moment object.
     */
     parseCard: (data: Card): Card => {
+        console.log("Parsing card");
         data.dates.forEach((dt) => {
             if (dt.dt_from) {
                 dt.dt_from = moment.utc(dt.dt_from).tz(store.getters.auth.timezone);
@@ -46,6 +48,9 @@ export const CardAPI = {
                 // Parse checklist items
                 ChecklistAPI.parseChecklistItem(item);
             });
+        });
+        data.activities.forEach((activity) => {
+            CardAPI.parseCardActivity(activity);
         });
         return data;
     },
@@ -76,7 +81,18 @@ export const CardAPI = {
         }
         return data;
     },
+    patchCardComment: async (commentId: number, comment: Partial<CardComment>): Promise<CardComment> => {
+        const { data } = await API.patch<CardComment>(`comment/${commentId}`, comment);
+        return data;
+    },
     getCardActivities: async (cardId: number, params: CardActivityQueryParams) => {
+        if (params.dt_to) {
+            params.dt_to = moment.tz(params.dt_to, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
+        }
+        if (params.dt_from) {
+            params.dt_from = moment.tz(params.dt_from, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
+        }
+
         const { data } = await API.get<PaginatedCardActivity>(`/card/${cardId}/activities`, { params });
         data.data.forEach((el) => {
             CardAPI.parseCardActivity(el);
@@ -88,7 +104,8 @@ export const CardAPI = {
         return data;
     },
     deassignCardMember: async (cardId: number, boardUserId: number) => {
-        await API.post<CardMember>(`/card/${cardId}/deassign-member`, { board_user_id: boardUserId });
+        const { data } = await API.post<CardMember>(`/card/${cardId}/deassign-member`, { board_user_id: boardUserId });
+        return data;
     },
     postCardDate: async (cardId: number, dt: DraftCardDate): Promise<CardDate> => {
         // Convert date to UTC before pushing to API
@@ -100,7 +117,7 @@ export const CardAPI = {
         const { data } = await API.post<CardDate>(`/card/${cardId}/date`, dt);
         return CardAPI.parseCardDate(data);
     },
-    patchCardDate: async (cardDateId: number, dt: CardDate): Promise<CardDate> => {
+    patchCardDate: async (cardDateId: number, dt: Partial<CardDate>): Promise<CardDate> => {
 
         // Make clone of dt before conversion
         const cdt = { ...dt };
@@ -116,5 +133,8 @@ export const CardAPI = {
     },
     deleteCardDate: async (cardDateId: number) => {
         await API.delete(`/date/${cardDateId}`);
+    },
+    deleteComment: async (commentId: number) => {
+        await API.delete(`/comment/${commentId}`);
     }
 };
