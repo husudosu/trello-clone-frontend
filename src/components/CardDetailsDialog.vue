@@ -33,6 +33,8 @@
                     <q-btn align="between" class="full-width" icon="schedule" dense @click="onAddDateClicked"
                         :disable="!hasPermission(BoardPermission.CARD_ADD_DATE)">Date
                     </q-btn>
+                    <q-btn align="between" class="full-width" icon="history" dense @click="onHistoryClicked">History
+                    </q-btn>
                     <q-btn align="between" class="full-width" icon="delete" dense @click="onDeleteClicked"
                         :disable="!hasPermission(BoardPermission.CARD_EDIT)">Delete
                     </q-btn>
@@ -143,6 +145,7 @@ import { useSocketIO, SIOBoardEventListeners, SIOEvent } from "@/socket";
 import * as DOMPurify from 'dompurify';
 import axios from 'axios';
 import { ChecklistAPI } from '@/api/checklist';
+import CardHistoryDialog from './Board/Card/CardHistoryDialog.vue';
 
 interface Props {
     cardId: number;
@@ -296,6 +299,12 @@ const onTitleEdit = async () => {
     }
 };
 
+const onHistoryClicked = () => {
+    $q.dialog({
+        component: CardHistoryDialog,
+        componentProps: {cardId: props.cardId}
+    })
+}
 
 const onDeleteClicked = () => {
     $q.dialog({
@@ -316,6 +325,7 @@ const onDeleteClicked = () => {
         }
     });
 };
+
 
 const onCardDetailsButtonClicked = () => {
     // First clear activities

@@ -180,6 +180,8 @@ export type CardActivityQueryType = "all" | "comment";
 
 export interface CardActivityQueryParams extends PaginatedQuery {
     type?: CardActivityQueryType;
+    dt_from?: string;
+    dt_to?: string;
 }
 
 export interface CardComment {

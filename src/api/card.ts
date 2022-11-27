@@ -86,6 +86,13 @@ export const CardAPI = {
         return data;
     },
     getCardActivities: async (cardId: number, params: CardActivityQueryParams) => {
+        if (params.dt_to) {
+            params.dt_to = moment.tz(params.dt_to, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
+        }
+        if (params.dt_from) {
+            params.dt_from = moment.tz(params.dt_from, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
+        }
+
         const { data } = await API.get<PaginatedCardActivity>(`/card/${cardId}/activities`, { params });
         data.data.forEach((el) => {
             CardAPI.parseCardActivity(el);
