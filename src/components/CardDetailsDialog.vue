@@ -129,7 +129,6 @@ import { useDialogPluginComponent } from 'quasar';
 
 import { computed, ref, defineEmits, defineProps, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
-import { ValidationError } from "@/api/exceptions";
 import store from "@/store";
 import { BoardPermission, BoardAllowedUser, CardMember, DraftCardDate } from "@/api/types";
 import { CardAPI } from '@/api/card';
@@ -142,8 +141,6 @@ import UserAvatar from './UserAvatar.vue';
 import CardDates from './Board/Card/Details/CardDates.vue';
 
 import { useSocketIO, SIOBoardEventListeners, SIOEvent } from "@/socket";
-import * as DOMPurify from 'dompurify';
-import axios from 'axios';
 import { ChecklistAPI } from '@/api/checklist';
 import CardHistoryDialog from './Board/Card/CardHistoryDialog.vue';
 
@@ -248,30 +245,7 @@ const addNewComment =async () => {
             await CardAPI.postCardComment(card.value.id, { comment: newComment.value });
             newComment.value = ""
         } catch(err) {
-            let errMsg = ""
-            if (axios.isAxiosError(err)) {
-                switch (err.response?.status) {
-                    case 404:
-                        errMsg = "Card not exists anymore."
-                        break;
-                    default:
-                        errMsg = err.response?.statusText || "Unknown error"
-                        break;
-                }
-                $q.notify({
-                    position: "bottom-right",
-                    type: "negative",
-                    message: errMsg,
-                });
-            }
-            else if (err instanceof ValidationError) {
-                $q.notify({
-                    position: "bottom-right",
-                    type: "negative",
-                    message: DOMPurify.sanitize(`Server validation error: ${err.formatErrors()}`),
-                    html: true
-                });
-            }
+            console.log(err)
         }
     }
 
@@ -370,14 +344,7 @@ const onDeassignMember = async (member: CardMember) => {
         await CardAPI.deassignCardMember(props.cardId, member.board_user.id);
     }
     catch (err) {
-        if (err instanceof ValidationError) {
-            $q.notify({
-                position: "bottom-right",
-                type: "negative",
-                message: DOMPurify.sanitize(`Server validation error: ${err.formatErrors()}`),
-                html: true
-            });
-        }
+        console.log(err)
     }
 };
 

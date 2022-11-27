@@ -5,6 +5,8 @@ import router from "@/router";
 import { Cookies } from 'quasar';
 
 import { ValidationError } from "./exceptions";
+import { Notify } from 'quasar';
+import * as DOMPurify from 'dompurify';
 
 const config: AxiosRequestConfig = {
     withCredentials: true,
@@ -33,6 +35,34 @@ API.interceptors.request.use((config: AxiosRequestConfig) => {
     return Promise.reject(err);
 });
 
+const handleHTTPExc = (err: any) => {
+    if (err.response.status === 400) {
+        const validationErr = new ValidationError({ message: err.response.data.message, errors: err.response.data.errors });
+        Notify.create({
+            position: "bottom-right",
+            type: "negative",
+            message: DOMPurify.sanitize(`Server validation error: ${validationErr.formatErrors()}`),
+            html: true
+        });
+        return Promise.reject(validationErr);
+    }
+    else if (err.response.status === 404) {
+        Notify.create({
+            position: "bottom-right",
+            type: "negative",
+            message: err.response.data.message
+        });
+    }
+    else if (err.response.status === 500) {
+        router.replace({
+            name: "500",
+            query: {
+                traceback: err.response.data.traceback,
+            },
+        });
+    }
+};
+
 API.interceptors.response.use((response: AxiosResponse) => {
     return response;
 }, (error) => {
@@ -41,19 +71,8 @@ API.interceptors.response.use((response: AxiosResponse) => {
         store.commit.auth.setUser(null);
         router.push({ name: "login" });
     }
-    else if (error.response) {
-        switch (error.response.status) {
-            case 400:
-                return Promise.reject(new ValidationError({ message: error.response.data.message, errors: error.response.data.errors }));
-            case 500:
-                router.replace({
-                    name: "500",
-                    query: {
-                        traceback: error.response.data.traceback,
-                    },
-                });
-                break;
-        }
-    }
+    else if (error.response)
+        handleHTTPExc(error);
+
     return Promise.reject(error);
 });
