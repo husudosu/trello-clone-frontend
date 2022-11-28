@@ -97,7 +97,7 @@ export default {
                 if (index === -1) {
                     state.board.lists.push(boardList);
                 } else {
-                    state.board.lists[index] = boardList;
+                    state.board.lists[index] = Object.assign(state.board.lists[index], boardList);
                 }
             }
         },

@@ -1,7 +1,7 @@
 import SocketIO from 'socket.io-client';
 import { BoardList, Card, CardActivity, CardChecklist, CardDate, CardMember, ChecklistItem } from './api/types';
 
-const options = { withCredentials: true, debug: true };
+const options = { withCredentials: true, debug: process.env.NODE_ENV === "development" };
 import store from "@/store/index";
 
 

@@ -95,13 +95,15 @@ const showAddCard = ref(false);
 
 const onListSave = async () => {
     if (props.boardList.id && newListTitle.value.length > 0) {
-        // store.dispatch.board.updateBoardList({ ...props.boardList, title: newListTitle.value })
-        //     .finally(() => {
-        //         editListTitle.value = false;
-        //     });
-        await BoardListAPI.patchBoardList(props.boardList.id, { ...props.boardList, title: newListTitle.value });
-        editListTitle.value = false;
-        listWrapperRef.value.classList.remove("draftBoardList");
+        try {
+            $q.loading.show({ delay: 150 });
+            await BoardListAPI.patchBoardList(props.boardList.id, { title: newListTitle.value });
+            editListTitle.value = false;
+            listWrapperRef.value.classList.remove("draftBoardList");
+        }
+        finally {
+            $q.loading.hide();
+        }
     }
 };
 

@@ -49,7 +49,7 @@ export const CardAPI = {
                 ChecklistAPI.parseChecklistItem(item);
             });
         });
-        data.activities.forEach((activity) => {
+        data.activities?.forEach((activity) => {
             CardAPI.parseCardActivity(activity);
         });
         return data;
