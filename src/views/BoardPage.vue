@@ -4,8 +4,7 @@
         <nav class="navbar board" v-if="!$q.screen.xs">
             {{ board?.title }}
             <div class="boardButtons">
-                <q-btn class="q-ml-lg btn" flat @click="onDeleteBoardClicked"
-                    v-if="hasPermission(BoardPermission.BOARD_DELETE)">Delete board
+                <q-btn class="q-ml-lg btn" flat @click="onBoardDetailsClicked">Board details
                 </q-btn>
                 <q-btn class="q-ml-md btn" flat @click="onMembersClicked">Members</q-btn>
                 <q-btn class="q-ml-md btn" flat @click="onAddMemberClicked" v-if="isAdmin">Add
@@ -63,6 +62,7 @@ import AddMemberDialog from "@/components/Board/AddMemberDialog.vue";
 import MembersDialog from "@/components/Board/MembersDialog.vue";
 import DraftBoardList from "@/components/Board/List/DraftBoardList.vue";
 import { useSocketIO, SIOEvent, SIOBoardEventListeners } from "@/socket";
+import BoardInfoDialog from "@/components/Board/DetailsDialog/BoardDetailsDialog.vue";
 
 const $q = useQuasar();
 const { socket } = useSocketIO();
@@ -150,22 +150,6 @@ const loadBoard = async (boardId: number) => {
     $q.loading.hide();
 };
 
-const onDeleteBoardClicked = () => {
-    $q.dialog({
-        title: "Delete board",
-        cancel: true,
-        persistent: true,
-        message: `Delete board ${board.value ? board.value.title : ''}?`,
-        ok: {
-            label: "Delete",
-            color: "negative"
-        }
-    }).onOk(() => {
-        if (typeof route.params.boardId === "string")
-            store.dispatch.board.removeBoard(parseInt(route.params.boardId))
-                .then(() => { router.push({ name: "boards" }); });
-    });
-};
 
 const onNewListClicked = () => {
     // This will scroll the end of div.
@@ -184,6 +168,12 @@ const onAddMemberClicked = () => {
 const onMembersClicked = () => {
     $q.dialog({
         component: MembersDialog,
+    });
+};
+
+const onBoardDetailsClicked = () => {
+    $q.dialog({
+        component: BoardInfoDialog
     });
 };
 

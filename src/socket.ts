@@ -139,6 +139,8 @@ export const SIOBoardEventListeners = {
         // If list_id changed move to other list on store aswell
         store.commit.board.SIOUpdateCard(data);
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
+            // FIXME: By some reason the entity always has an activities array. The API and Socket.IO emit not contains entity activities at all!
+            delete data.entity.activities;
             store.commit.card.updateCard(data.entity);
         }
         console.groupEnd();

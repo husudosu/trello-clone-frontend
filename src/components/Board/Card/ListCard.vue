@@ -114,8 +114,7 @@ const onEditClick = (ev: Event) => {
 
 const onDateMark = (ev: Event, cardDate: CardDate) => {
     ev.stopPropagation();
-    cardDate.complete = !cardDate.complete;
-    CardAPI.patchCardDate(cardDate.id, cardDate);
+    CardAPI.patchCardDate(cardDate.id, { complete: !cardDate.complete });
 };
 
 </script>

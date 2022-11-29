@@ -31,6 +31,10 @@ export const BoardAPI = {
         const { data } = await API.post<Board>("/board", board);
         return data;
     },
+    patchBoard: async (boardId: number, board: Partial<Board>): Promise<Board> => {
+        const { data } = await API.patch<Board>(`/board/${boardId}`, board);
+        return data;
+    },
     deleteBoard: async (boardId: number) => {
         await API.delete(`/board/${boardId}`);
     },

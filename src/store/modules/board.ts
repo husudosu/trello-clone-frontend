@@ -68,6 +68,9 @@ export default {
         getBoardUsername: (state: BoardState) => (boardUserId: number) => {
             const user = state.users.find((el) => el.id == boardUserId);
             return user ? user.user.name || user.user.username : "";
+        },
+        owner: (state: BoardState) => {
+            return state.users.find((el) => el.is_owner);
         }
     },
     mutations: {

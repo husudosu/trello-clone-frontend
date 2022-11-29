@@ -118,12 +118,12 @@ export const CardAPI = {
         return CardAPI.parseCardDate(data);
     },
     patchCardDate: async (cardDateId: number, dt: Partial<CardDate>): Promise<CardDate> => {
-
         // Make clone of dt before conversion
         const cdt = { ...dt };
-
-        // Convert date to UTC before pushing to API
-        cdt.dt_to = moment.tz(cdt.dt_to, store.getters.auth.timezone).utc();
+        if (cdt.dt_to) {
+            // Convert date to UTC before pushing to API
+            cdt.dt_to = moment.tz(cdt.dt_to, store.getters.auth.timezone).utc();
+        }
         if (cdt.dt_from) {
             cdt.dt_from = moment.tz(cdt.dt_from, store.getters.auth.timezone).utc();
         }
