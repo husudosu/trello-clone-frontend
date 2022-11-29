@@ -21,7 +21,7 @@
                         <board-info-vue></board-info-vue>
                     </q-tab-panel>
                     <q-tab-panel name="members">
-                        Members (TODO)
+                        <board-members-vue></board-members-vue>
                     </q-tab-panel>
                 </q-tab-panels>
             </q-page-container>
@@ -34,7 +34,7 @@
 import { defineEmits, ref } from 'vue';
 import { useDialogPluginComponent } from 'quasar';
 import BoardInfoVue from './BoardInfo.vue';
-
+import BoardMembersVue from './BoardMembers.vue';
 const tab = ref("info");
 defineEmits([
     // REQUIRED; need to specify some events that your

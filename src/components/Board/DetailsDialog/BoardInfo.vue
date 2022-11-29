@@ -22,11 +22,10 @@
                 delete this
                 board!</span>
         </div>
-        <div class="row q-mt-md">
-            <q-space></q-space>
-            <q-btn color="primary" :disable="!hasPermission(BoardPermission.BOARD_UPDATE)" @click="onSubmit">Save
-            </q-btn>
-        </div>
+        <q-btn color="primary" :disable="!hasPermission(BoardPermission.BOARD_UPDATE)" @click="onSubmit"
+            class="full-width  q-mt-md">Save
+        </q-btn>
+
 
     </div>
 </template>

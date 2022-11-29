@@ -6,10 +6,6 @@
             <div class="boardButtons">
                 <q-btn class="q-ml-lg btn" flat @click="onBoardDetailsClicked">Board details
                 </q-btn>
-                <q-btn class="q-ml-md btn" flat @click="onMembersClicked">Members</q-btn>
-                <q-btn class="q-ml-md btn" flat @click="onAddMemberClicked" v-if="isAdmin">Add
-                    member
-                </q-btn>
             </div>
         </nav>
         <!-- Dragabble object for reordering lists-->
@@ -58,8 +54,6 @@ import { BoardAPI } from "@/api/board";
 import { BoardPermission } from "@/api/types";
 
 import BoardListVue from "@/components/Board/List/BoardList.vue";
-import AddMemberDialog from "@/components/Board/AddMemberDialog.vue";
-import MembersDialog from "@/components/Board/MembersDialog.vue";
 import DraftBoardList from "@/components/Board/List/DraftBoardList.vue";
 import { useSocketIO, SIOEvent, SIOBoardEventListeners } from "@/socket";
 import BoardInfoDialog from "@/components/Board/DetailsDialog/BoardDetailsDialog.vue";
@@ -78,7 +72,6 @@ const boardLists = computed({
 });
 
 const hasPermission = store.getters.board.hasPermission;
-const isAdmin = computed(() => store.getters.board.isAdmin);
 const socketWereDisconnected = ref(false);
 
 const route = useRoute();
@@ -159,17 +152,6 @@ const onNewListClicked = () => {
     });
 };
 
-const onAddMemberClicked = () => {
-    $q.dialog({
-        component: AddMemberDialog,
-    });
-};
-
-const onMembersClicked = () => {
-    $q.dialog({
-        component: MembersDialog,
-    });
-};
 
 const onBoardDetailsClicked = () => {
     $q.dialog({

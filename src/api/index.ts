@@ -35,6 +35,7 @@ API.interceptors.request.use((config: AxiosRequestConfig) => {
     return Promise.reject(err);
 });
 
+// TODO: Ignore 404 on find-member request
 const handleHTTPExc = (err: any) => {
     if (err.response.status === 400) {
         const validationErr = new ValidationError({ message: err.response.data.message, errors: err.response.data.errors });

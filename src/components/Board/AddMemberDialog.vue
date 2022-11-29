@@ -51,8 +51,7 @@ const user_id = ref();
 const onAddMemberSubmit = () => {
     form.value.validate().then((success: boolean) => {
         if (success && store.state.board.board) {
-            BoardAPI.addBoardMember(store.state.board.board.id, { board_role_id: board_role_id.value, user_id: user_id.value });
-            onDialogOK();
+            onDialogOK({ board_role_id: board_role_id.value, user_id: user_id.value });
         }
     });
 };
