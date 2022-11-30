@@ -1,70 +1,74 @@
 <template>
-    <q-page class="window-height window-width row justify-center items-center">
-        <div class="column q-pa-lg">
-            <div class="row">
-                <q-card square class="shadow-1" style="width:400px;">
-                    <q-card-section class="bg-primary">
-                        <h4 class="text-h5 text-white q-my-md">Registration</h4>
-                    </q-card-section>
-                    <q-card-section v-if="Object.keys(validationErrors).length > 0" style="line-heigt: normal">
-                        Validation errors:
-                        <ul v-for="(fieldErrors, index) in validationErrors" :key="index">
-                            <li>{{ index }}</li>
-                            <ul>
-                                <li v-for="(message, index) in fieldErrors" :key="index">
-                                    {{ message }}
-                                </li>
-                            </ul>
-                        </ul>
-                    </q-card-section>
-                    <q-card-section>
-                        <q-form class="q-px-sm q-pt-none q-pb-xs" ref="form">
-                            <q-input square v-model="reg.email" type="email" label="Email" :rules="[validateUser]"
-                                :debounce="300">
-                                <template v-slot:prepend>
-                                    <q-icon name="email" />
-                                </template>
-                            </q-input>
-                            <q-input square v-model="reg.username" type="text" label="Username" :rules="[validateUser]"
-                                :debounce="300">
-                                <template v-slot:prepend>
-                                    <q-icon name="person" />
-                                </template>
-                            </q-input>
-                            <q-input square v-model="reg.password" type="password" label="Password"
-                                :rules="[requiredTextField]">
-                                <template v-slot:prepend>
-                                    <q-icon name="lock" />
-                                </template>
-                            </q-input>
-                            <q-input square v-model="reg.name" type="text" label="Name">
-                                <template v-slot:prepend>
-                                    <q-icon name="person" />
-                                </template>
-                            </q-input>
-                            <q-select v-model="reg.timezone" use-input input-debounce="0" label="Timezone"
-                                :options="timezones" @filter="filterFn" :rules="[requiredTextField]">
-                                <template v-slot:prepend>
-                                    <q-icon name="schedule" />
-                                </template>
-                                <template v-slot:no-option>
-                                    <q-item>
-                                        <q-item-section class="text-grey">
-                                            No results
-                                        </q-item-section>
-                                    </q-item>
-                                </template>
-                            </q-select>
-                        </q-form>
-                    </q-card-section>
-                    <q-card-actions class="q-px-lg">
-                        <q-btn unelevated size="lg" color="primary" class="full-width text-white" label="Register"
-                            style="margin-bottom: 10px;" @click="onRegisterClicked" />
-                    </q-card-actions>
-                </q-card>
-            </div>
-        </div>
-    </q-page>
+    <q-layout>
+        <q-page-container>
+            <q-page class="window-height window-width row justify-center items-center">
+                <div class="column q-pa-lg">
+                    <div class="row">
+                        <q-card square class="shadow-1" style="width:400px;">
+                            <q-card-section class="bg-primary">
+                                <h4 class="text-h5 text-white q-my-md">Registration</h4>
+                            </q-card-section>
+                            <q-card-section v-if="Object.keys(validationErrors).length > 0" style="line-heigt: normal">
+                                Validation errors:
+                                <ul v-for="(fieldErrors, index) in validationErrors" :key="index">
+                                    <li>{{ index }}</li>
+                                    <ul>
+                                        <li v-for="(message, index) in fieldErrors" :key="index">
+                                            {{ message }}
+                                        </li>
+                                    </ul>
+                                </ul>
+                            </q-card-section>
+                            <q-card-section>
+                                <q-form class="q-px-sm q-pt-none q-pb-xs" ref="form">
+                                    <q-input square v-model="reg.email" type="email" label="Email"
+                                        :rules="[validateUser]" :debounce="300">
+                                        <template v-slot:prepend>
+                                            <q-icon name="email" />
+                                        </template>
+                                    </q-input>
+                                    <q-input square v-model="reg.username" type="text" label="Username"
+                                        :rules="[validateUser]" :debounce="300">
+                                        <template v-slot:prepend>
+                                            <q-icon name="person" />
+                                        </template>
+                                    </q-input>
+                                    <q-input square v-model="reg.password" type="password" label="Password"
+                                        :rules="[requiredTextField]">
+                                        <template v-slot:prepend>
+                                            <q-icon name="lock" />
+                                        </template>
+                                    </q-input>
+                                    <q-input square v-model="reg.name" type="text" label="Name">
+                                        <template v-slot:prepend>
+                                            <q-icon name="person" />
+                                        </template>
+                                    </q-input>
+                                    <q-select v-model="reg.timezone" use-input input-debounce="0" label="Timezone"
+                                        :options="timezones" @filter="filterFn" :rules="[requiredTextField]">
+                                        <template v-slot:prepend>
+                                            <q-icon name="schedule" />
+                                        </template>
+                                        <template v-slot:no-option>
+                                            <q-item>
+                                                <q-item-section class="text-grey">
+                                                    No results
+                                                </q-item-section>
+                                            </q-item>
+                                        </template>
+                                    </q-select>
+                                </q-form>
+                            </q-card-section>
+                            <q-card-actions class="q-px-lg">
+                                <q-btn unelevated size="lg" color="primary" class="full-width text-white"
+                                    label="Register" style="margin-bottom: 10px;" @click="onRegisterClicked" />
+                            </q-card-actions>
+                        </q-card>
+                    </div>
+                </div>
+            </q-page>
+        </q-page-container>
+    </q-layout>
 </template>
 
 <script lang="ts" setup>

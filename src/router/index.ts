@@ -15,18 +15,35 @@ const onlyUserCanAccess = (to: RouteLocationNormalized, from: RouteLocationNorma
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    redirect: { name: "boards" }
-  },
-  {
-    path: "/board/:boardId",
-    name: "board",
-    component: () => import("../views/BoardPage.vue"),
+    component: () => import("../layouts/UserAreaLayout.vue"),
     beforeEnter: onlyUserCanAccess,
-  }, {
-    path: "/board",
-    name: "boards",
-    component: () => import("../views/BoardsPage.vue"),
-    beforeEnter: onlyUserCanAccess
+    // redirect: { name: "boards" }
+    children: [
+      {
+        path: "/",
+        redirect: { name: "boards" }
+      },
+      {
+        path: "/board/:boardId",
+        name: "board",
+        component: () => import("../views/BoardPage.vue"),
+      },
+      {
+        path: "/board",
+        name: "boards",
+        component: () => import("../views/BoardsPage.vue"),
+      },
+      {
+        path: "/user/view/:userId",
+        name: "user",
+        component: () => import("../views/UserPage.vue"),
+      },
+      {
+        path: "/user/edit/:userId",
+        name: "user.edit",
+        component: () => import("../views/EditUserPage.vue"),
+      },
+    ]
   },
   {
     path: "/login",
@@ -41,17 +58,6 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("../views/RegisterPage.vue"),
     meta: { only_anonymous: true },
     beforeEnter: onlyAnonymousCanAccess
-  },
-  {
-    path: "/user/view/:userId",
-    name: "user",
-    component: () => import("../views/UserPage.vue"),
-    beforeEnter: onlyUserCanAccess
-  }, {
-    path: "/user/edit/:userId",
-    name: "user.edit",
-    component: () => import("../views/EditUserPage.vue"),
-    beforeEnter: onlyUserCanAccess
   },
   {
     path: "/500",
