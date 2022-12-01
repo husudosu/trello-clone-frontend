@@ -3,10 +3,9 @@
         <!-- Add member dialog -->
         <nav class="navbar board" v-if="!$q.screen.xs">
             {{ board?.title }}
-            <div class="boardButtons">
-                <q-btn class="q-ml-lg btn" flat @click="onBoardDetailsClicked">Board details
-                </q-btn>
-            </div>
+            <q-space></q-space>
+            <q-btn class="q-mr-md btn" color="primary" @click="onBoardDetailsClicked">Board details
+            </q-btn>
         </nav>
         <!-- Dragabble object for reordering lists-->
         <div class="lists" ref="listsWrapper" v-if="board">
