@@ -1,5 +1,5 @@
 <template>
-    <div class="listCard" @click="onCardClick" :data-id="props.card.id">
+    <div ref="listCardRef" class="listCard" @click="onCardClick" :data-id="props.card.id">
         <template v-if="!editMode">
             <div class="title">
                 <li style="width: 100%; margin-bottom: 2px;">
@@ -23,10 +23,10 @@
             </div>
         </template>
         <template v-else>
-            <q-input v-model="cardUpdate.title" type="textarea" label="Card title" autofocus autogrow
+            <q-input v-model="newTitle" type="textarea" label="Card title" autofocus autogrow
                 @keyup.enter="onCardTitleKeyUp" @keyup.escape="onCancelClicked">
             </q-input>
-            <q-btn class="q-ml-xs q-mr-xs q-mt-sm" size="sm" color="primary" :disable="cardUpdate.title.length === 0"
+            <q-btn class="q-ml-xs q-mr-xs q-mt-sm" size="sm" color="primary" :disable="newTitle.length === 0"
                 @click="saveCard">
                 Save
             </q-btn>
@@ -56,8 +56,9 @@ interface Props {
 
 const $q = useQuasar();
 const props = defineProps<Props>();
-const cardUpdate = ref();
 const editMode = ref(false);
+const listCardRef = ref();
+const newTitle = ref("");
 
 const onCardClick = () => {
     // Launch card details only if editMode inactive!
@@ -77,12 +78,14 @@ const onCancelClicked = (ev: Event) => {
     ev.stopPropagation();
     editMode.value = false;
     // Revert previous title
-    cardUpdate.value.title = props.card.title;
+    newTitle.value = props.card.title;
+    listCardRef.value.classList.remove("draftCard");
 };
 
 const saveCard = async () => {
-    await CardAPI.patchCard(props.card.id, cardUpdate.value);
+    await CardAPI.patchCard(props.card.id, { title: newTitle.value });
     editMode.value = false;
+    listCardRef.value.classList.remove("draftCard");
 };
 
 const onDeleteCardClicked = async () => {
@@ -108,8 +111,10 @@ const onCardTitleKeyUp = (ev: KeyboardEvent) => {
 const onEditClick = (ev: Event) => {
     ev.stopPropagation();
     // Create structured clone of card
-    cardUpdate.value = { ...props.card };
+    newTitle.value = props.card.title;
     editMode.value = true;
+    listCardRef.value.classList.add("draftCard");
+
 };
 
 const onDateMark = (ev: Event, cardDate: CardDate) => {

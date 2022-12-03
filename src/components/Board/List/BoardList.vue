@@ -24,7 +24,7 @@
                 <draggable :data-id="props.boardList.id" class="list-group" v-model="cards" group="board-cards"
                     itemKey="id" @end="$emit('onCardMoveEnd', $event)" draggable=".listCard" :delayOnTouchOnly="true"
                     :touchStartThreshold="100" :delay="100" v-if="props.boardList.id" :scroll-sensitivity="200"
-                    :fallback-tolerance="1" :force-fallback="true" :animation="200">
+                    :fallback-tolerance="1" :force-fallback="true" :animation="200" filter=".draftCard">
                     <template #item="{ element }">
                         <list-card :card="element" :boardListId="props.boardList.id"></list-card>
                     </template>
@@ -147,6 +147,7 @@ const onTitleDblClick = () => {
         editListTitle.value = !editListTitle.value;
         // Make clone of title
         newListTitle.value = props.boardList.title.slice();
+        editListTitle.value ? listWrapperRef.value.classList.add("draftBoardList") : listWrapperRef.value.classList.remove("draftBoardList");
     }
 };
 // If the board draft don't allow drag.
