@@ -65,6 +65,8 @@ export interface Board {
     lists: BoardList[];
     background_image?: string;
     background_color?: string;
+    archived: boolean;
+    archived_on: string;
 }
 
 

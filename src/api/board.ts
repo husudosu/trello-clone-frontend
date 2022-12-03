@@ -9,6 +9,14 @@ export const BoardAPI = {
         const { data } = await API.get<Board[]>("board");
         return data;
     },
+    getArchivedBoards: async (): Promise<Board[]> => {
+        const { data } = await API.get<Board[]>("board", { params: { archived: true } });
+        return data;
+    },
+    revertBoard: async (boardId: number) => {
+        const { data } = await API.post(`/board/${boardId}/revert`);
+        return data;
+    },
     getBoard: async (boardId: number): Promise<Board> => {
         const { data } = await API.get<Board>(`/board/${boardId}`);
 

@@ -14,7 +14,11 @@
         <q-separator class="q-mt-sm q-mb-sm"></q-separator>
         <div>
             <q-btn :disable="!store.getters.board.boardUser?.is_owner" @click="onDeleteBoardClicked">
-                Delete board
+                {{ store.state.board.board?.archived ? 'Delete board' : 'Archive board' }}
+            </q-btn>
+            <q-btn class="q-ml-sm" v-if="(store.state.board.board?.archived && store.getters.board.boardUser?.is_owner)"
+                @click="onRevertBoardClicked">
+                Revert board
             </q-btn>
             <span v-if="!store.getters.board.boardUser?.is_owner" class="q-ml-sm">Only {{
                     store.getters.board.owner?.user.name
@@ -55,19 +59,37 @@ const onSubmit = () => {
 };
 
 const onDeleteBoardClicked = () => {
+    const action = board && board.archived ? "Delete" : "Archive";
     $q.dialog({
-        title: "Delete board",
+        title: `${action} board`,
         cancel: true,
         persistent: true,
-        message: `Delete board ${board?.title}?`,
+        message: `${action} ${board?.title}?`,
         ok: {
-            label: "Delete",
+            label: action,
             color: "negative"
         }
     }).onOk(() => {
         if (board) {
             store.dispatch.board.removeBoard(board.id)
                 .then(() => { router.push({ name: "boards" }); });
+        }
+    });
+};
+
+const onRevertBoardClicked = () => {
+    $q.dialog({
+        title: "Revert board",
+        cancel: true,
+        persistent: true,
+        message: `Revert board ${board?.title}?`,
+        ok: {
+            label: "Revert",
+        }
+    }).onOk(async () => {
+        if (board) {
+            await BoardAPI.revertBoard(board.id);
+            window.location.reload();
         }
     });
 };

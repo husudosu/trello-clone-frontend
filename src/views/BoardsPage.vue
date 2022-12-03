@@ -25,18 +25,30 @@
         <!-- Board list code -->
         <ul class="flex q-gutter-md wrap content-center q-pa-md">
             <li class="flex shadow-1 boardCard" v-for="board in boards" :key="board.id" @click="onBoardClick(board.id)">
-                {{  board.title  }}
+                {{ board.title }}
             </li>
             <li class="flex shadow-1 boardCard text-weight-bold" @click="showBoardDialog = true">Create new board</li>
         </ul>
+
+        <!-- Archived  boards  code -->
+        <template v-if="archivedBoards.length > 0">
+            <span class="text-h5">Archived boards</span>
+            <ul class="flex q-gutter-md wrap content-center q-pa-md">
+                <li class="flex shadow-1 boardCard" v-for="board in archivedBoards" :key="board.id"
+                    @click="onBoardClick(board.id)">
+                    {{ board.title }}
+                </li>
+            </ul>
+        </template>
     </div>
 </template>
 
 
 <script lang="ts" setup>
+import { BoardAPI } from '@/api/board';
 import { Board } from '@/api/types.js';
 import store from '@/store/';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const boards = computed(() => store.state.board.boards);
@@ -47,6 +59,8 @@ const newBoard = ref<Partial<Board>>({
 });
 
 const titleRef = ref();
+
+const archivedBoards = ref<Board[]>([]);
 
 const onBoardClick = (boardId: number) => {
     router.push({
@@ -64,6 +78,11 @@ const onBoardSave = () => {
         });
     }
 };
+
+onMounted(async () => {
+    archivedBoards.value = await BoardAPI.getArchivedBoards();
+})
+
 </script>
 
 <style scoped>
