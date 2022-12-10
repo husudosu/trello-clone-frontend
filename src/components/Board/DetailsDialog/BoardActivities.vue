@@ -1,5 +1,5 @@
 <template>
-    <div class="q-pa-md full-height">
+    <div class="q-pa-md activityContainer">
         <q-infinite-scroll @load="onLoad" :offset="250">
             <q-list padding bordered>
                 <template v-if="activities && activities.data.length > 0">
@@ -54,3 +54,10 @@ const onLoad = async (index: number, done: any) => {
     }
 };
 </script> 
+<style  lang="scss" >
+$toolbar_height: 200px;
+
+.activityContainer {
+    height: calc(100vh - #{$toolbar_height});
+}
+</style>
