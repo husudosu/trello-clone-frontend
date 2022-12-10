@@ -13,6 +13,7 @@
                     <q-tab name="info" label="Info" />
                     <q-tab name="members" label="Members" />
                     <q-tab name="activities" label="Activities" />
+                    <q-tab name="archived_items" label="Archived items" />
                 </q-tabs>
             </q-header>
 
@@ -27,6 +28,9 @@
                     <q-tab-panel name="activities">
                         <board-activities></board-activities>
                     </q-tab-panel>
+                    <q-tab-panel name="archived_items">
+                        <archived-items-vue></archived-items-vue>
+                    </q-tab-panel>
                 </q-tab-panels>
             </q-page-container>
 
@@ -40,7 +44,7 @@ import { useDialogPluginComponent } from 'quasar';
 import BoardInfoVue from './BoardInfo.vue';
 import BoardMembersVue from './BoardMembers.vue';
 import BoardActivities from './BoardActivities.vue';
-
+import ArchivedItemsVue from './ArchivedItems.vue';
 const tab = ref("info");
 defineEmits([
     // REQUIRED; need to specify some events that your
