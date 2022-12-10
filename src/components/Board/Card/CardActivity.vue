@@ -7,10 +7,10 @@
         <q-item-section>
             <q-item-label>
                 <div class="row justify-between">
-
                     <b>{{ props.activity.board_user.user.name }} ({{ props.activity.board_user.user.username }})</b>
                     <span>
-                        <template v-if="props.activity.event == CardActivityEvent.CARD_COMMENT && canEdit">
+                        <template
+                            v-if="props.activity.event == CardActivityEvent.CARD_COMMENT && canEdit && !props.showCardTitle">
                             <q-btn @click="onEditClicked" flat size="sm" dense class="q-ml-xs">
                                 <q-icon name="edit"></q-icon>
                             </q-btn>
@@ -18,6 +18,11 @@
                                 <q-icon name="delete"></q-icon>
                             </q-btn>
                         </template>
+                        <span class="text-bold" v-if="props.showCardTitle && props.activity.card_id">
+                            On card <a href="javascript:void(0);" @click="onCardClicked(props.activity.card_id)">#{{
+                                    props.activity.card_id
+                            }}</a>
+                        </span>
                         {{
                                 props.activity.comment?.updated?.isValid() ?
                                     "Updated: " + props.activity.comment?.updated?.format("YYYY-MM-DD HH:mm:ss")
@@ -28,7 +33,6 @@
             </q-item-label>
             <q-item-label caption>
                 <template v-if="props.activity.event == CardActivityEvent.CARD_COMMENT">
-
                     <template v-if="!editMode">
                         <div class="rounded-borders	q-pa-sm cardComment">
                             <span style="white-space: pre-wrap;">{{ activity?.comment?.comment
@@ -41,39 +45,8 @@
                         <q-btn color="primary" flat @click="editMode = false">Cancel</q-btn>
                     </template>
                 </template>
-                <template v-else-if="props.activity.event == CardActivityEvent.CARD_MOVE_TO_LIST">Moved
-                    from
-                    <b>{{ props.activity.changes.from.title || "N/A" }} </b> to
-                    <b>{{
-                            props.activity.changes.to.title || "N/A"
-                    }}</b>
-                </template>
-                <template v-else-if="props.activity.event == CardActivityEvent.CHECKLIST_CREATE">
-                    Checklist created: <b>{{ props.activity.changes.to.title || "N/A" }}</b>
-                </template>
-                <template v-else-if="props.activity.event == CardActivityEvent.CHECKLIST_ITEM_MARKED">
-                    <b>{{ props.activity.changes.to.title }}</b> marked as <b>{{ props.activity.changes.to.completed ?
-                            `completed` :
-                            `not complete`
-                    }}</b>
-                </template>
-                <template v-else-if="props.activity.event == CardActivityEvent.CARD_ASSIGN_MEMBER">
-                    Assigned card to <b>{{ store.getters.board.getBoardUsername(props.activity.changes.to.board_user_id)
-                    }}</b>
-                </template>
-                <template v-else-if="props.activity.event == CardActivityEvent.CARD_DEASSIGN_MEMBER">
-                    Deassigned card from <b>{{
-                            store.getters.board.getBoardUsername(props.activity.changes.from.board_user_id)
-                    }}</b>
-                </template>
-                <template v-else-if="props.activity.event == CardActivityEvent.CARD_ADD_DATE">
-                    Created card date.
-                </template>
-                <template v-else-if="props.activity.event == CardActivityEvent.CARD_EDIT_DATE">
-                    Updated card date: {{ props.activity.changes.description || props.activity.changes.dt_to }}
-                </template>
-                <template v-else-if="props.activity.event == CardActivityEvent.CARD_DELETE_DATE">
-                    Removed card date.
+                <template v-else>
+                    <div v-html="createActivityText()"></div>
                 </template>
             </q-item-label>
         </q-item-section>
@@ -81,17 +54,19 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, ref } from "vue";
-import { CardActivityEvent, CardActivity } from "@/api/types";
+import { defineProps, ref, withDefaults } from "vue";
+import { CardActivityEvent, CardActivity, BoardActivityEvent } from "@/api/types";
 import UserAvatar from "@/components/UserAvatar.vue";
 import store from "@/store";
 import { useQuasar } from "quasar";
 import { CardAPI } from "@/api/card";
+import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 
 interface Props {
     activity: CardActivity;
+    showCardTitle?: boolean;
 }
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), { showCardTitle: false });
 const $q = useQuasar();
 
 const canEdit = store.getters.board.boardUser?.id === props.activity.board_user_id || store.getters.board.isAdmin;
@@ -124,6 +99,92 @@ const deleteCardActivity = () => {
             CardAPI.deleteComment(props.activity.comment.id);
     });
 };
+
+const createActivityText = () => {
+    switch (props.activity.event) {
+        case BoardActivityEvent.BOARD_CREATE:
+            return "Board has been created";
+        case BoardActivityEvent.BOARD_ARCHIVE:
+            return "Board archived";
+        case BoardActivityEvent.BOARD_CHANGE_TITLE:
+            break;
+        case BoardActivityEvent.BOARD_CHANGE_OWNER:
+            break;
+        case BoardActivityEvent.BOARD_REVERT:
+            return "Board reverted";
+
+        case BoardActivityEvent.MEMBER_ADD:
+            break;
+        case BoardActivityEvent.MEMBER_ACCESS_REVOKE:
+            break;
+        case BoardActivityEvent.MEMBER_DELETE:
+            break;
+        case BoardActivityEvent.MEMBER_REVERT:
+            break;
+        case BoardActivityEvent.MEMBER_CHANGE_ROLE:
+            break;
+        case BoardActivityEvent.LIST_CREATE:
+            return `List <b>${props.activity.changes.to.title}</b> created`;
+        case BoardActivityEvent.LIST_UPDATE:
+            return `List <b>${props.activity.changes.from.title}</b> renamed to <b>${props.activity.changes.to.title}</b>`;
+        case BoardActivityEvent.LIST_ARCHIVE:
+            break;
+        case BoardActivityEvent.LIST_REVERT:
+            break;
+        case BoardActivityEvent.LIST_DELETE:
+            break;
+        case BoardActivityEvent.CARD_DELETE:
+            break;
+
+        case CardActivityEvent.CARD_ASSIGN_TO_LIST:
+            break;
+        case CardActivityEvent.CARD_MOVE_TO_LIST:
+            return `Moved
+                    from
+                    <b>${props.activity.changes.from.title || "N/A"} </b> to
+                    <b>${props.activity.changes.to.title || "N/A"}</b>`;
+        // NOTE: CARD_COMMENT handled by template conditional rendering.
+        // case CardActivityEvent.CARD_COMMENT:
+        //     break;
+        case CardActivityEvent.CHECKLIST_CREATE:
+            return `Checklist created: <b>${props.activity.changes.to.title || "N/A"}</b>`;
+        case CardActivityEvent.CHECKLIST_UPDATE:
+            break;
+        case CardActivityEvent.CHECKLIST_DELETE:
+            break;
+        case CardActivityEvent.CHECKLIST_ITEM_MARKED:
+            return `<b>${props.activity.changes.to.title}</b> marked as <b>${props.activity.changes.to.completed ?
+                'completed' :
+                'not complete'
+                }</b>`;
+        case CardActivityEvent.CHECKLIST_ITEM_DUE_DATE:
+            break;
+        case CardActivityEvent.CHECKLIST_ITEM_USER_ASSIGN:
+            break;
+        case CardActivityEvent.CARD_ASSIGN_MEMBER:
+            return `Assigned card to <b>${store.getters.board.getBoardUsername(props.activity.changes.to.board_user_id)
+                }</b>`;
+        case CardActivityEvent.CARD_DEASSIGN_MEMBER:
+            return `Deassigned card from <b>${store.getters.board.getBoardUsername(props.activity.changes.from.board_user_id)
+                }</b>`;
+        case CardActivityEvent.CARD_ADD_DATE:
+            return "Created card date.";
+        case CardActivityEvent.CARD_EDIT_DATE:
+            return `Updated card date: ${props.activity.changes.description || props.activity.changes.dt_to}`;
+        case CardActivityEvent.CARD_DELETE_DATE:
+            return "Removed card date.";
+    }
+};
+
+const onCardClicked = (cardId: number) => {
+    $q.dialog(
+        {
+            component: CardDetailsDialog,
+            componentProps: { cardId }
+        }
+    );
+};
+
 </script>
 
 <style scoped lang="scss">

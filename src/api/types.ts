@@ -164,10 +164,11 @@ export interface CardListChange {
 export interface CardActivity {
     id: Readonly<number>;
     card_id: number;
+    board_id: number;
     board_user_id: number;
     activity_on: moment.Moment;
     entity_id?: number;
-    event?: number;
+    event?: CardActivityEvent | BoardActivityEvent;
     comment?: CardComment;
     list_change?: CardListChange;
     board_user: BoardMemberInfo;
@@ -249,6 +250,29 @@ export interface CardChecklist {
     items: ChecklistItem[];
 }
 
+
+export enum BoardActivityEvent {
+    BOARD_CREATE = "board.create",
+    BOARD_ARCHIVE = "board.archive",
+    BOARD_CHANGE_TITLE = "board.change_title",
+    BOARD_CHANGE_OWNER = "board.change-owner",
+    BOARD_REVERT = "board.revert",
+
+    MEMBER_ADD = "member.add",
+    MEMBER_ACCESS_REVOKE = "member.access_revoke",
+    MEMBER_DELETE = "member.delete",
+    MEMBER_REVERT = "member.revert",
+    MEMBER_CHANGE_ROLE = "member.change_role",
+
+    LIST_CREATE = "list.create",
+    LIST_UPDATE = "list.update",
+    LIST_ARCHIVE = "list.archive",
+    LIST_REVERT = "list.revert",
+    LIST_DELETE = "list.delete",
+
+    CARD_DELETE = "card.delete"
+
+}
 
 export enum CardActivityEvent {
     CARD_ASSIGN_TO_LIST = "card.create",

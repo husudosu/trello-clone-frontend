@@ -1,8 +1,9 @@
 import { API } from ".";
-import { Board, BoardClaims, BoardRole, AddBoardMemberType, BoardAllowedUser } from "./types";
+import { Board, BoardClaims, BoardRole, AddBoardMemberType, BoardAllowedUser, CardActivityQueryParams, PaginatedCardActivity } from "./types";
 
 import moment from "moment-timezone";
 import store from "@/store";
+import { CardAPI } from "./card";
 
 export const BoardAPI = {
     getBoards: async (): Promise<Board[]> => {
@@ -11,6 +12,19 @@ export const BoardAPI = {
     },
     getArchivedBoards: async (): Promise<Board[]> => {
         const { data } = await API.get<Board[]>("board", { params: { archived: true } });
+        return data;
+    },
+    getBoardActivities: async (boardId: number, params: CardActivityQueryParams): Promise<PaginatedCardActivity> => {
+        if (params.dt_to) {
+            params.dt_to = moment.tz(params.dt_to, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
+        }
+        if (params.dt_from) {
+            params.dt_from = moment.tz(params.dt_from, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
+        }
+        const { data } = await API.get<PaginatedCardActivity>(`/board/${boardId}/activities`, { params });
+        data.data.forEach((el) => {
+            CardAPI.parseCardActivity(el);
+        });
         return data;
     },
     revertBoard: async (boardId: number) => {
