@@ -107,6 +107,8 @@ export interface Card {
     assigned_members: CardMember[];
     dates: CardDate[];
     activities: CardActivity[];
+    archived_on: Readonly<moment.Moment>;
+    archived: Readonly<boolean>;
 }
 
 
@@ -278,6 +280,7 @@ export enum CardActivityEvent {
     CARD_ASSIGN_TO_LIST = "card.create",
     CARD_MOVE_TO_LIST = "card.move",
     CARD_COMMENT = "card.comment",
+    CARD_ARCHIVE = "card.archive",
     CHECKLIST_CREATE = "checklist.create",
     CHECKLIST_UPDATE = "checklist.update",
     CHECKLIST_DELETE = "checklist.delete",

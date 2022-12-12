@@ -35,8 +35,10 @@
                     </q-btn>
                     <q-btn align="between" class="full-width" icon="history" dense @click="onHistoryClicked">History
                     </q-btn>
-                    <q-btn align="between" class="full-width" icon="delete" dense @click="onDeleteClicked"
-                        :disable="!hasPermission(BoardPermission.CARD_EDIT)">Delete
+                    <q-btn align="between" class="full-width" :icon="!card.archived ? 'archive' : 'delete'" dense
+                        @click="onDeleteClicked" :disable="!hasPermission(BoardPermission.CARD_EDIT)">{{ !card.archived
+                                ? 'Archive' : 'Delete'
+                        }}
                     </q-btn>
 
                     <template v-if="card.assigned_members.length > 0">
@@ -52,6 +54,11 @@
             </q-drawer>
             <q-page-container>
                 <q-page padding>
+                    <q-bar v-if="card.archived" class="bg-orange-4 q-mb-sm">This card archived on: {{
+                            card.archived_on.format("YYYY-MM-DD HH:mm")
+                    }}
+                        <q-space /> <q-btn color="primary" flat outline
+                            @click="onCardRevertClicked">Revert</q-btn></q-bar>
                     <card-dates v-if="card.dates.length > 0"></card-dates>
                     <div class="row q-mb-sm">
                         <q-icon name="article" class="q-mr-sm text-h5" style="top: 6px;"> </q-icon>
@@ -91,7 +98,7 @@
                         <div class="q-ml-xs q-mb-xs on-right">
                             <q-btn color="primary" size="sm" style="top: 10px;" @click="onCardDetailsButtonClicked">
                                 {{ cardActivityQueryType == "all" ? "Hide details" :
-                                "Show details"
+                                        "Show details"
                                 }}
                             </q-btn>
                         </div>
@@ -176,10 +183,10 @@ onMounted(async () => {
         $q.loading.show({ delay: 150 });
 
         socket.on(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
-        socket.on(SIOEvent.CHECKLIST_ITEM_UPDATE_ORDER, SIOBoardEventListeners.updateChecklistItemOrder)
+        socket.on(SIOEvent.CHECKLIST_ITEM_UPDATE_ORDER, SIOBoardEventListeners.updateChecklistItemOrder);
 
-        socket.on(SIOEvent.CARD_ACTIVITY_UPDATE, SIOBoardEventListeners.updateCardActivity)
-        socket.on(SIOEvent.CARD_ACTIVITY_DELETE, SIOBoardEventListeners.deleteCardActivity)
+        socket.on(SIOEvent.CARD_ACTIVITY_UPDATE, SIOBoardEventListeners.updateCardActivity);
+        socket.on(SIOEvent.CARD_ACTIVITY_DELETE, SIOBoardEventListeners.deleteCardActivity);
 
         socket.on(SIOEvent.SIODisconnect, (reason) => {
             if (reason === "transport close") {
@@ -239,13 +246,13 @@ const onCloseDialog = () => {
     }
 };
 
-const addNewComment =async () => {
+const addNewComment = async () => {
     if (card.value) {
         try {
             await CardAPI.postCardComment(card.value.id, { comment: newComment.value });
-            newComment.value = ""
-        } catch(err) {
-            console.log(err)
+            newComment.value = "";
+        } catch (err) {
+            console.log(err);
         }
     }
 
@@ -276,28 +283,34 @@ const onTitleEdit = async () => {
 const onHistoryClicked = () => {
     $q.dialog({
         component: CardHistoryDialog,
-        componentProps: {cardId: props.cardId}
-    })
-}
+        componentProps: { cardId: props.cardId }
+    });
+};
 
 const onDeleteClicked = () => {
+    const type = !card.value?.archived ? "Archive" : "Delete";
+
     $q.dialog({
-        title: "Delete card",
+        title: `${type} card`,
         cancel: true,
         persistent: true,
-        message: `Delete card ${card.value ? card.value.title : ''}?`,
+        message: `${type} card ${card.value ? card.value.title : ''}?`,
         ok: {
-            label: "Delete",
+            label: type,
             color: "negative"
         }
     }).onOk(() => {
-        if (card.value){
+        if (card.value) {
             socket.disconnect();
-            CardAPI.deleteCard(card.value.id)
+            CardAPI.deleteCard(card.value.id);
             store.commit.card.unloadCard();
-            onDialogHide()
+            onDialogHide();
         }
     });
+};
+
+const onCardRevertClicked = () => {
+    CardAPI.patchCard(props.cardId, { archived: false });
 };
 
 
@@ -326,7 +339,7 @@ const onCreateChecklistClicked = () => {
         persistent: true
     }).onOk(data => {
         // store.dispatch.card.addCardChecklist({ title: data });
-        ChecklistAPI.postCardChecklist(props.cardId, {title: data})
+        ChecklistAPI.postCardChecklist(props.cardId, { title: data });
     });
 };
 
@@ -344,7 +357,7 @@ const onDeassignMember = async (member: CardMember) => {
         await CardAPI.deassignCardMember(props.cardId, member.board_user.id);
     }
     catch (err) {
-        console.log(err)
+        console.log(err);
     }
 };
 
@@ -352,7 +365,7 @@ const onAddDateClicked = () => {
     $q.dialog({
         component: CardDateDialog
     }).onOk((data: DraftCardDate) => {
-        CardAPI.postCardDate(props.cardId, data)
+        CardAPI.postCardDate(props.cardId, data);
     });
 };
 

@@ -1,7 +1,7 @@
 <template>
     <div class="q-pa-md activityContainer">
         <q-infinite-scroll @load="onLoad" :offset="250">
-            <q-list padding bordered>
+            <q-list bordered>
                 <template v-if="activities && activities.data.length > 0">
                     <card-activity-vue v-for="activity in activities.data" :activity="activity" :key="activity.id"
                         :show-card-title="true">

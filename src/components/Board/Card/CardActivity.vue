@@ -137,7 +137,7 @@ const createActivityText = () => {
             break;
 
         case CardActivityEvent.CARD_ASSIGN_TO_LIST:
-            break;
+            return `Card <b>${props.activity.changes.to.title}</b> assigned to <b>${props.activity.changes.to.list_title}</b>.`;
         case CardActivityEvent.CARD_MOVE_TO_LIST:
             return `Moved
                     from
@@ -146,12 +146,14 @@ const createActivityText = () => {
         // NOTE: CARD_COMMENT handled by template conditional rendering.
         // case CardActivityEvent.CARD_COMMENT:
         //     break;
+        case CardActivityEvent.CARD_ARCHIVE:
+            return "Archived card";
         case CardActivityEvent.CHECKLIST_CREATE:
             return `Checklist created: <b>${props.activity.changes.to.title || "N/A"}</b>`;
         case CardActivityEvent.CHECKLIST_UPDATE:
             break;
         case CardActivityEvent.CHECKLIST_DELETE:
-            break;
+            return `Checklist <b>${props.activity.changes.to.title || "N/A"}</b> deleted.`;
         case CardActivityEvent.CHECKLIST_ITEM_MARKED:
             return `<b>${props.activity.changes.to.title}</b> marked as <b>${props.activity.changes.to.completed ?
                 'completed' :

@@ -43,6 +43,10 @@ export const CardAPI = {
             }
             dt.dt_to = moment.utc(dt.dt_to).tz(store.getters.auth.timezone);
         });
+
+        if (data.archived_on) {
+            data.archived_on = moment.utc(data.archived_on).tz(store.getters.auth.timezone);
+        }
         data.checklists.forEach((checklist) => {
             checklist.items.forEach((item) => {
                 // Parse checklist items
