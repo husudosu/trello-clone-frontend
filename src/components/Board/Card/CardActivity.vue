@@ -148,6 +148,8 @@ const createActivityText = () => {
         //     break;
         case CardActivityEvent.CARD_ARCHIVE:
             return "Archived card";
+        case CardActivityEvent.CARD_REVERT:
+            return "Reverted card";
         case CardActivityEvent.CHECKLIST_CREATE:
             return `Checklist created: <b>${props.activity.changes.to.title || "N/A"}</b>`;
         case CardActivityEvent.CHECKLIST_UPDATE:
