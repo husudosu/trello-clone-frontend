@@ -124,9 +124,9 @@ const createActivityText = () => {
         case BoardActivityEvent.MEMBER_CHANGE_ROLE:
             break;
         case BoardActivityEvent.LIST_CREATE:
-            return `List <b>${props.activity.changes.to.title}</b> created`;
+            return `List <b>${props.activity.changes.to?.title}</b> created`;
         case BoardActivityEvent.LIST_UPDATE:
-            return `List <b>${props.activity.changes.from.title}</b> renamed to <b>${props.activity.changes.to.title}</b>`;
+            return `List <b>${props.activity.changes.from?.title}</b> renamed to <b>${props.activity.changes.to?.title}</b>`;
         case BoardActivityEvent.LIST_ARCHIVE:
             break;
         case BoardActivityEvent.LIST_REVERT:
@@ -137,12 +137,12 @@ const createActivityText = () => {
             break;
 
         case CardActivityEvent.CARD_ASSIGN_TO_LIST:
-            return `Card <b>${props.activity.changes.to.title}</b> assigned to <b>${props.activity.changes.to.list_title}</b>.`;
+            return `Card <b>${props.activity.changes.to?.title}</b> assigned to <b>${props.activity.changes.to?.list_title}</b>.`;
         case CardActivityEvent.CARD_MOVE_TO_LIST:
             return `Moved
                     from
-                    <b>${props.activity.changes.from.title || "N/A"} </b> to
-                    <b>${props.activity.changes.to.title || "N/A"}</b>`;
+                    <b>${props.activity.changes.from?.title || "N/A"} </b> to
+                    <b>${props.activity.changes.to?.title || "N/A"}</b>`;
         // NOTE: CARD_COMMENT handled by template conditional rendering.
         // case CardActivityEvent.CARD_COMMENT:
         //     break;
@@ -151,13 +151,13 @@ const createActivityText = () => {
         case CardActivityEvent.CARD_REVERT:
             return "Reverted card";
         case CardActivityEvent.CHECKLIST_CREATE:
-            return `Checklist created: <b>${props.activity.changes.to.title || "N/A"}</b>`;
+            return `Checklist created: <b>${props.activity.changes.to?.title || "N/A"}</b>`;
         case CardActivityEvent.CHECKLIST_UPDATE:
             break;
         case CardActivityEvent.CHECKLIST_DELETE:
-            return `Checklist <b>${props.activity.changes.to.title || "N/A"}</b> deleted.`;
+            return `Checklist <b>${props.activity.changes.to?.title || "N/A"}</b> deleted.`;
         case CardActivityEvent.CHECKLIST_ITEM_MARKED:
-            return `<b>${props.activity.changes.to.title}</b> marked as <b>${props.activity.changes.to.completed ?
+            return `<b>${props.activity.changes.to?.title}</b> marked as <b>${props.activity.changes.to?.completed ?
                 'completed' :
                 'not complete'
                 }</b>`;
@@ -166,10 +166,10 @@ const createActivityText = () => {
         case CardActivityEvent.CHECKLIST_ITEM_USER_ASSIGN:
             break;
         case CardActivityEvent.CARD_ASSIGN_MEMBER:
-            return `Assigned card to <b>${store.getters.board.getBoardUsername(props.activity.changes.to.board_user_id)
+            return `Assigned card to <b>${store.getters.board.getBoardUsername(props.activity.changes.to?.board_user_id)
                 }</b>`;
         case CardActivityEvent.CARD_DEASSIGN_MEMBER:
-            return `Deassigned card from <b>${store.getters.board.getBoardUsername(props.activity.changes.from.board_user_id)
+            return `Deassigned card from <b>${store.getters.board.getBoardUsername(props.activity.changes.from?.board_user_id)
                 }</b>`;
         case CardActivityEvent.CARD_ADD_DATE:
             return "Created card date.";

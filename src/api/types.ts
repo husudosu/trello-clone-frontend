@@ -252,6 +252,11 @@ export interface CardChecklist {
     items: ChecklistItem[];
 }
 
+export interface ArchivedEntity {
+    id: number;
+    title: string;
+    archived_on: moment.Moment;
+}
 
 export enum BoardActivityEvent {
     BOARD_CREATE = "board.create",
