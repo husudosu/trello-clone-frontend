@@ -54,11 +54,15 @@
             </q-drawer>
             <q-page-container>
                 <q-page padding>
+                    <q-bar v-if="card.board_list.archived" class="bg-orange-4 q-mb-sm">
+                        This card is on an archived list: {{ card.board_list.title }}
+                    </q-bar>
                     <q-bar v-if="card.archived" class="bg-orange-4 q-mb-sm">This card archived on: {{
                             card.archived_on.format("YYYY-MM-DD HH:mm")
                     }}
                         <q-space /> <q-btn color="primary" flat outline
                             @click="onCardRevertClicked">Revert</q-btn></q-bar>
+
                     <card-dates v-if="card.dates.length > 0"></card-dates>
                     <div class="row q-mb-sm">
                         <q-icon name="article" class="q-mr-sm text-h5" style="top: 6px;"> </q-icon>

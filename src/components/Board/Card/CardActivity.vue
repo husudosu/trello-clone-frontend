@@ -128,9 +128,9 @@ const createActivityText = () => {
         case BoardActivityEvent.LIST_UPDATE:
             return `List <b>${props.activity.changes.from?.title}</b> renamed to <b>${props.activity.changes.to?.title}</b>`;
         case BoardActivityEvent.LIST_ARCHIVE:
-            break;
+            return `List <b>${props.activity.changes.to?.title}</b> #${props.activity.entity_id} archived`;
         case BoardActivityEvent.LIST_REVERT:
-            break;
+            return `List <b>${props.activity.changes.to?.title || '#' + props.activity.entity_id}</b> reverted`;
         case BoardActivityEvent.LIST_DELETE:
             break;
         case BoardActivityEvent.CARD_DELETE:
@@ -177,6 +177,8 @@ const createActivityText = () => {
             return `Updated card date: ${props.activity.changes.description || props.activity.changes.dt_to}`;
         case CardActivityEvent.CARD_DELETE_DATE:
             return "Removed card date.";
+        default:
+            return props.activity.event;
     }
 };
 

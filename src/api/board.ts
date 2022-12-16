@@ -1,5 +1,5 @@
 import { API } from ".";
-import { Board, BoardClaims, BoardRole, AddBoardMemberType, BoardAllowedUser, CardActivityQueryParams, PaginatedCardActivity, ArchivedEntity } from "./types";
+import { Board, BoardClaims, BoardRole, AddBoardMemberType, BoardAllowedUser, CardActivityQueryParams, PaginatedCardActivity, ArchivedCard, ArchivedList } from "./types";
 
 import moment from "moment-timezone";
 import store from "@/store";
@@ -14,16 +14,16 @@ export const BoardAPI = {
         const { data } = await API.get<Board[]>("board", { params: { archived: true } });
         return data;
     },
-    getArchivedCards: async (boardId: number): Promise<ArchivedEntity[]> => {
-        const { data } = await API.get<ArchivedEntity[]>(`/board/${boardId}/archived-entities`, { params: { "entity_type": "card" } });
+    getArchivedCards: async (boardId: number): Promise<ArchivedCard[]> => {
+        const { data } = await API.get<ArchivedCard[]>(`/board/${boardId}/archived-entities`, { params: { "entity_type": "card" } });
         // Convert archived_on to moment
         data.forEach((el) => {
             el.archived_on = moment.utc(el.archived_on).tz(store.getters.auth.timezone);
         });
         return data;
     },
-    getArchivedLists: async (boardId: number): Promise<ArchivedEntity[]> => {
-        const { data } = await API.get<ArchivedEntity[]>(`/board/${boardId}/archived-entities`, { params: { "entity_type": "list" } });
+    getArchivedLists: async (boardId: number): Promise<ArchivedList[]> => {
+        const { data } = await API.get<ArchivedList[]>(`/board/${boardId}/archived-entities`, { params: { "entity_type": "list" } });
         // Convert archived_on to moment
         data.forEach((el) => {
             el.archived_on = moment.utc(el.archived_on).tz(store.getters.auth.timezone);

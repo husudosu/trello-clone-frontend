@@ -13,7 +13,7 @@
                             <q-list style="min-width: 100px">
                                 <q-item clickable @click="onDeleteBoardList"
                                     :disable="!hasPermission(BoardPermission.LIST_DELETE)">
-                                    <q-item-section>Deltete list</q-item-section>
+                                    <q-item-section>Archive list</q-item-section>
                                 </q-item>
                             </q-list>
                         </q-menu>
@@ -124,16 +124,18 @@ const onAddCardClick = () => {
 
 const onDeleteBoardList = () => {
     $q.dialog({
-        title: "Delete list",
+        title: "Archive list",
         cancel: true,
         persistent: true,
-        message: `Delete list ${props.boardList.title}?`,
+        message: `Archive list ${props.boardList.title}?`,
         ok: {
-            label: "Delete",
+            label: "Archive",
             color: "negative"
         }
     }).onOk(() => {
         BoardListAPI.deleteBoardList(props.boardList.id);
+        showMenu.value = false;
+    }).onCancel(() => {
         showMenu.value = false;
     });
 };

@@ -7,62 +7,19 @@
 
         <q-tab-panels v-model="tab">
             <q-tab-panel name="cards">
-                <q-list padding bordered>
-                    <q-item dense class="q-mb-md" v-for="item in archivedCards" :key="item.id">
-                        <q-item-section>
-                            <q-item-label>
-                                {{ item.title }}
-                            </q-item-label>
-                            <q-item-label caption>
-                                <a href="javascript:void(0);" @click="cardOnClick(item.id)">#{{ item.id }}</a> {{
-        item.archived_on.format("YYYY-MM-DD HH:mm:ss")
-                                }}
-                            </q-item-label>
-                        </q-item-section>
-                    </q-item>
-                </q-list>
+                <archived-cards-vue></archived-cards-vue>
             </q-tab-panel>
             <q-tab-panel name="lists">
-                Archived lists
+                <archived-lists-vue></archived-lists-vue>
             </q-tab-panel>
         </q-tab-panels>
     </div>
 </template>
 
 <script lang="ts" setup>
-
-import { BoardAPI } from "@/api/board";
-import { ArchivedEntity } from "@/api/types";
-import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
-import store from "@/store";
-
-
-import { useQuasar } from 'quasar';
-import { ref, onMounted } from 'vue';
-
-const $q = useQuasar();
+import { ref } from 'vue';
+import ArchivedCardsVue from "./ArchivedItems/ArchivedCards.vue";
+import ArchivedListsVue from "./ArchivedItems/ArchivedLists.vue";
 const tab = ref("cards");
-
-const archivedCards = ref<ArchivedEntity[]>([]);
-const archivedLists = ref<ArchivedEntity[]>([]);
-
-const cardOnClick = (cardId: number) => {
-    $q.dialog({
-        component: CardDetailsDialog,
-        componentProps: { cardId }
-    });
-};
-onMounted(async () => {
-    try {
-        $q.loading.show({ delay: 180 });
-        if (store.state.board.board) {
-            archivedCards.value = await BoardAPI.getArchivedCards(store.state.board.board.id);
-            archivedLists.value = await BoardAPI.getArchivedLists(store.state.board.board.id);
-        }
-    }
-    finally {
-        $q.loading.hide();
-    }
-})
 
 </script>

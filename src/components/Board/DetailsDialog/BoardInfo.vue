@@ -1,5 +1,6 @@
 <template>
-    <div>
+    <div class="infoContainer">
+
         <q-markup-table dense flat>
             <tbody>
                 <tr>
@@ -12,7 +13,7 @@
             </tbody>
         </q-markup-table>
         <q-separator class="q-mt-sm q-mb-sm"></q-separator>
-        <div>
+        <div class="row">
             <q-btn :disable="!store.getters.board.boardUser?.is_owner" @click="onDeleteBoardClicked">
                 {{ store.state.board.board?.archived ? 'Delete board' : 'Archive board' }}
             </q-btn>
@@ -26,11 +27,11 @@
                 delete this
                 board!</span>
         </div>
-        <q-btn color="primary" :disable="!hasPermission(BoardPermission.BOARD_UPDATE)" @click="onSubmit"
-            class="full-width  q-mt-md">Save
-        </q-btn>
-
-
+        <div class="row">
+            <q-btn color="primary" :disable="!hasPermission(BoardPermission.BOARD_UPDATE)" @click="onSubmit"
+                class="full-width  q-mt-md ">Save
+            </q-btn>
+        </div>
     </div>
 </template>
 
@@ -94,3 +95,11 @@ const onRevertBoardClicked = () => {
     });
 };
 </script> 
+
+<style lang="scss" >
+$toolbar_height: 200px;
+
+.infoContainer {
+    height: calc(100vh - #{$toolbar_height});
+}
+</style>

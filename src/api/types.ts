@@ -48,6 +48,7 @@ export interface UserUpdate extends Omit<User, "roles"> {
 export interface DraftBoardList {
     board_id: number;
     title: string;
+    archived: boolean;
 }
 
 export interface BoardList {
@@ -56,6 +57,7 @@ export interface BoardList {
     title: string;
     position: number;
     cards: Card[];
+    archived: boolean;
 }
 
 export interface Board {
@@ -109,6 +111,7 @@ export interface Card {
     activities: CardActivity[];
     archived_on: Readonly<moment.Moment>;
     archived: Readonly<boolean>;
+    archived_by_list: Readonly<boolean>;
 }
 
 
@@ -252,10 +255,18 @@ export interface CardChecklist {
     items: ChecklistItem[];
 }
 
-export interface ArchivedEntity {
+export interface ArchivedCard {
+    archived_on: moment.Moment;
+    board_list: Partial<BoardList>; // TODO: Create a specific schema This should only contain: archived, id and title
     id: number;
     title: string;
+}
+
+export interface ArchivedList {
     archived_on: moment.Moment;
+    id: number;
+    title: string;
+    cards: Partial<Card[]>; // TODO Create a specific schema  Only include cards: [{card id, title}].
 }
 
 export enum BoardActivityEvent {

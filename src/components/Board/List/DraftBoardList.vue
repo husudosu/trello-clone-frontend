@@ -48,6 +48,8 @@ const onTitleBlur = (ev: any) => {
 
 const onListSave = async () => {
     // store.dispatch.board.newBoardList(boardList.value);
+
+    // TODO: Put this code  to BoardPage and refactor onSaveSucess to onOk(payload)
     await BoardListAPI.postBoardList(props.boardId, boardList.value);
     emit("onSaveSuccess");
 };
