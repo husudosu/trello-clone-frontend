@@ -32,8 +32,8 @@
                     </div>
                 </template>
                 <template v-else>
-                    <draft-board-list :boardId="board.id" @on-cancel="showAddDraftList = false"
-                        @on-save-success="showAddDraftList = false"></draft-board-list>
+                    <draft-board-list-vue @cancel="showAddDraftList = false"
+                        @save="onSaveBoardList"></draft-board-list-vue>
                 </template>
             </div>
         </div>
@@ -50,17 +50,17 @@ import store from "@/store/index";
 import { CardAPI } from "@/api/card";
 import { BoardListAPI } from '@/api/boardList';
 import { BoardAPI } from "@/api/board";
-import { BoardPermission } from "@/api/types";
+import { DraftBoardList, BoardPermission } from "@/api/types";
 
 import BoardListVue from "@/components/Board/List/BoardList.vue";
-import DraftBoardList from "@/components/Board/List/DraftBoardList.vue";
+import DraftBoardListVue from "@/components/Board/List/DraftBoardList.vue";
 import { useSocketIO, SIOEvent, SIOBoardEventListeners } from "@/socket";
 import BoardInfoDialog from "@/components/Board/DetailsDialog/BoardDetailsDialog.vue";
 
 const $q = useQuasar();
 const { socket } = useSocketIO();
 const board = computed(() => store.state.board.board);
-
+const boardId = ref<number>(0);
 const boardLists = computed({
     get() {
         return store.state.board.board ? store.state.board.board.lists : [];
@@ -158,6 +158,12 @@ const onBoardDetailsClicked = () => {
     });
 };
 
+const onSaveBoardList = (boardList: DraftBoardList) => {
+    showAddDraftList.value = false;
+    BoardListAPI.postBoardList(boardId.value, boardList);
+};
+
+
 onBeforeRouteUpdate(async (to, from) => {
     store.commit.board.unLoadBoard();
     if (to.params.boardId !== from.params.boardId && typeof to.params.boardId === "string") {
@@ -168,7 +174,7 @@ onBeforeRouteUpdate(async (to, from) => {
 
 onMounted(() => {
     if (typeof route.params.boardId === "string") {
-        const boardId = parseInt(route.params.boardId);
+        boardId.value = parseInt(route.params.boardId);
         /*
         Socket.IO handler for boards.
         */
@@ -186,7 +192,7 @@ onMounted(() => {
         });
         socket.on(SIOEvent.SIOConnect, async () => {
             console.log("Connected to server");
-            await loadBoard(boardId);
+            await loadBoard(boardId.value);
             socket.emit("board_change", { board_id: route.params.boardId });
 
             if (socketWereDisconnected.value) {

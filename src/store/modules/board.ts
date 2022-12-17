@@ -146,7 +146,6 @@ export default {
         SIOAddEntityToCard(state: BoardState, payload: { event: SIOCardEvent, entityType: CardEntity, entity: unknown; }) {
             if (state.board) {
                 const cPos = findCardIndex(state.board.lists, payload.event.list_id, payload.event.card_id);
-                console.log(cPos);
                 switch (payload.entityType) {
                     case "date":
                         state.board.lists[cPos.listIndex].cards[cPos.cardIndex].dates.push(
@@ -267,8 +266,6 @@ export default {
                 state.board.lists.forEach((el, index) => {
                     el.position = index;
                 });
-
-                console.log(state.board.lists);
             }
         },
         updateCardOrder(state: BoardState, payload: SIOCardUpdateOrder) {

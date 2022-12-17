@@ -10,7 +10,7 @@ import * as DOMPurify from 'dompurify';
 
 const config: AxiosRequestConfig = {
     withCredentials: true,
-    baseURL: process.env.NODE_ENV === "development" ? process.env.VUE_APP_API_BASEURL : window.location.protocol + "//" + window.location.host + "/api/v1",
+    baseURL: process.env.NODE_ENV === "development" ? `${window.location.protocol}//${window.location.hostname}:${process.env.VUE_APP_BACKEND_PORT || 5000}/api/v1` : window.location.protocol + "//" + window.location.host + "/api/v1",
     timeout: 10000,
     headers: {
         "Content-Type": "application/json",

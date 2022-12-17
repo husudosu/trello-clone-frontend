@@ -13,7 +13,7 @@
                             <q-list style="min-width: 100px">
                                 <q-item clickable @click="onDeleteBoardList"
                                     :disable="!hasPermission(BoardPermission.LIST_DELETE)">
-                                    <q-item-section>Archive list</q-item-section>
+                                    <q-item-section>Archive</q-item-section>
                                 </q-item>
                             </q-list>
                         </q-menu>

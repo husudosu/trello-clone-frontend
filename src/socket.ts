@@ -8,9 +8,9 @@ import store from "@/store/index";
 export const useSocketIO = () => {
     console.log("Create Socket.IO client");
     const socket = SocketIO(
-        process.env.NODE_ENV === "development" ?
-            process.env.VUE_APP_SOCKET_SERVER + "/board" :
-            window.location.protocol + "//" + window.location.host + "/board", options);
+        process.env.NODE_ENV === "development" ? `${window.location.protocol}//${window.location.hostname}:${process.env.VUE_APP_BACKEND_PORT || 5000}/board` : window.location.protocol + "//" + window.location.host + "/board",
+        options
+    );
     return {
         socket,
     };
