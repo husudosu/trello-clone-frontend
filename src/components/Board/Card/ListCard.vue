@@ -2,7 +2,7 @@
     <div ref="listCardRef" class="listCard" @click="onCardClick" :data-id="props.card.id">
         <template v-if="!editMode">
             <div class="title">
-                <li style="width: 100%; margin-bottom: 2px;">
+                <li>
                     {{ props.card.title }}
                 </li>
                 <div class="row q-mb-xs q-mt-sm" v-if="props.card.assigned_members.length > 0">
@@ -31,8 +31,8 @@
                 Save
             </q-btn>
             <q-btn class="q-mt-sm q-mr-xs" size="sm" outline @click="onCancelClicked">Cancel</q-btn>
-            <q-btn class="q-mt-sm" size="sm" flat @click="onDeleteCardClicked" dense>
-                <q-icon name="delete"></q-icon>
+            <q-btn class="q-mt-sm" size="sm" flat @click="onArchiveCardClicked" dense>
+                <q-icon name="archive"></q-icon>
             </q-btn>
         </template>
     </div>
@@ -49,13 +49,8 @@ import { CardAPI } from '@/api/card';
 
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 
-interface Props {
-    card: Card;
-    boardListId: number; // FIXME: We don't use this here!
-}
-
 const $q = useQuasar();
-const props = defineProps<Props>();
+const props = defineProps<{ card: Card; }>();
 const editMode = ref(false);
 const listCardRef = ref();
 const newTitle = ref("");
@@ -88,14 +83,14 @@ const saveCard = async () => {
     listCardRef.value.classList.remove("draftCard");
 };
 
-const onDeleteCardClicked = async () => {
+const onArchiveCardClicked = async () => {
     $q.dialog({
-        title: "Delete card",
+        title: "Archive card",
         cancel: true,
         persistent: true,
-        message: `Delete card ${props.card.title}?`,
+        message: `Archive card ${props.card.title}?`,
         ok: {
-            label: "Delete",
+            label: "Archive",
             color: "negative"
         }
     }).onOk(() => {
@@ -111,9 +106,9 @@ const onCardTitleKeyUp = (ev: KeyboardEvent) => {
 const onEditClick = (ev: Event) => {
     ev.stopPropagation();
     // Create structured clone of card
+    listCardRef.value.classList.add("draftCard");
     newTitle.value = props.card.title;
     editMode.value = true;
-    listCardRef.value.classList.add("draftCard");
 
 };
 

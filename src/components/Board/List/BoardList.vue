@@ -26,12 +26,11 @@
                     :touchStartThreshold="100" :delay="100" v-if="props.boardList.id" :scroll-sensitivity="200"
                     :fallback-tolerance="1" :force-fallback="true" :animation="200" filter=".draftCard">
                     <template #item="{ element }">
-                        <list-card :card="element" :boardListId="props.boardList.id"></list-card>
+                        <list-card :card="element"></list-card>
                     </template>
                 </draggable>
                 <template v-if="showAddCard">
-                    <draft-card :boardListId="props.boardList.id" @on-save-success="showAddCard = false"
-                        @oncancel="showAddCard = false"></draft-card>
+                    <draft-card-vue @save="onSaveCard" @cancel="showAddCard = false"></draft-card-vue>
                 </template>
             </ul>
             <footer @click="onAddCardClick">
@@ -48,7 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-import { BoardList, BoardPermission } from '@/api/types';
+import { BoardList, BoardPermission, DraftCard } from '@/api/types';
 import { defineProps, ref, nextTick, onMounted, computed, defineEmits } from 'vue';
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
@@ -56,8 +55,9 @@ import draggable from 'vuedraggable';
 import store from "@/store";
 
 import ListCard from "@/components/Board/Card/ListCard.vue";
-import DraftCard from "@/components/Board/Card/DraftCard.vue";
+import DraftCardVue from "@/components/Board/Card/DraftCard.vue";
 import { BoardListAPI } from '@/api/boardList';
+import { CardAPI } from '@/api/card';
 
 /* TODO: Implement events of VueDraggable, Vue3 version off draggable is not contains event types
 Vue v2 sortable.js:
@@ -68,12 +68,8 @@ https://github.com/SortableJS/vue.draggable.next/blob/master/types/vuedraggable.
 
 defineEmits(['onCardMoveEnd']);
 
-interface Props {
-    boardList: BoardList;
-}
-
 const listWrapperRef = ref();
-const props = defineProps<Props>();
+const props = defineProps<{ boardList: BoardList; }>();
 const hasPermission = store.getters.board.hasPermission;
 const cardsWrapper = ref();
 
@@ -152,6 +148,12 @@ const onTitleDblClick = () => {
         editListTitle.value ? listWrapperRef.value.classList.add("draftBoardList") : listWrapperRef.value.classList.remove("draftBoardList");
     }
 };
+
+const onSaveCard = async (card: DraftCard) => {
+    showAddCard.value = false;
+    await CardAPI.postCard(props.boardList.id, card);
+};
+
 // If the board draft don't allow drag.
 onMounted(() => {
     if (!props.boardList.id) {
