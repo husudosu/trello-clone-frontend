@@ -24,17 +24,19 @@
         </q-dialog>
         <!-- Board list code -->
         <ul class="flex q-gutter-md wrap content-center q-pa-md">
-            <li class="flex shadow-1 boardCard" v-for="board in boards" :key="board.id" @click="onBoardClick(board.id)">
+            <li class="flex shadow-1 boardCard non-selectable" v-for="board in boards" :key="board.id"
+                @click="onBoardClick(board.id)">
                 {{ board.title }}
             </li>
-            <li class="flex shadow-1 boardCard text-weight-bold" @click="showBoardDialog = true">Create new board</li>
+            <li class="flex shadow-1 boardCard text-weight-bold non-selectable" @click="showBoardDialog = true">Create
+                new board</li>
         </ul>
 
         <!-- Archived  boards  code -->
         <template v-if="archivedBoards.length > 0">
             <span class="text-h5">Archived boards</span>
             <ul class="flex q-gutter-md wrap content-center q-pa-md">
-                <li class="flex shadow-1 boardCard" v-for="board in archivedBoards" :key="board.id"
+                <li class="flex shadow-1 boardCard non-selectable" v-for="board in archivedBoards" :key="board.id"
                     @click="onBoardClick(board.id)">
                     {{ board.title }}
                 </li>
@@ -91,20 +93,6 @@ onMounted(async () => {
     height: 100px;
     width: 150px;
     padding: 16px 16px;
-
-    /* Disabling  text selection for cards */
-    -webkit-touch-callout: none;
-    /* iOS Safari */
-    -webkit-user-select: none;
-    /* Safari */
-    -khtml-user-select: none;
-    /* Konqueror HTML */
-    -moz-user-select: none;
-    /* Old versions of Firefox */
-    -ms-user-select: none;
-    /* Internet Explorer/Edge */
-    user-select: none;
-    /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
 
 .form_actions button {

@@ -1,17 +1,17 @@
 <template>
-    <q-chip :color="chipColor" icon="schedule" size="md" text-color="white" class="noSelectText" dense clickable>
+    <q-chip :color="chipColor" icon="schedule" size="md" text-color="white" class="non-selectable" dense clickable>
         <template v-if="!props.cardDate.dt_from">
-            {{ props.cardDate.dt_to.format('MMM DD')}}
+            {{ props.cardDate.dt_to.format('MMM DD') }}
         </template>
         <template v-else>
-            {{ props.cardDate.dt_from.format('MMM DD')}} - {{ props.cardDate.dt_to.format('MMM DD')}}
+            {{ props.cardDate.dt_from.format('MMM DD') }} - {{ props.cardDate.dt_to.format('MMM DD') }}
         </template>
         <q-tooltip>
             <template v-if="props.cardDate.dt_from">
-                <b>From:</b> {{ props.cardDate.dt_from.format("YYYY-MM-DD HH:mm:ss")}}
+                <b>From:</b> {{ props.cardDate.dt_from.format("YYYY-MM-DD HH:mm:ss") }}
                 <br />
             </template>
-            <b>To:</b> {{ props.cardDate.dt_to.format("YYYY-MM-DD HH:mm:ss")}}
+            <b>To:</b> {{ props.cardDate.dt_to.format("YYYY-MM-DD HH:mm:ss") }}
             <br />
             {{ props.cardDate.description }}
         </q-tooltip>
@@ -37,20 +37,3 @@ const chipColor = computed(() => props.cardDate.complete ? 'green' : (isLate ? '
         - orange: not complete, before due date
 */
 </script>
-
-<style>
-.noSelectText {
-    -webkit-touch-callout: none;
-    /* iOS Safari */
-    -webkit-user-select: none;
-    /* Safari */
-    -khtml-user-select: none;
-    /* Konqueror HTML */
-    -moz-user-select: none;
-    /* Old versions of Firefox */
-    -ms-user-select: none;
-    /* Internet Explorer/Edge */
-    user-select: none;
-    /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
-}
-</style>

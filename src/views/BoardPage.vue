@@ -24,7 +24,7 @@
             <div v-if="hasPermission(BoardPermission.LIST_CREATE)">
                 <template v-if="!showAddDraftList">
                     <div class="listWrapper">
-                        <div class="addNewList">
+                        <div class="addNewList non-selectable">
                             <header class="listHeader" @click="onNewListClicked">
                                 <q-icon class="q-mr-xs" name="add"></q-icon>Add a list...
                             </header>

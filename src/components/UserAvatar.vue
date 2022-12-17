@@ -1,10 +1,10 @@
 <template>
-    <div class="avatar">
+    <div class="non-selectable">
         <q-avatar ref="avatar" :size="size" :rounded="rounded" text-color="white"
-            :style="{      'background-color': calculateAvatarColor()      }">
+            :style="{ 'background-color': calculateAvatarColor() }">
             {{ initials }}
         </q-avatar>
-        <q-tooltip v-if="props.showTooltip">{{ props.user.name || props.user.username      }}</q-tooltip>
+        <q-tooltip v-if="props.showTooltip">{{ props.user.name || props.user.username }}</q-tooltip>
         <q-btn size="xs" dense flat v-if="props.showDelete" @click="$emit('delete', $event)">
             <q-icon name="remove" color="red"></q-icon>
         </q-btn>
@@ -47,20 +47,3 @@ onBeforeMount(() => {
 
 
 </script>
-
-<style>
-.avatar {
-    -webkit-touch-callout: none;
-    /* iOS Safari */
-    -webkit-user-select: none;
-    /* Safari */
-    -khtml-user-select: none;
-    /* Konqueror HTML */
-    -moz-user-select: none;
-    /* Old versions of Firefox */
-    -ms-user-select: none;
-    /* Internet Explorer/Edge */
-    user-select: none;
-    /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
-}
-</style>
