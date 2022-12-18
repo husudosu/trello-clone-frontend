@@ -34,7 +34,7 @@
                 </template>
             </ul>
             <footer @click="onAddCardClick">
-                <div v-if="props.boardList.id" class="boardListAddCard">
+                <div v-if="props.boardList.id" class="boardListAddCard non-selectable">
                     <q-icon class="q-mr-xs" name="add"></q-icon>Add a card...
                 </div>
                 <div v-else>

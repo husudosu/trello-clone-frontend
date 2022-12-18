@@ -9,7 +9,7 @@ export const UserAPI = {
         return API.post("/auth/logout");
     },
     getClaims: async () => {
-        const { data } = await API.get("/auth/me");
+        const { data } = await API.get("/auth/users/me");
         return data;
     },
     getUser: async (userId: number): Promise<User> => {

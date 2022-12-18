@@ -2,7 +2,7 @@
     <div class="q-mt-lg q-ma-sm shadow-1">
 
         <q-item>
-            <user-avatar size="lg" :user="user" :show-tooltip="false"></user-avatar>
+            <user-avatar v-if="user" size="lg" :user="user" :show-tooltip="false"></user-avatar>
         </q-item>
         <q-item>
             <q-item-section>
@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import store from '@/store';
 
@@ -41,14 +41,13 @@ import UserAvatar from "@/components/UserAvatar.vue";
 const route = useRoute();
 
 const user = ref<User>();
-const currentUser = ref(store.state.auth.user);
+const currentUser = computed(() => store.state.auth.user);
 
-const loadUser = async () => {
+
+onMounted(async () => {
     if (typeof route.params.userId === 'string') {
         user.value = await UserAPI.getUser(parseInt(route.params.userId));
     }
-};
-
-loadUser();
+})
 
 </script>
