@@ -4,7 +4,8 @@
             <q-header class="bg-primary">
                 <q-toolbar>
                     <q-toolbar-title
-                        @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardTitle = !editCardTitle : false">
+                        @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardTitle = !editCardTitle : false"
+                        class="text-h6">
                         <template v-if="!editCardTitle">
                             {{ card?.title }}
                         </template>
