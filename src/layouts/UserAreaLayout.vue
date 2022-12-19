@@ -12,9 +12,6 @@
                     <q-menu>
                         <q-list>
                             <q-item clickable v-close-popup @click="onBoardDetailsClicked">
-                                <q-item-section avatar>
-                                    <q-icon name="person" size="xs"></q-icon>
-                                </q-item-section>
                                 <q-item-section>Board details</q-item-section>
                             </q-item>
                         </q-list>
@@ -84,7 +81,7 @@ const leftDrawerOpen = ref(false);
 const $q = useQuasar();
 
 const title = computed(() => {
-    return $q.screen.xs && store.state.board.board ? store.state.board.board.title : "Trello clone";
+    return $q.screen.xs && store.state.board.board ? `${store.state.board.board.title} ${!store.state.board.board.archived ? '' : '(Archived)'}` : "Trello clone";
 });
 
 const user = computed(() => store.state.auth.user);
