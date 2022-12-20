@@ -44,18 +44,17 @@
 
 <script lang="ts" setup>
 
-import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { ArchivedList } from "@/api/types";
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import store from "@/store";
 
 import { useQuasar } from 'quasar';
-import { ref, onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 
 const $q = useQuasar();
 
-const archivedLists = ref<ArchivedList[]>([]);
+const archivedLists = computed(() => store.state.archive.lists);
 
 const cardOnClick = (cardId: number) => {
     $q.dialog({
@@ -93,9 +92,7 @@ const onDeleteListClick = (list: ArchivedList) => {
 onMounted(async () => {
     try {
         $q.loading.show({ delay: 180 });
-        if (store.state.board.board) {
-            archivedLists.value = await BoardAPI.getArchivedLists(store.state.board.board.id);
-        }
+        await store.dispatch.archive.loadArchivedLists();
     }
     finally {
         $q.loading.hide();

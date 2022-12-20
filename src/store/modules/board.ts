@@ -5,7 +5,7 @@ import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
 import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftBoardList, BoardAllowedUser, CardDate, CardMember } from "@/api/types";
-import { SIOCardUpdateOrder, SIOCardUpdateEvent, CardEntity, SIOCardEvent, SIODeleteEvent } from "@/socket";
+import { SIOCardUpdateOrder, SIOCardUpdateEvent, CardEntity, SIOCardEvent, SIODeleteEvent, SIOCardArchiveEvent } from "@/socket";
 export interface BoardState {
     boards: Board[];
     board: null | Board;
@@ -137,7 +137,7 @@ export default {
                 }
             }
         },
-        removeCard(state: BoardState, ev: SIODeleteEvent) {
+        removeCard(state: BoardState, ev: SIOCardArchiveEvent) {
             if (state.board !== null) {
                 const cardPos = findCardIndex(state.board.lists, ev.list_id, ev.card_id);
                 state.board.lists[cardPos.listIndex].cards.splice(cardPos.cardIndex, 1);

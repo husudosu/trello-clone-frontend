@@ -211,6 +211,7 @@ onMounted(() => {
         });
 
         socket.on(SIOEvent.CARD_NEW, SIOBoardEventListeners.newCard);
+        socket.on(SIOEvent.CARD_REVERT, SIOBoardEventListeners.revertCard);
         socket.on(SIOEvent.CARD_UPDATE, SIOBoardEventListeners.cardUpdate);
         socket.on(SIOEvent.CARD_UPDATE_ORDER, SIOBoardEventListeners.cardOrderUpdate);
         socket.on(SIOEvent.CARD_DELETE, SIOBoardEventListeners.cardDelete);

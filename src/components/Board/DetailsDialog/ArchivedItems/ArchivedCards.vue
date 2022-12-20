@@ -29,17 +29,15 @@
 
 <script lang="ts" setup>
 
-import { BoardAPI } from "@/api/board";
-import { ArchivedCard } from "@/api/types";
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import store from "@/store";
 
 import { useQuasar } from 'quasar';
-import { ref, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 
 const $q = useQuasar();
 
-const archivedCards = ref<ArchivedCard[]>([]);
+const archivedCards = computed(() => store.state.archive.cards);
 
 const cardOnClick = (cardId: number) => {
     $q.dialog({
@@ -47,12 +45,11 @@ const cardOnClick = (cardId: number) => {
         componentProps: { cardId }
     });
 };
+
 onMounted(async () => {
     try {
         $q.loading.show({ delay: 180 });
-        if (store.state.board.board) {
-            archivedCards.value = await BoardAPI.getArchivedCards(store.state.board.board.id);
-        }
+        await store.dispatch.archive.loadArchivedCards();
     }
     finally {
         $q.loading.hide();

@@ -1,8 +1,9 @@
 import SocketIO from 'socket.io-client';
-import { BoardList, Card, CardActivity, CardChecklist, CardDate, CardMember, ChecklistItem } from './api/types';
+import { ArchivedCard, BoardList, Card, CardActivity, CardChecklist, CardDate, CardMember, ChecklistItem } from './api/types';
 
 const options = { withCredentials: true, debug: process.env.NODE_ENV === "development" };
 import store from "@/store/index";
+import { BoardAPI } from './api/board';
 
 
 export const useSocketIO = () => {
@@ -25,6 +26,7 @@ export enum SIOEvent {
 
     CARD_NEW = "card.new",
     CARD_UPDATE = "card.update",
+    CARD_REVERT = "card.revert",
     CARD_DELETE = "card.delete",
 
     CARD_UPDATE_ORDER = "card.update.order",
@@ -96,6 +98,10 @@ export interface SIOCardMemberEvent extends SIOCardEvent {
     entity: CardMember;
 }
 
+export interface SIOCardArchiveEvent extends SIOCardEvent {
+    entity: ArchivedCard;
+}
+
 export interface SIOCardUpdateEvent extends SIOCardEvent {
     entity: Card | Partial<Card>;
 }
@@ -128,8 +134,14 @@ export const SIOBoardEventListeners = {
     newCard: (data: Card) => {
         console.group("[Socket.IO]: New card");
         console.debug(data);
-        console.debug("Saving new card if not exists");
         store.commit.board.saveCard(data);
+        console.groupEnd();
+    },
+    revertCard: (data: Card) => {
+        console.group("[Socket.IO]: Revert card");
+        console.debug(data);
+        store.commit.board.saveCard(data);
+        store.commit.archive.removeArchivedCard(data.id);
         console.groupEnd();
     },
     cardUpdate: (data: SIOCardUpdateEvent) => {
@@ -151,11 +163,13 @@ export const SIOBoardEventListeners = {
         store.commit.board.updateCardOrder(data);
         console.groupEnd();
     },
-    cardDelete: (data: SIODeleteEvent) => {
-        console.group("[Socket.IO]: Card delete");
+    // TODO: Refactor cardDelete to cardArchive
+    cardDelete: (data: SIOCardArchiveEvent) => {
+        console.group("[Socket.IO]: Card archive");
         console.debug("Remove from store");
         console.debug(data);
         store.commit.board.removeCard(data);
+        store.commit.archive.addArchivedCard(BoardAPI.parseArchivedEntities(data.entity) as ArchivedCard);
         console.groupEnd();
     },
     newList: (data: BoardList) => {

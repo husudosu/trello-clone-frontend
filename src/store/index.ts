@@ -2,6 +2,7 @@ import { createDirectStore } from "direct-vuex";
 import board, { BoardState } from "./modules/board";
 import auth, { AuthState } from "./modules/auth";
 import card, { CardState } from "./modules/card";
+import archive, { ArchiveState } from './modules/archive';
 
 const {
     store,
@@ -13,7 +14,8 @@ const {
     modules: {
         board,
         auth,
-        card
+        card,
+        archive
     }
 });
 
@@ -33,6 +35,7 @@ export interface State {
     auth: AuthState;
     board: BoardState;
     card: CardState;
+    archive: ArchiveState;
 }
 // The following lines enable types in the injected store '$store'.
 export type AppStore = typeof store;
