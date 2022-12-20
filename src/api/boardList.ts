@@ -1,7 +1,14 @@
 import { API } from ".";
+import { CardAPI } from "./card";
 import { BoardList, DraftBoardList } from "./types";
 
 export const BoardListAPI = {
+    parseBoardList: (data: BoardList) => {
+        data.cards.forEach((el) => {
+            CardAPI.parseCard(el);
+        });
+        return data;
+    },
     postBoardList: async (boardId: number, boardList: DraftBoardList) => {
         const { data } = await API.post<BoardList>(`/board/${boardId}/list`, boardList);
         return data;

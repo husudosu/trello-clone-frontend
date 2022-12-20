@@ -232,6 +232,7 @@ onMounted(() => {
         socket.on(SIOEvent.CARD_MEMBER_DEASSIGNED, SIOBoardEventListeners.cardMemberDeAssigned);
 
         socket.on(SIOEvent.LIST_NEW, SIOBoardEventListeners.newList);
+        socket.on(SIOEvent.LIST_REVERT, SIOBoardEventListeners.revertList);
         socket.on(SIOEvent.LIST_UPDATE_ORDER, SIOBoardEventListeners.listUpdateOrder);
         socket.on(SIOEvent.LIST_UPDATE, SIOBoardEventListeners.listUpdate);
         socket.on(SIOEvent.LIST_DELETE, SIOBoardEventListeners.deleteList);

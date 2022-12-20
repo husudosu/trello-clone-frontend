@@ -1,9 +1,10 @@
 import SocketIO from 'socket.io-client';
-import { ArchivedCard, BoardList, Card, CardActivity, CardChecklist, CardDate, CardMember, ChecklistItem } from './api/types';
+import { ArchivedCard, ArchivedList, BoardList, Card, CardActivity, CardChecklist, CardDate, CardMember, ChecklistItem } from './api/types';
 
 const options = { withCredentials: true, debug: process.env.NODE_ENV === "development" };
 import store from "@/store/index";
 import { BoardAPI } from './api/board';
+import { BoardListAPI } from './api/boardList';
 
 
 export const useSocketIO = () => {
@@ -53,6 +54,7 @@ export enum SIOEvent {
     CARD_ACTIVITY_DELETE = "card.activity.delete",
 
     LIST_NEW = "list.new",
+    LIST_REVERT = "list.revert",
     LIST_UPDATE_ORDER = "list.update.order",
     LIST_UPDATE = "list.update",
     LIST_DELETE = "list.delete",
@@ -233,11 +235,24 @@ export const SIOBoardEventListeners = {
         store.commit.board.saveList(data);
         console.groupEnd();
     },
-    deleteList: (data: BoardList) => {
+    deleteList: (data: ArchivedList) => {
         console.group("[Socket.IO]: Delete list");
         console.debug(data);
-        store.commit.board.removeList(data);
+        // TODO refactor board commit method to accept only ID.
+        if (store.state.board.board) {
+            const listItem = store.state.board.board.lists.find((el) => el.id == data.id);
+            if (listItem) {
+                store.commit.board.removeList(listItem);
+            }
+        }
+        store.commit.archive.addArchivedList(BoardAPI.parseArchivedEntities(data) as ArchivedList);
         console.groupEnd();
+    },
+    revertList: (data: BoardList) => {
+        console.group("[Socket.IO] Revert list");
+        console.debug(data);
+        store.commit.board.saveList(BoardListAPI.parseBoardList(data));
+        store.commit.archive.removeArchivedList(data.id);
     },
     onCardActivity: (data: CardActivity) => {
         console.group(`[Socket.IO]: Card activity`);

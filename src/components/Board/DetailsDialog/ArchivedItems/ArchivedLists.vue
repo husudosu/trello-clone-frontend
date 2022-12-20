@@ -65,12 +65,6 @@ const cardOnClick = (cardId: number) => {
 
 const onRevertListClick = async (listId: number) => {
     await BoardListAPI.patchBoardList(listId, { archived: false });
-
-    // TODO: Create a Socket.IO event here.
-    const index = archivedLists.value.findIndex((el) => el.id === listId);
-    if (index > -1) {
-        archivedLists.value.splice(index, 1);
-    }
 };
 
 const onDeleteListClick = (list: ArchivedList) => {
