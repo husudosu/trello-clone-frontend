@@ -144,8 +144,16 @@ export const SIOBoardEventListeners = {
     revertCard: (data: Card) => {
         console.group("[Socket.IO]: Revert card");
         console.debug(data);
-        store.commit.board.saveCard(data);
         store.commit.archive.removeArchivedCard(data.id);
+
+        store.commit.board.saveCard(data);
+        // Reorder cards to get position correctly
+        if (store.state.board.board) {
+            const listId = store.state.board.board.lists.findIndex((el) => el.id === data.list_id);
+            if (listId > -1) {
+                store.state.board.board.lists[listId].cards.sort((a, b) => a.position - b.position);
+            }
+        }
         console.groupEnd();
     },
     cardUpdate: (data: SIOCardUpdateEvent) => {
@@ -266,6 +274,11 @@ export const SIOBoardEventListeners = {
         });
         store.commit.archive.removeArchivedList(data.id);
         store.commit.board.saveList(BoardListAPI.parseBoardList(data));
+
+        // Sort Boardlists to get proper positions.
+        store.state.board.board?.lists.sort((a, b) =>
+            a.position - b.position
+        );
     },
     deleteList: (listId: number) => {
         console.group("[Socket.IO] Delete list");

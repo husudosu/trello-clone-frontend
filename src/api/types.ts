@@ -104,7 +104,7 @@ export interface Card {
     list_id: number;
     title: string;
     description?: string;
-    position?: number;
+    position: number;
     checklists: CardChecklist[];
     assigned_members: CardMember[];
     dates: CardDate[];
