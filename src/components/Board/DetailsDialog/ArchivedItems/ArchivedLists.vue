@@ -1,5 +1,4 @@
 <template>
-
     <q-list padding bordered>
         <q-item dense class="q-mb-md" v-for="item in archivedLists" :key="item.id">
             <q-item-section>

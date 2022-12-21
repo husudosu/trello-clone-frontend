@@ -28,6 +28,7 @@ export enum SIOEvent {
     CARD_NEW = "card.new",
     CARD_UPDATE = "card.update",
     CARD_REVERT = "card.revert",
+    CARD_ARCHIVE = "card.archive",
     CARD_DELETE = "card.delete",
 
     CARD_UPDATE_ORDER = "card.update.order",
@@ -57,6 +58,7 @@ export enum SIOEvent {
     LIST_REVERT = "list.revert",
     LIST_UPDATE_ORDER = "list.update.order",
     LIST_UPDATE = "list.update",
+    LIST_ARCHIVE = "list.archive",
     LIST_DELETE = "list.delete",
 }
 
@@ -165,14 +167,18 @@ export const SIOBoardEventListeners = {
         store.commit.board.updateCardOrder(data);
         console.groupEnd();
     },
-    // TODO: Refactor cardDelete to cardArchive
-    cardDelete: (data: SIOCardArchiveEvent) => {
+    cardArchive: (data: SIOCardArchiveEvent) => {
         console.group("[Socket.IO]: Card archive");
         console.debug("Remove from store");
         console.debug(data);
         store.commit.board.removeCard(data);
         store.commit.archive.addArchivedCard(BoardAPI.parseArchivedEntities(data.entity) as ArchivedCard);
         console.groupEnd();
+    },
+    cardDelete: (cardId: number) => {
+        console.group("[Socket.IO]: Card delete");
+        console.debug(cardId);
+        store.commit.archive.removeArchivedCard(cardId);
     },
     newList: (data: BoardList) => {
         console.group("[Socket.IO]: New list");
@@ -235,8 +241,8 @@ export const SIOBoardEventListeners = {
         store.commit.board.saveList(data);
         console.groupEnd();
     },
-    deleteList: (data: ArchivedList) => {
-        console.group("[Socket.IO]: Delete list");
+    archiveList: (data: ArchivedList) => {
+        console.group("[Socket.IO]: Archive list");
         console.debug(data);
         // TODO refactor board commit method to accept only ID.
         if (store.state.board.board) {
@@ -251,8 +257,26 @@ export const SIOBoardEventListeners = {
     revertList: (data: BoardList) => {
         console.group("[Socket.IO] Revert list");
         console.debug(data);
-        store.commit.board.saveList(BoardListAPI.parseBoardList(data));
+        // We should archived list cards too.
+        // FIXME: By some reasons not removing all non-archived cards of list from archive store.
+        store.state.archive.cards.forEach((el) => {
+            if (el.board_list.id === data.id && !el.archived) {
+                store.commit.archive.removeArchivedCard(el.id);
+            }
+        });
         store.commit.archive.removeArchivedList(data.id);
+        store.commit.board.saveList(BoardListAPI.parseBoardList(data));
+    },
+    deleteList: (listId: number) => {
+        console.group("[Socket.IO] Delete list");
+        console.debug(listId);
+        store.commit.archive.removeArchivedList(listId);
+        // We should remove archived list cards too. 
+        store.state.archive.cards.forEach((el) => {
+            if (el.board_list.id === listId) {
+                store.commit.archive.removeArchivedCard(el.id);
+            }
+        });
     },
     onCardActivity: (data: CardActivity) => {
         console.group(`[Socket.IO]: Card activity`);

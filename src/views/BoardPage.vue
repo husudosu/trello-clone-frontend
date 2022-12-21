@@ -214,6 +214,7 @@ onMounted(() => {
         socket.on(SIOEvent.CARD_REVERT, SIOBoardEventListeners.revertCard);
         socket.on(SIOEvent.CARD_UPDATE, SIOBoardEventListeners.cardUpdate);
         socket.on(SIOEvent.CARD_UPDATE_ORDER, SIOBoardEventListeners.cardOrderUpdate);
+        socket.on(SIOEvent.CARD_ARCHIVE, SIOBoardEventListeners.cardArchive);
         socket.on(SIOEvent.CARD_DELETE, SIOBoardEventListeners.cardDelete);
 
         socket.on(SIOEvent.CARD_DATE_NEW, SIOBoardEventListeners.newCardDate);
@@ -235,6 +236,7 @@ onMounted(() => {
         socket.on(SIOEvent.LIST_REVERT, SIOBoardEventListeners.revertList);
         socket.on(SIOEvent.LIST_UPDATE_ORDER, SIOBoardEventListeners.listUpdateOrder);
         socket.on(SIOEvent.LIST_UPDATE, SIOBoardEventListeners.listUpdate);
+        socket.on(SIOEvent.LIST_ARCHIVE, SIOBoardEventListeners.archiveList);
         socket.on(SIOEvent.LIST_DELETE, SIOBoardEventListeners.deleteList);
 
         if (!socket.connected)

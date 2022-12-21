@@ -258,6 +258,7 @@ export interface CardChecklist {
 export interface ArchivedCard {
     archived_on: moment.Moment;
     board_list: Partial<BoardList>; // TODO: Create a specific schema This should only contain: archived, id and title
+    archived: boolean;
     id: number;
     title: string;
 }
