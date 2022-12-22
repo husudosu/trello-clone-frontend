@@ -15,6 +15,10 @@
                         @click="onDateMark($event, dt)">
                     </card-date-chip>
                 </div>
+                <div class="row q-mb-xs q-mt-sm" v-if="props.card.checklists.length > 0">
+                    <checklist-status v-for="checklist in props.card.checklists" :key="checklist.id" class="q-mr-xs"
+                        :checklist="checklist"></checklist-status>
+                </div>
                 <div class="cardEditButton">
                     <q-btn size="xs" dense color="blue-grey-6" @click="onEditClick">
                         <q-icon name="edit"></q-icon>
@@ -48,6 +52,7 @@ import CardDateChip from './Status/CardDateChip.vue';
 import { CardAPI } from '@/api/card';
 
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
+import ChecklistStatus from './Status/ChecklistStatus.vue';
 
 const $q = useQuasar();
 const props = defineProps<{ card: Card; }>();
