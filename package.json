@@ -14,8 +14,10 @@
         "core-js": "^3.8.3",
         "direct-vuex": "^1.0.0-rc3",
         "dompurify": "^2.4.1",
+        "github-markdown-css": "^5.1.0",
         "jwt-decode": "^3.1.2",
         "lodash.clonedeep": "^4.5.0",
+        "marked": "^4.2.5",
         "moment": "^2.29.4",
         "moment-timezone": "^0.5.37",
         "quasar": "^2.0.0",
@@ -28,6 +30,7 @@
     "devDependencies": {
         "@types/dompurify": "^2.4.0",
         "@types/lodash.clonedeep": "^4.5.7",
+        "@types/marked": "^4.0.8",
         "@typescript-eslint/eslint-plugin": "^5.4.0",
         "@typescript-eslint/parser": "^5.4.0",
         "@vue/cli-plugin-babel": "~5.0.0",

@@ -71,10 +71,12 @@
                             <span>Description</span>
                         </span>
                     </div>
-                    <div class="qa-pa-md q-list--bordered card-description"
+                    <!--class="qa-pa-md q-list--bordered card-description"-->
+                    <div class="q-list--bordered card-description"
                         @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardDescription = !editCardDescription : false">
                         <template v-if="!editCardDescription">
-                            {{ card?.description }}
+                            <div class="markdown-body" style="margin-left: 5px; margin-right: 5px;"
+                                v-html="cardDescription"></div>
                         </template>
                         <template v-else>
                             <q-input v-model="card.description" type="textarea" @keydown.enter="onDescriptionEdit"
@@ -141,6 +143,9 @@ import { useDialogPluginComponent } from 'quasar';
 
 import { computed, ref, defineEmits, defineProps, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
+import * as DOMPurify from 'dompurify';
+import { marked } from 'marked';
+
 import store from "@/store";
 import { BoardPermission, BoardAllowedUser, CardMember, DraftCardDate } from "@/api/types";
 import { CardAPI } from '@/api/card';
@@ -156,6 +161,7 @@ import { useSocketIO, SIOBoardEventListeners, SIOEvent } from "@/socket";
 import { ChecklistAPI } from '@/api/checklist';
 import CardHistoryDialog from './Board/Card/CardHistoryDialog.vue';
 
+import 'github-markdown-css/github-markdown-light.css';
 interface Props {
     cardId: number;
 }
@@ -168,6 +174,13 @@ const $q = useQuasar();
 const hasPermission = store.getters.board.hasPermission;
 
 const card = computed(() => store.state.card.card);
+const cardDescription = computed(() => {
+    if (store.state.card.card?.description) {
+        return marked.parse(DOMPurify.sanitize(store.state.card.card.description));
+    } else {
+        return "";
+    }
+});
 
 const rightDrawerVisible = ref(false);
 const cardActivityQueryType = computed(() => store.state.card.cardActivityQueryType);
