@@ -41,6 +41,25 @@ const findCardIndex = (lists: BoardList[], listId: number, cardId: number): Card
     else throw "List index of card not found!";
 };
 
+/**
+ * Find card entity on board. Similar to findCardIndex but instead of position returns the card.
+ * @param lists 
+ * @param listId 
+ * @param cardId 
+ * @returns Card
+ */
+const findCard = (lists: BoardList[], listId: number, cardId: number): Card => {
+    const listIndex = lists.findIndex((el) => el.id === listId);
+
+    if (listIndex > -1) {
+        const card = lists[listIndex].cards.find((el) => el.id === cardId);
+
+        if (card) return card;
+        else throw "Card index of card not found!";
+    }
+    else throw "List index of card not found!";
+};
+
 export default {
     namespaced: true as const,
     state: {
@@ -154,75 +173,70 @@ export default {
         },
         SIOAddEntityToCard(state: BoardState, payload: { event: SIOCardEvent, entityType: CardEntity, entity: unknown; }) {
             if (state.board) {
-                const cPos = findCardIndex(state.board.lists, payload.event.list_id, payload.event.card_id);
+                const card = findCard(state.board.lists, payload.event.list_id, payload.event.card_id);
                 switch (payload.entityType) {
                     case "date":
-                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].dates.push(
-                            CardAPI.parseCardDate(payload.entity as CardDate)
-                        );
+                        card.dates.push(CardAPI.parseCardDate(payload.entity as CardDate));
                         break;
                     case "member":
-                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members.push(payload.entity as CardMember);
+                        card.assigned_members.push(payload.entity as CardMember);
                         break;
                     case "checklist":
-                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.push(payload.entity as CardChecklist);
+                        card.checklists.push(payload.entity as CardChecklist);
                         break;
                 }
             }
         },
         SIOUpdateCardEntity(state: BoardState, payload: { event: SIOCardEvent, entityType: CardEntity, entity: unknown; }) {
             if (state.board) {
-                const cPos = findCardIndex(state.board.lists, payload.event.list_id, payload.event.card_id);
+                const card = findCard(state.board.lists, payload.event.list_id, payload.event.card_id);
 
                 if (payload.entityType === "date") {
                     const entity = payload.entity as CardDate;
-                    const entityIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].dates
-                        .findIndex((el) => el.id == entity.id);
+                    const entityIndex = card.dates.findIndex((el) => el.id == entity.id);
 
                     if (entityIndex > -1) {
-                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].dates[entityIndex] = CardAPI.parseCardDate(entity);
+                        card.dates[entityIndex] = CardAPI.parseCardDate(entity);
                     }
                 }
                 else if (payload.entityType === "member") {
                     const entity = payload.entity as CardMember;
-                    const entityIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members
-                        .findIndex((el) => el.id == entity.id);
+                    const entityIndex = card.assigned_members.findIndex((el) => el.id == entity.id);
 
                     if (entityIndex > -1) {
-                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members[entityIndex] = entity;
+                        card.assigned_members[entityIndex] = entity;
                     }
                 }
                 else if (payload.entityType === "checklist") {
                     const entity = payload.entity as CardChecklist;
-                    const entityIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists
-                        .findIndex((el) => el.id == entity.id);
+                    const entityIndex = card.checklists.findIndex((el) => el.id == entity.id);
                     if (entityIndex > -1) {
-                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists[entityIndex] = entity;
+                        card.checklists[entityIndex] = entity;
                     }
                 }
             }
         },
         SIODeleteCardEntity(state: BoardState, payload: { event: SIOCardEvent, entityType: CardEntity, entity_id: number; }) {
             if (state.board) {
-                const cPos = findCardIndex(state.board.lists, payload.event.list_id, payload.event.card_id);
+                const card = findCard(state.board.lists, payload.event.list_id, payload.event.card_id);
 
                 if (payload.entityType === "date") {
-                    const entityIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].dates.findIndex(
-                        (el) => el.id === payload.entity_id);
+                    const entityIndex = card.dates.findIndex((el) => el.id === payload.entity_id);
+
                     if (entityIndex > -1)
-                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].dates.splice(entityIndex, 1);
+                        card.dates.splice(entityIndex, 1);
                 }
                 else if (payload.entityType === "member") {
-                    const entityIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members.findIndex(
-                        (el) => el.id === payload.entity_id);
+                    const entityIndex = card.assigned_members.findIndex((el) => el.id === payload.entity_id);
+
                     if (entityIndex > -1)
-                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members.splice(entityIndex, 1);
+                        card.assigned_members.splice(entityIndex, 1);
                 }
                 else if (payload.entityType === "checklist") {
-                    const entityIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.findIndex(
-                        (el) => el.id === payload.entity_id);
+                    const entityIndex = card.checklists.findIndex((el) => el.id === payload.entity_id);
+
                     if (entityIndex > -1)
-                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.splice(entityIndex, 1);
+                        card.checklists.splice(entityIndex, 1);
                 }
             }
         },
@@ -260,46 +274,40 @@ export default {
         },
         SIOAddChecklistItem(state: BoardState, payload: SIOChecklistItemEvent) {
             if (state.board !== null) {
-                const cPos = findCardIndex(state.board.lists, payload.list_id, payload.card_id);
+                const card = findCard(state.board.lists, payload.list_id, payload.card_id);
+                const checklist = card.checklists.find((el) => el.id === payload.entity.checklist_id);
 
                 // Find checklist.
-                const checklistIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.findIndex(
-                    (el) => el.id === payload.entity.checklist_id);
-                if (checklistIndex > -1) {
-                    console.log(checklistIndex);
-                    state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists[checklistIndex].items.push(payload.entity);
+                if (checklist) {
+                    checklist.items.push(payload.entity);
                 }
             }
         },
         SIOUpdateChecklistItem(state: BoardState, payload: SIOChecklistItemEvent) {
             if (state.board !== null) {
-                const cPos = findCardIndex(state.board.lists, payload.list_id, payload.card_id);
-                // Find checklist.
-                const checklistIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.findIndex(
-                    (el) => el.id === payload.entity.checklist_id);
-                if (checklistIndex > -1) {
-                    // Find item index
-                    const itemIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists[checklistIndex].items.findIndex(
-                        (el) => el.id === payload.entity.id);
+                const card = findCard(state.board.lists, payload.list_id, payload.card_id);
+                const checklist = card.checklists.find((el) => el.id === payload.entity.checklist_id);
 
+                if (checklist) {
+                    // Find item index
+                    const itemIndex = checklist.items.findIndex((el) => el.id === payload.entity.id);
                     if (itemIndex > -1) {
-                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists[checklistIndex].items[itemIndex] = payload.entity;
+                        checklist.items[itemIndex] = payload.entity;
                     }
                 }
             }
         },
         SIODeleteChecklistItem(state: BoardState, payload: SIOChecklistItemDeleteEvent) {
             if (state.board !== null) {
-                const cPos = findCardIndex(state.board.lists, payload.list_id, payload.card_id);
-                const checklistIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.findIndex(
-                    (el) => el.id === payload.checklist_id);
-                if (checklistIndex > -1) {
+                const card = findCard(state.board.lists, payload.list_id, payload.card_id);
+                const checklist = card.checklists.find((el) => el.id === payload.checklist_id);
+
+                if (checklist) {
                     // Find item index
-                    const itemIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists[checklistIndex].items.findIndex(
-                        (el) => el.id === payload.entity_id);
+                    const itemIndex = checklist.items.findIndex((el) => el.id === payload.entity_id);
 
                     if (itemIndex > -1)
-                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists[checklistIndex].items.splice(itemIndex, 1);
+                        checklist.items.splice(itemIndex, 1);
                 }
             }
         },
