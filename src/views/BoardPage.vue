@@ -210,6 +210,9 @@ onMounted(() => {
             console.debug(`[Socket.IO]: Got event: ${event}`);
         });
 
+        socket.on(SIOEvent.BOARD_UPDATE, SIOBoardEventListeners.boardUpdate);
+        socket.on(SIOEvent.BOARD_DELETE, SIOBoardEventListeners.boardDelete);
+
         socket.on(SIOEvent.CARD_NEW, SIOBoardEventListeners.newCard);
         socket.on(SIOEvent.CARD_REVERT, SIOBoardEventListeners.revertCard);
         socket.on(SIOEvent.CARD_UPDATE, SIOBoardEventListeners.cardUpdate);

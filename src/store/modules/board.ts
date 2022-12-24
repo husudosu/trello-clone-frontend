@@ -5,7 +5,7 @@ import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
 import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftBoardList, BoardAllowedUser, CardDate, CardMember, CardChecklist } from "@/api/types";
-import { SIOCardUpdateOrder, SIOCardUpdateEvent, CardEntity, SIOCardEvent, SIODeleteEvent, SIOCardArchiveEvent, SIOChecklistItemEvent, SIOChecklistItemDeleteEvent } from "@/socket";
+import { SIOCardUpdateOrder, SIOCardUpdateEvent, CardEntity, SIOCardEvent, SIOCardArchiveEvent, SIOChecklistItemEvent, SIOChecklistItemDeleteEvent } from "@/socket";
 export interface BoardState {
     boards: Board[];
     board: null | Board;
@@ -21,9 +21,14 @@ interface CardPositionInBoard {
     cardIndex: number;
 }
 
-/*
-Finds card in list
-*/
+/**
+ * Find card index on boards
+ * 
+ * @param lists 
+ * @param listId 
+ * @param cardId 
+ * @returns Found index or throws an error.
+ */
 const findCardIndex = (lists: BoardList[], listId: number, cardId: number): CardPositionInBoard => {
     const listIndex = lists.findIndex((el) => el.id === listId);
 
@@ -76,6 +81,10 @@ export default {
     mutations: {
         setBoard(state: BoardState, board: Board) {
             state.board = board;
+        },
+        updateBoard(state: BoardState, board: Partial<Board>) {
+            if (state.board)
+                state.board = Object.assign(state.board, board as Board);
         },
         setBoards(state: BoardState, board: Board[]) {
             state.boards = board;

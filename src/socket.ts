@@ -1,10 +1,12 @@
 import SocketIO from 'socket.io-client';
-import { ArchivedCard, ArchivedList, BoardList, Card, CardActivity, CardChecklist, CardDate, CardMember, ChecklistItem } from './api/types';
+import { ArchivedCard, ArchivedList, Board, BoardList, Card, CardActivity, CardChecklist, CardDate, CardMember, ChecklistItem } from './api/types';
 
 const options = { withCredentials: true, debug: process.env.NODE_ENV === "development" };
 import store from "@/store/index";
 import { BoardAPI } from './api/board';
 import { BoardListAPI } from './api/boardList';
+import router from './router';
+import { Dialog } from 'quasar';
 
 
 export const useSocketIO = () => {
@@ -24,6 +26,9 @@ export enum SIOEvent {
     SIOError = "error",
     SIOConnect = "connect",
     SIODisconnect = "disconnect",
+
+    BOARD_UPDATE = "board.update",
+    BOARD_DELETE = "board.delete",
 
     CARD_NEW = "card.new",
     CARD_UPDATE = "card.update",
@@ -134,6 +139,25 @@ export const SIOBoardEventListeners = {
     },
     onConnect: () => {
         console.log("Connected to socket IO server");
+    },
+    boardDelete: (boardID: number) => {
+        console.group("[Socket.IO]: Board delete");
+        console.debug(`Board delete ${boardID}`);
+        console.groupEnd();
+        Dialog.create({
+            message: "Board has been deleted!"
+        }).onDismiss(() => {
+            router.push({ name: "boards" });
+        });
+    },
+    boardUpdate: (board: Partial<Board>) => {
+        console.group("[Socket.IO]: Board update");
+        console.debug(`Board archive ${board.id}`);
+        // FIXME by some reasons we have to delete board.lists similar to cardUpdate listener.
+        delete board.lists;
+
+        store.commit.board.updateBoard(board);
+        console.groupEnd();
     },
     newCard: (data: Card) => {
         console.group("[Socket.IO]: New card");

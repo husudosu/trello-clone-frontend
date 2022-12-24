@@ -90,7 +90,6 @@ const onRevertBoardClicked = () => {
     }).onOk(async () => {
         if (board) {
             await BoardAPI.revertBoard(board.id);
-            window.location.reload();
         }
     });
 };
