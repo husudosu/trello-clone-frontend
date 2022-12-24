@@ -332,60 +332,59 @@ export const SIOBoardEventListeners = {
         console.group(`[Socket.IO]: New checklist`);
         console.log(data);
 
-        // TODO: We should implement Checklist state component for card.
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
             store.commit.card.addChecklist(data.entity);
         }
+        store.commit.board.SIOAddEntityToCard({ event: data, entityType: "checklist", entity: data.entity });
         console.groupEnd();
     },
     updateCardChecklist: (data: SIOCardChecklistEvent) => {
         console.group(`[Socket.IO]: Checklist updated`);
         console.log(data);
 
-        // TODO: We should implement Checklist state component for card.
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
             store.commit.card.updateChecklist(data.entity);
         }
+        store.commit.board.SIOUpdateCardEntity({ event: data, entityType: "checklist", entity: data.entity });
         console.groupEnd();
     },
     deleteCardChecklist: (data: SIODeleteEvent) => {
         console.group(`[Socket.IO]: Checklist delete`);
         console.log(data);
 
-        // TODO: We should implement Checklist state component for card.
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
             store.commit.card.removeChecklist(data.entity_id);
         }
+        store.commit.board.SIODeleteCardEntity({ event: data, entityType: "checklist", entity_id: data.entity_id });
         console.groupEnd();
     },
     newChecklistItem: (data: SIOChecklistItemEvent) => {
         console.group(`[Socket.IO]: Checklist item create`);
         console.log(data);
 
-        // TODO: We should implement Checklist state component for card.
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
             store.commit.card.addChecklistItem(data.entity);
         }
+        store.commit.board.SIOAddChecklistItem(data);
         console.groupEnd();
     },
     updateChecklistItem: (data: SIOChecklistItemEvent) => {
         console.group(`[Socket.IO]: Checklist item update`);
         console.log(data);
 
-        // TODO: We should implement Checklist state component for card.
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
             store.commit.card.updateChecklistItem(data.entity);
         }
+        store.commit.board.SIOUpdateChecklistItem(data);
         console.groupEnd();
     },
     deleteChecklistItem: (data: SIOChecklistItemDeleteEvent) => {
         console.group(`[Socket.IO]: Checklist item delete`);
         console.log(data);
-
-        // TODO: We should implement Checklist state component for card.
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
             store.commit.card.removeChecklistItem(data);
         }
+        store.commit.board.SIODeleteChecklistItem(data);
         console.groupEnd();
     },
     updateChecklistItemOrder: (data: SIOChecklistItemUpdateOrder) => {

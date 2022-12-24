@@ -4,8 +4,8 @@ import { State } from "../index";
 import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
-import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftBoardList, BoardAllowedUser, CardDate, CardMember } from "@/api/types";
-import { SIOCardUpdateOrder, SIOCardUpdateEvent, CardEntity, SIOCardEvent, SIODeleteEvent, SIOCardArchiveEvent } from "@/socket";
+import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftBoardList, BoardAllowedUser, CardDate, CardMember, CardChecklist } from "@/api/types";
+import { SIOCardUpdateOrder, SIOCardUpdateEvent, CardEntity, SIOCardEvent, SIODeleteEvent, SIOCardArchiveEvent, SIOChecklistItemEvent, SIOChecklistItemDeleteEvent } from "@/socket";
 export interface BoardState {
     boards: Board[];
     board: null | Board;
@@ -155,6 +155,9 @@ export default {
                     case "member":
                         state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members.push(payload.entity as CardMember);
                         break;
+                    case "checklist":
+                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.push(payload.entity as CardChecklist);
+                        break;
                 }
             }
         },
@@ -179,7 +182,14 @@ export default {
                     if (entityIndex > -1) {
                         state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members[entityIndex] = entity;
                     }
-
+                }
+                else if (payload.entityType === "checklist") {
+                    const entity = payload.entity as CardChecklist;
+                    const entityIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists
+                        .findIndex((el) => el.id == entity.id);
+                    if (entityIndex > -1) {
+                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists[entityIndex] = entity;
+                    }
                 }
             }
         },
@@ -198,6 +208,12 @@ export default {
                         (el) => el.id === payload.entity_id);
                     if (entityIndex > -1)
                         state.board.lists[cPos.listIndex].cards[cPos.cardIndex].assigned_members.splice(entityIndex, 1);
+                }
+                else if (payload.entityType === "checklist") {
+                    const entityIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.findIndex(
+                        (el) => el.id === payload.entity_id);
+                    if (entityIndex > -1)
+                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.splice(entityIndex, 1);
                 }
             }
         },
@@ -230,6 +246,50 @@ export default {
                             }
                         }
                     }
+                }
+            }
+        },
+        SIOAddChecklistItem(state: BoardState, payload: SIOChecklistItemEvent) {
+            if (state.board !== null) {
+                const cPos = findCardIndex(state.board.lists, payload.list_id, payload.card_id);
+
+                // Find checklist.
+                const checklistIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.findIndex(
+                    (el) => el.id === payload.entity.checklist_id);
+                if (checklistIndex > -1) {
+                    state.board.lists[cPos.listIndex].cards[cPos.listIndex].checklists[checklistIndex].items.push(payload.entity);
+                }
+            }
+        },
+        SIOUpdateChecklistItem(state: BoardState, payload: SIOChecklistItemEvent) {
+            if (state.board !== null) {
+                const cPos = findCardIndex(state.board.lists, payload.list_id, payload.card_id);
+                // Find checklist.
+                const checklistIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.findIndex(
+                    (el) => el.id === payload.entity.checklist_id);
+                if (checklistIndex > -1) {
+                    // Find item index
+                    const itemIndex = state.board.lists[cPos.listIndex].cards[cPos.listIndex].checklists[checklistIndex].items.findIndex(
+                        (el) => el.id === payload.entity.id);
+
+                    if (itemIndex > -1) {
+                        state.board.lists[cPos.listIndex].cards[cPos.listIndex].checklists[checklistIndex].items[itemIndex] = payload.entity;
+                    }
+                }
+            }
+        },
+        SIODeleteChecklistItem(state: BoardState, payload: SIOChecklistItemDeleteEvent) {
+            if (state.board !== null) {
+                const cPos = findCardIndex(state.board.lists, payload.list_id, payload.card_id);
+                const checklistIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.findIndex(
+                    (el) => el.id === payload.checklist_id);
+                if (checklistIndex > -1) {
+                    // Find item index
+                    const itemIndex = state.board.lists[cPos.listIndex].cards[cPos.listIndex].checklists[checklistIndex].items.findIndex(
+                        (el) => el.id === payload.entity_id);
+
+                    if (itemIndex > -1)
+                        state.board.lists[cPos.listIndex].cards[cPos.listIndex].checklists[checklistIndex].items.splice(itemIndex, 1);
                 }
             }
         },
