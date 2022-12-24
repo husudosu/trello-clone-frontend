@@ -266,7 +266,8 @@ export default {
                 const checklistIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists.findIndex(
                     (el) => el.id === payload.entity.checklist_id);
                 if (checklistIndex > -1) {
-                    state.board.lists[cPos.listIndex].cards[cPos.listIndex].checklists[checklistIndex].items.push(payload.entity);
+                    console.log(checklistIndex);
+                    state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists[checklistIndex].items.push(payload.entity);
                 }
             }
         },
@@ -278,11 +279,11 @@ export default {
                     (el) => el.id === payload.entity.checklist_id);
                 if (checklistIndex > -1) {
                     // Find item index
-                    const itemIndex = state.board.lists[cPos.listIndex].cards[cPos.listIndex].checklists[checklistIndex].items.findIndex(
+                    const itemIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists[checklistIndex].items.findIndex(
                         (el) => el.id === payload.entity.id);
 
                     if (itemIndex > -1) {
-                        state.board.lists[cPos.listIndex].cards[cPos.listIndex].checklists[checklistIndex].items[itemIndex] = payload.entity;
+                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists[checklistIndex].items[itemIndex] = payload.entity;
                     }
                 }
             }
@@ -294,11 +295,11 @@ export default {
                     (el) => el.id === payload.checklist_id);
                 if (checklistIndex > -1) {
                     // Find item index
-                    const itemIndex = state.board.lists[cPos.listIndex].cards[cPos.listIndex].checklists[checklistIndex].items.findIndex(
+                    const itemIndex = state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists[checklistIndex].items.findIndex(
                         (el) => el.id === payload.entity_id);
 
                     if (itemIndex > -1)
-                        state.board.lists[cPos.listIndex].cards[cPos.listIndex].checklists[checklistIndex].items.splice(itemIndex, 1);
+                        state.board.lists[cPos.listIndex].cards[cPos.cardIndex].checklists[checklistIndex].items.splice(itemIndex, 1);
                 }
             }
         },
