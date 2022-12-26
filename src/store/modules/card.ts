@@ -46,8 +46,10 @@ export default {
             }
         },
         addChecklistItem(state: CardState, item: ChecklistItem) {
+            console.log("Add checklist item run.");
             if (state.card?.checklists) {
                 const index = state.card.checklists.findIndex((el) => el.id == item.checklist_id);
+
                 if (index > -1) {
                     state.card.checklists[index].items.push(ChecklistAPI.parseChecklistItem(item));
                 }

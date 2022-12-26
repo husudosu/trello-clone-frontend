@@ -229,7 +229,6 @@ onMounted(async () => {
                 socketWereDisconnected.value = false;
             }
         });
-
     }
     catch (err) {
         console.log(err);
@@ -355,18 +354,17 @@ const onCreateChecklistClicked = () => {
         },
         cancel: true,
         persistent: true
-    }).onOk(data => {
-        // store.dispatch.card.addCardChecklist({ title: data });
-        ChecklistAPI.postCardChecklist(props.cardId, { title: data });
+    }).onOk(async data => {
+        await ChecklistAPI.postCardChecklist(props.cardId, { title: data });
     });
 };
 
 const onAssignMemberClicked = () => {
     $q.dialog({
         component: AssignMember,
-    }).onOk((data: BoardAllowedUser) => {
+    }).onOk(async (data: BoardAllowedUser) => {
         if (card.value)
-            CardAPI.assignCardMember(card.value.id, { board_user_id: data.id, send_notification: true });
+            await CardAPI.assignCardMember(card.value.id, { board_user_id: data.id, send_notification: true });
     });
 };
 
@@ -382,8 +380,8 @@ const onDeassignMember = async (member: CardMember) => {
 const onAddDateClicked = () => {
     $q.dialog({
         component: CardDateDialog
-    }).onOk((data: DraftCardDate) => {
-        CardAPI.postCardDate(props.cardId, data);
+    }).onOk(async (data: DraftCardDate) => {
+        await CardAPI.postCardDate(props.cardId, data);
     });
 };
 

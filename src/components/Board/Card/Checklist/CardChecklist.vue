@@ -13,7 +13,7 @@
             </div>
         </template>
         <template v-else>
-            <q-input v-model="newTitle" dense @blur="editTitle = false; newTitle = checklist.title" autofocus
+            <q-input v-model="newTitle" dense @blur="editTitle = false; newTitle = props.checklist.title" autofocus
                 @keyup.enter="onTitleKeyUp"></q-input>
         </template>
         <q-list dense>
@@ -51,59 +51,54 @@ import ChecklistItem from './ChecklistItem.vue';
 const $q = useQuasar();
 const hasPermission = store.getters.board.hasPermission;
 
-interface Props {
-    checklist: CardChecklist;
-}
-
-const props = defineProps<Props>();
-const checklist = ref(props.checklist);
+const props = defineProps<{ checklist: CardChecklist; }>();
 
 const addNewItem = ref(false);
 const newItemTitle = ref("");
 
 const editTitle = ref(false);
-const newTitle = ref(checklist.value.title);
+const newTitle = ref(props.checklist.title);
 
 const onChecklistDelete = () => {
     $q.dialog({
         title: "Delete checklist",
         cancel: true,
         persistent: true,
-        message: `Delete checklist ${checklist.value.title}?`,
+        message: `Delete checklist ${props.checklist.title}?`,
         ok: {
             label: "Delete",
             color: "negative"
         }
     }).onOk(() => {
-        ChecklistAPI.deleteCardchecklist(checklist.value.id);
+        ChecklistAPI.deleteCardchecklist(props.checklist.id);
     });
 };
 
 const onNewItemAdd = async () => {
     try {
-        await ChecklistAPI.postChecklistItem(checklist.value.id, { title: newItemTitle.value, completed: false });
+        addNewItem.value = false;
+        await ChecklistAPI.postChecklistItem(props.checklist.id, { title: newItemTitle.value, completed: false });
     }
     catch (err) {
         console.log(err);
     }
     finally {
-        addNewItem.value = false;
         newItemTitle.value = "";
     }
 };
 
-const onItemTitleKeyup = (event: KeyboardEvent) => {
-    if (event.ctrlKey) onNewItemAdd();
+const onItemTitleKeyup = async (event: KeyboardEvent) => {
+    if (event.ctrlKey) await onNewItemAdd();
 };
 
 
 const onItemMoveEnd = () => {
-    ChecklistAPI.updateItemsOrder(checklist.value);
+    ChecklistAPI.updateItemsOrder(props.checklist);
 };
 
 const updateTitle = () => {
     editTitle.value = false;
-    ChecklistAPI.patchCardChecklist(props.checklist.id, { ...checklist.value, title: newTitle.value });
+    ChecklistAPI.patchCardChecklist(props.checklist.id, { title: newTitle.value });
 };
 
 const onTitleKeyUp = (ev: KeyboardEvent) => {

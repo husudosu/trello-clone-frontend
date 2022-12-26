@@ -18,7 +18,7 @@ export const ChecklistAPI = {
         const { data } = await API.post<CardChecklist>(`/card/${cardId}/checklist`, checklist);
         return data;
     },
-    patchCardChecklist: async (checklistId: number, checklist: CardChecklist): Promise<CardChecklist> => {
+    patchCardChecklist: async (checklistId: number, checklist: Partial<CardChecklist>): Promise<CardChecklist> => {
         const { data } = await API.patch<CardChecklist>(`/checklist/${checklistId}`, checklist);
         return data;
     },
