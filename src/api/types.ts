@@ -257,7 +257,7 @@ export interface CardChecklist {
 
 export interface ArchivedCard {
     archived_on: moment.Moment;
-    board_list: Partial<BoardList>; // TODO: Create a specific schema This should only contain: archived, id and title
+    board_list: Pick<BoardList, "title" | "id" | "archived">;
     archived: boolean;
     id: number;
     title: string;
@@ -267,7 +267,7 @@ export interface ArchivedList {
     archived_on: moment.Moment;
     id: number;
     title: string;
-    cards: Partial<Card[]>; // TODO Create a specific schema  Only include cards: [{card id, title}].
+    cards: Array<Pick<Card, "id" | "title">>;
 }
 
 export enum BoardActivityEvent {

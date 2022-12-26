@@ -1,6 +1,6 @@
-# Hyaku kanban frontend
+# Trello clone frontend (name subject to change)
 
-This is the frontend module for Hyaku kanban, if you're not a developer you probably looking for the root project which can be [accessed here](https://github.com/husudosu/trello-clone-backend).
+This is the frontend module for Trello clone, if you're not a developer you probably looking for the root project which can be [accessed here](https://github.com/husudosu/trello-clone-backend).
 
 # For developers
 
