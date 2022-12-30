@@ -35,10 +35,12 @@ export default {
             state.card?.activities.unshift(CardAPI.parseCardActivity(activity));
         },
         addChecklist(state: CardState, checklist: CardChecklist) {
-            state.card?.checklists?.push(checklist);
+            if (state.card) {
+                state.card.checklists.push(checklist);
+            }
         },
         removeChecklist(state: CardState, checklist_id: number) {
-            if (state.card?.checklists) {
+            if (state.card) {
                 const index = state.card.checklists?.findIndex((el) => el.id == checklist_id);
                 if (index > -1) {
                     state.card.checklists.splice(index, 1);
@@ -46,53 +48,39 @@ export default {
             }
         },
         addChecklistItem(state: CardState, item: ChecklistItem) {
-            console.log("Add checklist item run.");
-            if (state.card?.checklists) {
-                const index = state.card.checklists.findIndex((el) => el.id == item.checklist_id);
-
-                if (index > -1) {
-                    state.card.checklists[index].items.push(ChecklistAPI.parseChecklistItem(item));
-                }
+            const checklist = state.card?.checklists.find((el) => el.id === item.checklist_id);
+            if (checklist) {
+                console.log("[addChecklistItem]: Push item into checklist.");
+                checklist.items.push(ChecklistAPI.parseChecklistItem(item));
             }
         },
         removeChecklistItem(state: CardState, deleteEvent: SIOChecklistItemDeleteEvent) {
-            if (state.card?.checklists) {
-                const index = state.card.checklists.findIndex((el) => el.id == deleteEvent.checklist_id);
-                if (index > -1) {
-                    const itemIndex = state.card.checklists[index].items.findIndex((el) => el.id == deleteEvent.entity_id);
+            const checklist = state.card?.checklists.find((el) => el.id == deleteEvent.checklist_id);
+            if (checklist) {
+                const itemIndex = checklist.items.findIndex((el) => el.id == deleteEvent.entity_id) || -1;
 
-                    if (itemIndex > -1) {
-                        state.card.checklists[index].items.splice(itemIndex, 1);
-                    }
-                }
+                if (itemIndex > -1) checklist.items.splice(itemIndex, 1);
             }
         },
         updateChecklistItem(state: CardState, item: ChecklistItem) {
-            if (state.card?.checklists) {
-                const index = state.card.checklists.findIndex((el) => el.id == item.checklist_id);
-                if (index > -1) {
-                    const itemIndex = state.card.checklists[index].items.findIndex((el) => el.id == item.id);
-                    if (itemIndex > -1) {
-                        state.card.checklists[index].items[itemIndex] = ChecklistAPI.parseChecklistItem(item);
-                    }
-                }
+            const checklist = state.card?.checklists.find((el) => el.id == item.checklist_id);
+            if (checklist) {
+                const itemIndex = checklist.items.findIndex((el) => el.id == item.id);
+
+                if (itemIndex > -1) checklist.items[itemIndex] = ChecklistAPI.parseChecklistItem(item);
             }
+
         },
         updateChecklist(state: CardState, list: CardChecklist) {
-            if (state.card?.checklists) {
-                const index = state.card.checklists.findIndex((el) => el.id == list.id);
-                if (index > -1) {
-                    state.card.checklists[index] = list;
-                }
-            }
+            const index = state.card?.checklists.findIndex((el) => el.id == list.id) || -1;
+            if (state.card && index > -1) state.card.checklists[index] = list;
         },
         updateChecklistItemOrder(state: CardState, event: SIOChecklistItemUpdateOrder) {
-            if (state.card?.checklists) {
-                const checkListIndex = state.card.checklists.findIndex((el) => el.id === event.checklist_id);
-                if (checkListIndex > -1) {
-                    state.card.checklists[checkListIndex].items.sort((a, b) => event.order.indexOf(a.id) - event.order.indexOf(b.id));
-                    // Update position data. FIXME: We need better method for this.
-                    state.card.checklists[checkListIndex].items.forEach((el, index) => {
+            if (state.card) {
+                const checklist = state.card.checklists.find((el) => el.id === event.checklist_id);
+                if (checklist) {
+                    checklist.items.sort((a, b) => event.order.indexOf(a.id) - event.order.indexOf(b.id));
+                    checklist.items.forEach((el, index) => {
                         el.position = index;
                     });
                 }

@@ -135,7 +135,7 @@ export default {
         removeList(state: BoardState, boardList: BoardList) {
             if (state.board !== null) {
                 if (boardList.id) {
-                    // Delete existing
+                    // Delete existing card.
                     const listIndex = state.board.lists.findIndex((el) => el.id == boardList.id);
                     if (listIndex > -1) {
                         state.board.lists.splice(listIndex, 1);
@@ -276,9 +276,9 @@ export default {
             if (state.board !== null) {
                 const card = findCard(state.board.lists, payload.list_id, payload.card_id);
                 const checklist = card.checklists.find((el) => el.id === payload.entity.checklist_id);
-
                 // Find checklist.
                 if (checklist) {
+                    console.log("[SIOAddChecklistItem]:Push item into checklist.");
                     checklist.items.push(payload.entity);
                 }
             }
