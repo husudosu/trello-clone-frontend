@@ -4,8 +4,8 @@ import { State } from "../index";
 import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
-import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftBoardList, BoardAllowedUser, CardDate, CardMember, CardChecklist } from "@/api/types";
-import { SIOCardUpdateOrder, SIOCardUpdateEvent, CardEntity, SIOCardEvent, SIOCardArchiveEvent, SIOChecklistItemEvent, SIOChecklistItemDeleteEvent } from "@/socket";
+import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftBoardList, BoardAllowedUser, CardDate, CardMember, CardChecklist, ChecklistItem } from "@/api/types";
+import { SIOCardUpdateOrder, CardEntity, SIOCardEvent, SIOChecklistItemDeleteEvent } from "@/socket";
 export interface BoardState {
     boards: Board[];
     board: null | Board;
@@ -165,7 +165,7 @@ export default {
                 }
             }
         },
-        removeCard(state: BoardState, ev: SIOCardArchiveEvent) {
+        removeCard(state: BoardState, ev: SIOCardEvent) {
             if (state.board !== null) {
                 const cardPos = findCardIndex(state.board.lists, ev.list_id, ev.card_id);
                 state.board.lists[cardPos.listIndex].cards.splice(cardPos.cardIndex, 1);
@@ -240,59 +240,51 @@ export default {
                 }
             }
         },
-        SIOUpdateCard(state: BoardState, payload: SIOCardUpdateEvent) {
+        SIOUpdateCard(state: BoardState, payload: SIOCardEvent) {
             if (state.board !== null) {
-                const listIndex = state.board.lists.findIndex((el) => el.id == payload.list_id);
-                if (listIndex > -1) {
-                    // Find card  and update it
-                    const cardIndex = state.board.lists[listIndex].cards.findIndex((el) => el.id == payload.entity.id);
-                    if (cardIndex > -1) {
-                        if (payload.list_id === payload.entity.list_id) {
-                            // Just update the card
-                            // FIXME: We don't recieve activites from API on update so we have to do this. Not fancy.
-                            const updatedCard = payload.entity as Card;
-                            updatedCard.activities = [];
-                            state.board.lists[listIndex].cards[cardIndex] = CardAPI.parseCard(updatedCard);
-                        }
-                        else {
-                            // We have to move the card to other list
-                            // Delete from original list if card list have changed 
-                            state.board.lists[listIndex].cards.splice(cardIndex, 1);
-                            // And put it on the new list.
-                            const newListIndex = state.board.lists.findIndex((el) => el.id === payload.entity.list_id);
-                            if (newListIndex > -1) {
-                                // FIXME: We don't recieve activites from API on update so we have to do this. Not fancy.
-                                const updatedCard = payload.entity as Card;
-                                updatedCard.activities = [];
+                const cPos = findCardIndex(state.board.lists, payload.list_id, payload.card_id);
+                const entity = payload.entity as Card;
+                if (payload.list_id === entity.list_id) {
 
-                                state.board.lists[newListIndex].cards.push(CardAPI.parseCard(updatedCard));
-                            }
-                        }
+                    // FIXME: We don't recieve activites from API on update so we have to do this. Not fancy.
+                    entity.activities = [];
+                    state.board.lists[cPos.listIndex].cards[cPos.cardIndex] = CardAPI.parseCard(entity);
+                }
+                else {
+                    state.board.lists[cPos.listIndex].cards.splice(cPos.cardIndex, 1);
+
+                    const newListIndex = state.board.lists.findIndex((el) => el.id === entity.list_id);
+                    if (newListIndex > -1) {
+                        // FIXME: We don't recieve activites from API on update so we have to do this. Not fancy.
+                        entity.activities = [];
+                        state.board.lists[newListIndex].cards.push(CardAPI.parseCard(entity));
                     }
                 }
             }
         },
-        SIOAddChecklistItem(state: BoardState, payload: SIOChecklistItemEvent) {
+        SIOAddChecklistItem(state: BoardState, payload: SIOCardEvent) {
             if (state.board !== null) {
                 const card = findCard(state.board.lists, payload.list_id, payload.card_id);
-                const checklist = card.checklists.find((el) => el.id === payload.entity.checklist_id);
+                const entity = payload.entity as ChecklistItem;
+                const checklist = card.checklists.find((el) => el.id === entity.checklist_id);
                 // Find checklist.
                 if (checklist) {
                     console.log("[SIOAddChecklistItem]:Push item into checklist.");
-                    checklist.items.push(payload.entity);
+                    checklist.items.push(entity);
                 }
             }
         },
-        SIOUpdateChecklistItem(state: BoardState, payload: SIOChecklistItemEvent) {
+        SIOUpdateChecklistItem(state: BoardState, payload: SIOCardEvent) {
             if (state.board !== null) {
                 const card = findCard(state.board.lists, payload.list_id, payload.card_id);
-                const checklist = card.checklists.find((el) => el.id === payload.entity.checklist_id);
+                const entity = payload.entity as ChecklistItem;
+                const checklist = card.checklists.find((el) => el.id === entity.checklist_id);
 
                 if (checklist) {
                     // Find item index
-                    const itemIndex = checklist.items.findIndex((el) => el.id === payload.entity.id);
+                    const itemIndex = checklist.items.findIndex((el) => el.id === entity.id);
                     if (itemIndex > -1) {
-                        checklist.items[itemIndex] = payload.entity;
+                        checklist.items[itemIndex] = entity;
                     }
                 }
             }

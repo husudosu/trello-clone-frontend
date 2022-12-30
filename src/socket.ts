@@ -97,34 +97,12 @@ Helps frontend to find list and card by ID easier.
 export interface SIOCardEvent {
     list_id: number;
     card_id: number;
+    entity?: unknown;
 }
+
 
 export interface SIODeleteEvent extends SIOCardEvent {
     entity_id: number;
-}
-
-export interface SIOCardMemberEvent extends SIOCardEvent {
-    entity: CardMember;
-}
-
-export interface SIOCardArchiveEvent extends SIOCardEvent {
-    entity: ArchivedCard;
-}
-
-export interface SIOCardUpdateEvent extends SIOCardEvent {
-    entity: Card | Partial<Card>;
-}
-
-export interface SIOCardDateEvent extends SIOCardEvent {
-    entity: SIOCardDate;
-}
-
-export interface SIOCardChecklistEvent extends SIOCardEvent {
-    entity: CardChecklist;
-}
-
-export interface SIOChecklistItemEvent extends SIOCardEvent {
-    entity: ChecklistItem;
 }
 
 export interface SIOChecklistItemDeleteEvent extends SIODeleteEvent {
@@ -180,7 +158,7 @@ export const SIOBoardEventListeners = {
         }
         console.groupEnd();
     },
-    cardUpdate: (data: SIOCardUpdateEvent) => {
+    cardUpdate: (data: SIOCardEvent) => {
         console.group("[Socket.IO]: Card update");
         console.debug(data);
 
@@ -188,8 +166,9 @@ export const SIOBoardEventListeners = {
         store.commit.board.SIOUpdateCard(data);
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
             // FIXME: By some reason the entity always has an activities array. The API and Socket.IO emit not contains entity activities at all!
-            delete data.entity.activities;
-            store.commit.card.updateCard(data.entity);
+            const entity = data.entity as Partial<Card>;
+            delete entity['activities'];
+            store.commit.card.updateCard(entity);
         }
         console.groupEnd();
     },
@@ -199,12 +178,14 @@ export const SIOBoardEventListeners = {
         store.commit.board.updateCardOrder(data);
         console.groupEnd();
     },
-    cardArchive: (data: SIOCardArchiveEvent) => {
+    cardArchive: (data: SIOCardEvent) => {
         console.group("[Socket.IO]: Card archive");
         console.debug("Remove from store");
         console.debug(data);
+
         store.commit.board.removeCard(data);
-        store.commit.archive.addArchivedCard(BoardAPI.parseArchivedEntities(data.entity) as ArchivedCard);
+        store.commit.archive.addArchivedCard(BoardAPI.parseArchivedEntities(data.entity as ArchivedCard) as ArchivedCard);
+
         console.groupEnd();
     },
     cardDelete: (cardId: number) => {
@@ -218,31 +199,35 @@ export const SIOBoardEventListeners = {
         store.commit.board.saveList(data);
         console.groupEnd();
     },
-    newCardDate: (cardDate: SIOCardDateEvent) => {
+    newCardDate: (cardDate: SIOCardEvent) => {
         console.group("[Socket.IO]: New card date");
         console.debug(cardDate);
+        const entity = cardDate.entity as CardDate;
         store.commit.board.SIOAddEntityToCard({
             event: { list_id: cardDate.list_id, card_id: cardDate.card_id },
             entityType: "date",
-            entity: cardDate.entity
+            entity
         });
 
         if (store.state.card.card && store.state.card.card.id == cardDate.card_id) {
-            store.commit.card.addCardDate(cardDate.entity);
+            store.commit.card.addCardDate(entity);
         }
         console.groupEnd();
     },
-    updateCardDate: (cardDate: SIOCardDateEvent) => {
+    updateCardDate: (cardDate: SIOCardEvent) => {
         console.group("[Socket.IO]: Update card date");
         console.debug(cardDate);
+
+        const entity = cardDate.entity as CardDate;
+
         store.commit.board.SIOUpdateCardEntity({
             event: { list_id: cardDate.list_id, card_id: cardDate.card_id },
             entityType: "date",
-            entity: cardDate.entity
+            entity
         });
 
         if (store.state.card.card && store.state.card.card.id == cardDate.card_id) {
-            store.commit.card.updateCardDate(cardDate.entity);
+            store.commit.card.updateCardDate(entity);
         }
         console.groupEnd();
 
@@ -321,20 +306,21 @@ export const SIOBoardEventListeners = {
         store.commit.card.addCardActivity(data);
         console.groupEnd();
     },
-    cardMemberAssigned: (data: SIOCardMemberEvent) => {
+    cardMemberAssigned: (data: SIOCardEvent) => {
         console.group(`[Socket.IO]: Card member assignment`);
         console.log(data);
         // Add assignment to board assigned
+        const entity = data.entity as CardMember;
         store.commit.board.SIOAddEntityToCard(
             {
                 event: { list_id: data.list_id, card_id: data.card_id },
                 entityType: "member",
-                entity: data.entity
+                entity
             }
         );
         // Add assignment to card if it's active
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.addCardAsisgnment(data.entity);
+            store.commit.card.addCardAsisgnment(entity);
         }
         console.groupEnd();
     },
@@ -352,24 +338,24 @@ export const SIOBoardEventListeners = {
         }
         console.groupEnd();
     },
-    newCardChecklist: (data: SIOCardChecklistEvent) => {
+    newCardChecklist: (data: SIOCardEvent) => {
         console.group(`[Socket.IO]: New checklist`);
         console.log(data);
-
+        const entity = data.entity as CardChecklist;
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.addChecklist(data.entity);
+            store.commit.card.addChecklist(entity);
         }
-        store.commit.board.SIOAddEntityToCard({ event: data, entityType: "checklist", entity: data.entity });
+        store.commit.board.SIOAddEntityToCard({ event: data, entityType: "checklist", entity });
         console.groupEnd();
     },
-    updateCardChecklist: (data: SIOCardChecklistEvent) => {
+    updateCardChecklist: (data: SIOCardEvent) => {
         console.group(`[Socket.IO]: Checklist updated`);
         console.log(data);
-
+        const entity = data.entity as CardChecklist;
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.updateChecklist(data.entity);
+            store.commit.card.updateChecklist(entity);
         }
-        store.commit.board.SIOUpdateCardEntity({ event: data, entityType: "checklist", entity: data.entity });
+        store.commit.board.SIOUpdateCardEntity({ event: data, entityType: "checklist", entity });
         console.groupEnd();
     },
     deleteCardChecklist: (data: SIODeleteEvent) => {
@@ -382,22 +368,22 @@ export const SIOBoardEventListeners = {
         store.commit.board.SIODeleteCardEntity({ event: data, entityType: "checklist", entity_id: data.entity_id });
         console.groupEnd();
     },
-    newChecklistItem: (data: SIOChecklistItemEvent) => {
+    newChecklistItem: (data: SIOCardEvent) => {
         console.group(`[Socket.IO]: Checklist item create`);
         console.log(data);
 
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.addChecklistItem(data.entity);
+            store.commit.card.addChecklistItem(data.entity as ChecklistItem);
         }
         store.commit.board.SIOAddChecklistItem(data);
         console.groupEnd();
     },
-    updateChecklistItem: (data: SIOChecklistItemEvent) => {
+    updateChecklistItem: (data: SIOCardEvent) => {
         console.group(`[Socket.IO]: Checklist item update`);
         console.log(data);
 
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.updateChecklistItem(data.entity);
+            store.commit.card.updateChecklistItem(data.entity as ChecklistItem);
         }
         store.commit.board.SIOUpdateChecklistItem(data);
         console.groupEnd();
