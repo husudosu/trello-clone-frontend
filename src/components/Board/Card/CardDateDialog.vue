@@ -102,13 +102,10 @@ function onOKClick() {
             // Remove dt_from if isRange disabled.
             if (!isRange.value) {
                 // FIXME: I don't know why TSC complains about being this null, type allows null/undefined variables!
-                cardDate.value.dt_from = null;
+                cardDate.value.dt_from = undefined;
             }
 
-            if (!props.cardDate)
-                onDialogOK(cardDate.value);
-            else
-                onDialogOK({ ...cardDate.value, id: props.cardDate.id });
+            onDialogOK(cardDate.value);
         }
     });
 }

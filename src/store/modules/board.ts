@@ -244,8 +244,8 @@ export default {
             if (state.board !== null) {
                 const cPos = findCardIndex(state.board.lists, payload.list_id, payload.card_id);
                 const entity = payload.entity as Card;
-                if (payload.list_id === entity.list_id) {
 
+                if (payload.list_id === entity.list_id) {
                     // FIXME: We don't recieve activites from API on update so we have to do this. Not fancy.
                     entity.activities = [];
                     state.board.lists[cPos.listIndex].cards[cPos.cardIndex] = CardAPI.parseCard(entity);

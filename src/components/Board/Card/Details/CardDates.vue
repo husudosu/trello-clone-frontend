@@ -54,7 +54,7 @@ const onDateEditClicked = async (cardDate: CardDate) => {
         component: CardDateDialog,
         componentProps: { cardDate }
     }).onOk((data: CardDate) => {
-        CardAPI.patchCardDate(data.id, data);
+        CardAPI.patchCardDate(cardDate.id, data);
     });
 };
 </script>
