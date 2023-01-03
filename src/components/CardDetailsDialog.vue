@@ -220,7 +220,6 @@ onMounted(async () => {
                 });
             }
         });
-
         socket.on(SIOEvent.SIOConnect, async () => {
             socket.emit("card_change", { card_id: props.cardId });
             await store.dispatch.card.loadCard(props.cardId);
@@ -360,6 +359,10 @@ const onCreateChecklistClicked = () => {
         persistent: true
     }).onOk(async data => {
         await ChecklistAPI.postCardChecklist(props.cardId, { title: data });
+
+        // TODO: Solve the checklist item duplicate bug on new checklist Create
+        // This is a workaround for the bug (see above).
+        await store.dispatch.card.loadCard(props.cardId);
     });
 };
 
