@@ -52,6 +52,12 @@ export default {
             if (checklist) {
                 console.log("[addChecklistItem]: Push item into checklist.");
                 checklist.items.push(ChecklistAPI.parseChecklistItem(item));
+
+                /* FIXME: By some reason if you create a fresh checklist and add an item (before closing the card dialog)
+                it creates duplicate items. But when you reopen CardDetailsDialog the issue is gone.
+                */
+                const items = checklist.items.filter((el) => el.id === item.id);
+                console.log(`Have duplicate: ${items.length}`);
             }
         },
         removeChecklistItem(state: CardState, deleteEvent: SIOChecklistItemDeleteEvent) {

@@ -207,7 +207,7 @@ onMounted(() => {
 
         socket.on(SIOEvent.SIOError, SIOBoardEventListeners.onError);
         socket.onAny((event: string) => {
-            console.debug(`[Socket.IO]: Got event: ${event}`);
+            console.debug(`[Socket.IO->BoardPage]: Got event: ${event}`);
         });
 
         socket.on(SIOEvent.BOARD_UPDATE, SIOBoardEventListeners.boardUpdate);

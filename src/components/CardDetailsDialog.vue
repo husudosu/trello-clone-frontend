@@ -38,8 +38,8 @@
                     </q-btn>
                     <q-btn align="between" class="full-width" :icon="!card.archived ? 'archive' : 'delete'" dense
                         @click="onDeleteClicked" :disable="!hasPermission(BoardPermission.CARD_EDIT)">{{ !card.archived
-                                ? 'Archive' : 'Delete'
-                        }}
+        ? 'Archive' : 'Delete'
+}}
                     </q-btn>
 
                     <template v-if="card.assigned_members.length > 0">
@@ -59,8 +59,8 @@
                         This card is on an archived list: {{ card.board_list.title }}
                     </q-bar>
                     <q-bar v-if="card.archived" class="bg-orange-4 q-mb-sm">This card archived on: {{
-                            card.archived_on.format("YYYY-MM-DD HH:mm")
-                    }}
+        card.archived_on.format("YYYY-MM-DD HH:mm")
+}}
                         <q-space /> <q-btn color="primary" flat outline
                             @click="onCardRevertClicked">Revert</q-btn></q-bar>
 
@@ -105,8 +105,8 @@
                         <div class="q-ml-xs q-mb-xs on-right">
                             <q-btn color="primary" size="sm" style="top: 10px;" @click="onCardDetailsButtonClicked">
                                 {{ cardActivityQueryType == "all" ? "Hide details" :
-                                        "Show details"
-                                }}
+        "Show details"
+}}
                             </q-btn>
                         </div>
                     </div>
@@ -199,6 +199,10 @@ const { dialogRef, onDialogHide } = useDialogPluginComponent();
 onMounted(async () => {
     try {
         $q.loading.show({ delay: 150 });
+
+        socket.onAny((event: string) => {
+            console.debug(`[Socket.IO->CardDetailsDialog]: Got event: ${event}`);
+        });
 
         socket.on(SIOEvent.CARD_ACTIVITY, SIOBoardEventListeners.onCardActivity);
         socket.on(SIOEvent.CHECKLIST_ITEM_UPDATE_ORDER, SIOBoardEventListeners.updateChecklistItemOrder);
