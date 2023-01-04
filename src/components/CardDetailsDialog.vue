@@ -38,8 +38,8 @@
                     </q-btn>
                     <q-btn align="between" class="full-width" :icon="!card.archived ? 'archive' : 'delete'" dense
                         @click="onDeleteClicked" :disable="!hasPermission(BoardPermission.CARD_EDIT)">{{ !card.archived
-        ? 'Archive' : 'Delete'
-}}
+    ? 'Archive' : 'Delete'
+                        }}
                     </q-btn>
 
                     <template v-if="card.assigned_members.length > 0">
@@ -59,8 +59,8 @@
                         This card is on an archived list: {{ card.board_list.title }}
                     </q-bar>
                     <q-bar v-if="card.archived" class="bg-orange-4 q-mb-sm">This card archived on: {{
-        card.archived_on.format("YYYY-MM-DD HH:mm")
-}}
+                        card.archived_on.format("YYYY-MM-DD HH:mm")
+                    }}
                         <q-space /> <q-btn color="primary" flat outline
                             @click="onCardRevertClicked">Revert</q-btn></q-bar>
 
@@ -105,8 +105,8 @@
                         <div class="q-ml-xs q-mb-xs on-right">
                             <q-btn color="primary" size="sm" style="top: 10px;" @click="onCardDetailsButtonClicked">
                                 {{ cardActivityQueryType == "all" ? "Hide details" :
-        "Show details"
-}}
+    "Show details"
+                                }}
                             </q-btn>
                         </div>
                     </div>
@@ -119,15 +119,15 @@
                     </div>
                     <div class="card-comments">
                         <q-list padding bordered>
-                            <template v-if="card.activities.length > 0">
-                                <card-activity v-for="activity in card.activities" :key="activity.id"
+                            <template v-if="activities && activities.data.length > 0">
+                                <card-activity v-for="activity in activities.data" :key="activity.id"
                                     :activity="activity">
                                 </card-activity>
                             </template>
                             <template v-else>
-                                <span class="q-ma-sm">
-                                    {{ cardActivityQueryType == "all" ? "No activity yet" : "No comments yet" }}
-                                </span>
+                                <!-- <span class="q-ma-sm">
+                                    {{ cardActivityQueryType == "all" ? "No activity yet" : "No comments yet"; }}
+                                </span> -->
                             </template>
                         </q-list>
                     </div>
@@ -174,6 +174,7 @@ const $q = useQuasar();
 const hasPermission = store.getters.board.hasPermission;
 
 const card = computed(() => store.state.card.card);
+const activities = computed(() => store.state.card.activities);
 const cardDescription = computed(() => {
     if (store.state.card.card?.description) {
         return marked.parse(DOMPurify.sanitize(store.state.card.card.description));

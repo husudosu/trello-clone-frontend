@@ -246,8 +246,7 @@ export default {
                 const entity = payload.entity as Card;
 
                 if (payload.list_id === entity.list_id) {
-                    // FIXME: We don't recieve activites from API on update so we have to do this. Not fancy.
-                    entity.activities = [];
+                    // Object.assign(state.board.lists[cPos.listIndex].cards[cPos.cardIndex], CardAPI.parseCard(entity));
                     state.board.lists[cPos.listIndex].cards[cPos.cardIndex] = CardAPI.parseCard(entity);
                 }
                 else {
@@ -255,8 +254,6 @@ export default {
 
                     const newListIndex = state.board.lists.findIndex((el) => el.id === entity.list_id);
                     if (newListIndex > -1) {
-                        // FIXME: We don't recieve activites from API on update so we have to do this. Not fancy.
-                        entity.activities = [];
                         state.board.lists[newListIndex].cards.push(CardAPI.parseCard(entity));
                     }
                 }

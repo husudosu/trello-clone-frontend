@@ -108,7 +108,6 @@ export interface Card {
     checklists: CardChecklist[];
     assigned_members: CardMember[];
     dates: CardDate[];
-    activities: CardActivity[];
     archived_on: Readonly<moment.Moment>;
     archived: Readonly<boolean>;
     archived_by_list: Readonly<boolean>;

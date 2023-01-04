@@ -166,9 +166,7 @@ export const SIOBoardEventListeners = {
         store.commit.board.SIOUpdateCard(data);
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
             // FIXME: By some reason the entity always has an activities array. The API and Socket.IO emit not contains entity activities at all!
-            const entity = data.entity as Partial<Card>;
-            delete entity['activities'];
-            store.commit.card.updateCard(entity);
+            store.commit.card.updateCard(data.entity as Card);
         }
         console.groupEnd();
     },
@@ -375,7 +373,7 @@ export const SIOBoardEventListeners = {
         if (store.state.card.card && store.state.card.card.id === data.card_id) {
             store.commit.card.addChecklistItem(data.entity as ChecklistItem);
         }
-        store.commit.board.SIOAddChecklistItem(data);
+        // store.commit.board.SIOAddChecklistItem(data);
         console.groupEnd();
     },
     updateChecklistItem: (data: SIOCardEvent) => {

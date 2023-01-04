@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex";
 import { State } from "../index";
 
-import { Card, CardActivity, CardChecklist, ChecklistItem, CardActivityQueryType, CardMember, CardDate } from "@/api/types";
+import { Card, CardActivity, CardChecklist, ChecklistItem, CardActivityQueryType, CardMember, CardDate, PaginatedCardActivity } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
 import { SIOChecklistItemDeleteEvent, SIOChecklistItemUpdateOrder } from "@/socket";
@@ -10,6 +10,7 @@ export interface CardState {
     card: null | Card;
     cardActivityQueryType: CardActivityQueryType;
     cardMoved: boolean;
+    activities: PaginatedCardActivity | null;
 }
 
 type Context = ActionContext<CardState, State>;
@@ -26,13 +27,14 @@ export default {
         setCard(state: CardState, value: Card) {
             state.card = value;
         },
-        updateCard(state: CardState, payload: Partial<Card>) {
-            if (state.card) {
-                state.card = Object.assign(state.card, payload);
-            }
+        setActivities(state: CardState, value: PaginatedCardActivity) {
+            state.activities = value;
+        },
+        updateCard(state: CardState, payload: Card) {
+            state.card = payload;
         },
         addCardActivity(state: CardState, activity: CardActivity) {
-            state.card?.activities.unshift(CardAPI.parseCardActivity(activity));
+            state.activities?.data.unshift(CardAPI.parseCardActivity(activity));
         },
         addChecklist(state: CardState, checklist: CardChecklist) {
             if (state.card) {
@@ -94,6 +96,7 @@ export default {
         },
         unloadCard(state: CardState) {
             state.card = null;
+            state.activities = null;
         },
         setCardActivityQueryType(state: CardState, value: CardActivityQueryType) {
             state.cardActivityQueryType = value;
@@ -136,18 +139,18 @@ export default {
             }
         },
         updateCardActivity(state: CardState, activity: CardActivity) {
-            if (state.card) {
-                const index = state.card.activities.findIndex((el) => el.id == activity.id);
+            if (state.activities) {
+                const index = state.activities?.data.findIndex((el) => el.id == activity.id) || -1;
                 if (index > -1) {
-                    state.card.activities[index] = CardAPI.parseCardActivity(activity);
+                    state.activities.data[index] = CardAPI.parseCardActivity(activity);
                 }
             }
         },
         deleteCardActivity(state: CardState, activity_id: number) {
-            if (state.card) {
-                const index = state.card.activities.findIndex((el) => el.id == activity_id);
+            if (state.activities) {
+                const index = state.activities.data.findIndex((el) => el.id == activity_id);
                 if (index > -1) {
-                    state.card.activities.splice(index, 1);
+                    state.activities.data.splice(index, 1);
                 }
             }
         }
@@ -155,8 +158,8 @@ export default {
     actions: {
         async loadCard(context: Context, cardId: number) {
             try {
-                const card: Card = await CardAPI.getCard(cardId);
-                context.commit("setCard", card);
+                context.commit("setCard", await CardAPI.getCard(cardId));
+                context.commit("setActivities", await CardAPI.getCardActivities(cardId, { type: "all" }));
             }
             catch (err) {
                 console.log(err);

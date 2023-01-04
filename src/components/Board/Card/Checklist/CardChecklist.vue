@@ -55,7 +55,6 @@ const props = defineProps<{ checklist: CardChecklist; }>();
 
 const addNewItem = ref(false);
 const newItemTitle = ref("");
-
 const editTitle = ref(false);
 const newTitle = ref(props.checklist.title);
 
