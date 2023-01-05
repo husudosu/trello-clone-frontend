@@ -46,7 +46,7 @@ import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
 
-import store from "@/store/index";
+import { useBoardStore } from "@/stores/board";
 import { CardAPI } from "@/api/card";
 import { BoardListAPI } from '@/api/boardList';
 import { BoardAPI } from "@/api/board";
@@ -56,21 +56,26 @@ import BoardListVue from "@/components/Board/List/BoardList.vue";
 import DraftBoardListVue from "@/components/Board/List/DraftBoardList.vue";
 import { useSocketIO, SIOEvent, SIOBoardEventListeners } from "@/socket";
 import BoardInfoDialog from "@/components/Board/DetailsDialog/BoardDetailsDialog.vue";
+import { useCardStore } from "@/stores/card";
 
 const $q = useQuasar();
 const { socket } = useSocketIO();
-const board = computed(() => store.state.board.board);
+
+const boardStore = useBoardStore();
+const cardStore = useCardStore();
+
+const board = computed(() => boardStore.board);
 const boardId = ref<number>(0);
 const boardLists = computed({
     get() {
-        return store.state.board.board ? store.state.board.board.lists : [];
+        return boardStore.board ? boardStore.board.lists : [];
     },
     set(value) {
-        store.commit.board.setLists(value);
+        boardStore.setLists(value);
     }
 });
 
-const hasPermission = store.getters.board.hasPermission;
+const hasPermission = boardStore.hasPermission;
 const socketWereDisconnected = ref(false);
 
 const route = useRoute();
@@ -98,8 +103,8 @@ const onCardSortableMoveEnd = async (ev: any) => {
     The issue only appears when you move card inside a list
     If you move one list to other it's not an isssue
     */
-    store.commit.card.setCardMoved(true);
-    setTimeout(() => store.commit.card.setCardMoved(false), 30);
+    cardStore.setCardMoved(true);
+    setTimeout(() => cardStore.setCardMoved(false), 30);
 
     if (listFromId !== listToId) {
         // Change list id of card.
@@ -108,8 +113,8 @@ const onCardSortableMoveEnd = async (ev: any) => {
         Provide listToId as from_list_id because when this store commit runs.
         The computed variables already by vue-draggable boardLists and cards on BoardPage, BoardList
         */
-        // store.commit.board.SIOUpdateCard({ card: updatedCard, from_list_id: listToId });
-        store.commit.board.SIOUpdateCard({ entity: updatedCard, list_id: listToId, card_id: updatedCard.id });
+        // boardStore.SIOUpdateCard({ card: updatedCard, from_list_id: listToId });
+        boardStore.SIOUpdateCard({ entity: updatedCard, list_id: listToId, card_id: updatedCard.id });
         // BoardList changed so need to update both fromList and toList
         const listFrom = board.value?.lists.find((el) => el.id == listFromId);
         if (listFrom !== undefined) {
@@ -128,7 +133,7 @@ const onCardSortableMoveEnd = async (ev: any) => {
 
 const loadBoard = async (boardId: number) => {
     $q.loading.show({ delay: 400 });
-    await store.dispatch.board.loadBoard({ boardId })
+    await boardStore.loadBoard({ boardId })
         .catch((err) => {
             switch (err.response.status) {
                 case 404:
@@ -165,7 +170,7 @@ const onSaveBoardList = (boardList: DraftBoardList) => {
 
 
 onBeforeRouteUpdate(async (to, from) => {
-    store.commit.board.unLoadBoard();
+    boardStore.unLoadBoard();
     if (to.params.boardId !== from.params.boardId && typeof to.params.boardId === "string") {
         await loadBoard(parseInt(to.params.boardId));
         socket.emit("board_change", { board_id: to.params.boardId });
@@ -249,7 +254,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     console.debug("[Socket.IO]: Leaving board route so disconnect from server.");
-    store.commit.board.unLoadBoard();
+    boardStore.unLoadBoard();
     socket.disconnect();
 });
 </script>

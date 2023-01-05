@@ -20,7 +20,11 @@
 <script setup lang="ts">
 import { defineEmits, ref, computed, defineProps, withDefaults } from 'vue';
 import { useDialogPluginComponent } from 'quasar';
-import store from "@/store";
+import { useCardStore } from '@/stores/card';
+import { useBoardStore } from '@/stores/board';
+
+const boardStore = useBoardStore();
+const cardStore = useCardStore();
 
 interface Props {
     showOnlyNotAssignedMembers?: boolean;
@@ -32,15 +36,15 @@ const member = ref();
 
 const boardUsers = computed(() => {
     if (props.showOnlyNotAssignedMembers) {
-        return store.state.board.users.filter((boardUser) => {
-            const isAssigned = store.state.card.card?.assigned_members.find((assignment) => assignment.board_user.id == boardUser.id);
+        return boardStore.users.filter((boardUser) => {
+            const isAssigned = cardStore.card?.assigned_members.find((assignment) => assignment.board_user.id == boardUser.id);
             if (!boardUser.is_deleted && isAssigned == undefined) {
                 return boardUser;
             }
         });
     }
     else {
-        return store.state.board.users;
+        return boardStore.users;
     }
 });
 defineEmits([

@@ -28,18 +28,19 @@ import { ref } from 'vue';
 import { PaginatedCardActivity } from '@/api/types';
 import { BoardAPI } from '@/api/board';
 import CardActivityVue from '../Card/CardActivity.vue';
-import store from '@/store';
+import { useBoardStore } from '@/stores/board';
 
+const boardStore = useBoardStore();
 const activities = ref<PaginatedCardActivity>();
 
 const onLoad = async (index: number, done: any) => {
-    if (store.state.board.board) {
+    if (boardStore.board) {
         if (!activities.value) {
-            activities.value = await BoardAPI.getBoardActivities(store.state.board.board.id, { page: index, per_page: 30 });
+            activities.value = await BoardAPI.getBoardActivities(boardStore.board.id, { page: index, per_page: 30 });
             done();
         }
         else if (index <= activities.value?.pages) {
-            const data = await BoardAPI.getBoardActivities(store.state.board.board.id, { page: index, per_page: 30 });
+            const data = await BoardAPI.getBoardActivities(boardStore.board.id, { page: index, per_page: 30 });
             activities.value.links = data.links;
             activities.value.page = data.page;
             activities.value.pages = data.pages;

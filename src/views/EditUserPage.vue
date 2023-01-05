@@ -63,17 +63,19 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import store from '@/store';
 
 import { useQuasar } from "quasar";
 import timezonesData from "../json/timezones.json";
 import { User, UserUpdate } from "@/api/types";
 import { UserAPI } from "@/api/user";
 import { requiredTextField, validateUser } from "@/formValidators";
+import { useAuthStore } from "@/stores/auth";
 const timezones = ref(timezonesData);
 
 const route = useRoute();
 const router = useRouter();
+
+const authStore = useAuthStore();
 
 const user = ref<User>();
 const updateUser = ref<UserUpdate>();
@@ -92,13 +94,13 @@ const loadUser = async () => {
         // Check role of current user.
         const userId = parseInt(route.params.userId);
         if (
-            store.state.auth.user &&
+            authStore.user &&
             (
-                store.state.auth.user.id == userId ||
-                store.state.auth.user.roles.includes("admin")
+                authStore.user.id == userId ||
+                authStore.user.roles.includes("admin")
             )
         ) {
-            adminEdit.value = store.state.auth.user.roles.includes("admin") && store.state.auth.user.id !== userId;
+            adminEdit.value = authStore.user.roles.includes("admin") && authStore.user.id !== userId;
             user.value = await UserAPI.getUser(userId);
             updateUser.value = { ...user.value, current_password: null };
         }
@@ -154,8 +156,8 @@ const onSubmit = async () => {
         if (success && updateUser.value) {
             UserAPI.updateUser(updateUser.value.id, updateUser.value)
                 .then(async (data) => {
-                    if (store.state.auth.user.id === updateUser.value.id) {
-                        await store.dispatch.auth.getUserClaims();
+                    if (authStore.user?.id === updateUser.value?.id) {
+                        await authStore.getUserClaims();
                     }
                     $q.notify({ type: "positive", message: "User updated", timeout: 3000, position: "top", closeBtn: true });
                     router.push({ name: "user", params: { userId: data.id } });

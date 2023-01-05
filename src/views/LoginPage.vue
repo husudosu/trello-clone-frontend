@@ -38,19 +38,23 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { UserLogin } from '@/api/types.js';
-import store from "@/store/index";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
 
 const router = useRouter();
-
+const authStore = useAuthStore();
 const loginPayload = ref<UserLogin>({ username: "", password: "" });
 const failedMessage = ref<string>("");
 
 const onLoginClicked = () => {
     failedMessage.value = "";
-    store.dispatch.auth.doLogin(loginPayload.value).then(
-        () => router.push({ name: "boards" })
+    authStore.doLogin(loginPayload.value).then(
+        () => {
+            router.push({ name: "boards" });
+            console.log("login success");
+        }
     ).catch((err) => {
+        console.log(err);
         if (err.response.data) {
             failedMessage.value = err.response.data.message;
         }

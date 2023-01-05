@@ -33,15 +33,16 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
-import store from '@/store';
 
 import { User } from "@/api/types";
 import { UserAPI } from "@/api/user";
 import UserAvatar from "@/components/UserAvatar.vue";
+import { useAuthStore } from "@/stores/auth";
 const route = useRoute();
+const authStore = useAuthStore();
 
 const user = ref<User>();
-const currentUser = computed(() => store.state.auth.user);
+const currentUser = computed(() => authStore.user);
 
 
 onMounted(async () => {

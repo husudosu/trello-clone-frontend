@@ -31,13 +31,16 @@
 import { computed } from "vue";
 import { CardDate, BoardPermission } from '@/api/types';
 
-import store from "@/store";
 import { useQuasar } from "quasar";
 import CardDateDialog from "../CardDateDialog.vue";
 import { CardAPI } from "@/api/card";
+import { useBoardStore } from "@/stores/board";
+import { useCardStore } from "@/stores/card";
 
-const hasPermission = store.getters.board.hasPermission;
-const card = computed(() => store.state.card.card);
+const boardStore = useBoardStore();
+const cardStore = useCardStore();
+const hasPermission = boardStore.hasPermission;
+const card = computed(() => cardStore.card);
 
 const $q = useQuasar();
 

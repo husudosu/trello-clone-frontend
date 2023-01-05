@@ -2,11 +2,13 @@ import SocketIO from 'socket.io-client';
 import { ArchivedCard, ArchivedList, Board, BoardList, Card, CardActivity, CardChecklist, CardDate, CardMember, ChecklistItem } from './api/types';
 
 const options = { withCredentials: true, debug: process.env.NODE_ENV === "development" };
-import store from "@/store/index";
 import { BoardAPI } from './api/board';
 import { BoardListAPI } from './api/boardList';
 import router from './router';
 import { Dialog } from 'quasar';
+import { useCardStore } from './stores/card';
+import { useArchiveStore } from './stores/archive';
+import { useBoardStore } from './stores/board';
 
 
 export const useSocketIO = () => {
@@ -112,7 +114,7 @@ export interface SIOChecklistItemDeleteEvent extends SIODeleteEvent {
 
 // Event listeners for Board namespace
 export const SIOBoardEventListeners = {
-    onError: (error: any) => {
+    onError: (error: unknown) => {
         console.debug(`[Socket.IO]: Error ${JSON.stringify(error)}`);
     },
     onConnect: () => {
@@ -129,187 +131,220 @@ export const SIOBoardEventListeners = {
         });
     },
     boardUpdate: (board: Partial<Board>) => {
+        const boardStore = useBoardStore();
         console.group("[Socket.IO]: Board update");
         console.debug(`Board archive ${board.id}`);
         // FIXME by some reasons we have to delete board.lists similar to cardUpdate listener.
         delete board.lists;
 
-        store.commit.board.updateBoard(board);
+        boardStore.updateBoard(board);
         console.groupEnd();
     },
     newCard: (data: Card) => {
+        const boardStore = useBoardStore();
         console.group("[Socket.IO]: New card");
         console.debug(data);
-        store.commit.board.saveCard(data);
+        boardStore.saveCard(data);
         console.groupEnd();
     },
     revertCard: (data: Card) => {
+        const archiveStore = useArchiveStore();
+        const boardStore = useBoardStore();
         console.group("[Socket.IO]: Revert card");
         console.debug(data);
-        store.commit.archive.removeArchivedCard(data.id);
 
-        store.commit.board.saveCard(data);
+        archiveStore.removeArchivedCard(data.id);
+
+        boardStore.saveCard(data);
         // Reorder cards to get position correctly
-        if (store.state.board.board) {
-            const listId = store.state.board.board.lists.findIndex((el) => el.id === data.list_id);
+        if (boardStore.board) {
+            const listId = boardStore.board.lists.findIndex((el) => el.id === data.list_id);
             if (listId > -1) {
-                store.state.board.board.lists[listId].cards.sort((a, b) => a.position - b.position);
+                boardStore.board.lists[listId].cards.sort((a, b) => a.position - b.position);
             }
         }
         console.groupEnd();
     },
     cardUpdate: (data: SIOCardEvent) => {
+        const cardStore = useCardStore();
+        const boardStore = useBoardStore();
         console.group("[Socket.IO]: Card update");
         console.debug(data);
 
         // If list_id changed move to other list on store aswell
-        store.commit.board.SIOUpdateCard(data);
-        if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            // FIXME: By some reason the entity always has an activities array. The API and Socket.IO emit not contains entity activities at all!
-            store.commit.card.updateCard(data.entity as Card);
+        boardStore.SIOUpdateCard(data);
+        if (cardStore.card?.id === data.card_id) {
+            cardStore.updateCard(data.entity as Card);
         }
+
         console.groupEnd();
     },
     cardOrderUpdate: (data: SIOCardUpdateOrder) => {
+        const boardStore = useBoardStore();
         console.group("[Socket.IO]: Card update order");
         console.debug(data);
-        store.commit.board.updateCardOrder(data);
+        boardStore.updateCardOrder(data);
         console.groupEnd();
     },
     cardArchive: (data: SIOCardEvent) => {
+        const boardStore = useBoardStore();
+        const archiveStore = useArchiveStore();
+
         console.group("[Socket.IO]: Card archive");
         console.debug("Remove from store");
         console.debug(data);
 
-        store.commit.board.removeCard(data);
-        store.commit.archive.addArchivedCard(BoardAPI.parseArchivedEntities(data.entity as ArchivedCard) as ArchivedCard);
+        boardStore.removeCard(data);
+        archiveStore.addArchivedCard(BoardAPI.parseArchivedEntities(data.entity as ArchivedCard) as ArchivedCard);
 
         console.groupEnd();
     },
     cardDelete: (cardId: number) => {
+        const archiveStore = useArchiveStore();
         console.group("[Socket.IO]: Card delete");
         console.debug(cardId);
-        store.commit.archive.removeArchivedCard(cardId);
+        archiveStore.removeArchivedCard(cardId);
     },
     newList: (data: BoardList) => {
+        const boardStore = useBoardStore();
         console.group("[Socket.IO]: New list");
         console.debug(data);
-        store.commit.board.saveList(data);
+        boardStore.saveList(data);
         console.groupEnd();
     },
     newCardDate: (cardDate: SIOCardEvent) => {
+        const cardStore = useCardStore();
+        const boardStore = useBoardStore();
+
         console.group("[Socket.IO]: New card date");
         console.debug(cardDate);
         const entity = cardDate.entity as CardDate;
-        store.commit.board.SIOAddEntityToCard({
+        boardStore.SIOAddEntityToCard({
             event: { list_id: cardDate.list_id, card_id: cardDate.card_id },
             entityType: "date",
             entity
         });
 
-        if (store.state.card.card && store.state.card.card.id == cardDate.card_id) {
-            store.commit.card.addCardDate(entity);
+        if (cardStore.card?.id === cardDate.card_id) {
+            cardStore.addCardDate(entity);
         }
         console.groupEnd();
     },
     updateCardDate: (cardDate: SIOCardEvent) => {
+        const cardStore = useCardStore();
+        const boardStore = useBoardStore();
+
         console.group("[Socket.IO]: Update card date");
         console.debug(cardDate);
 
         const entity = cardDate.entity as CardDate;
 
-        store.commit.board.SIOUpdateCardEntity({
+        boardStore.SIOUpdateCardEntity({
             event: { list_id: cardDate.list_id, card_id: cardDate.card_id },
             entityType: "date",
             entity
         });
 
-        if (store.state.card.card && store.state.card.card.id == cardDate.card_id) {
-            store.commit.card.updateCardDate(entity);
+        if (cardStore.card?.id === cardDate.card_id) {
+            cardStore.updateCardDate(entity);
         }
         console.groupEnd();
 
     },
     deleteCardDate: (cardDate: SIODeleteEvent) => {
+        const cardStore = useCardStore();
+        const boardStore = useBoardStore();
         console.group("[Socket.IO]: Delete card date");
         console.debug(cardDate);
-        store.commit.board.SIODeleteCardEntity({
+        boardStore.SIODeleteCardEntity({
             event: { list_id: cardDate.list_id, card_id: cardDate.card_id },
             entityType: "date",
             entity_id: cardDate.entity_id
         });
 
-        if (store.state.card.card && store.state.card.card.id == cardDate.card_id) {
-            store.commit.card.deleteCardDate(cardDate.entity_id);
+        if (cardStore.card?.id === cardDate.card_id) {
+            cardStore.deleteCardDate(cardDate.entity_id);
         }
         console.groupEnd();
     },
     listUpdateOrder: (data: number[]) => {
+        const boardStore = useBoardStore();
         console.group("[Socket.IO]: Update list order");
         console.debug(data);
-        store.commit.board.updateListOrder(data);
+        boardStore.updateListOrder(data);
         console.groupEnd();
     },
     listUpdate: (data: BoardList) => {
+        const boardStore = useBoardStore();
         console.group("[Socket.IO]: Update list");
         console.debug(data);
-        store.commit.board.saveList(data);
+        boardStore.saveList(data);
         console.groupEnd();
     },
     archiveList: (data: ArchivedList) => {
+        const boardStore = useBoardStore();
+        const archiveStore = useArchiveStore();
         console.group("[Socket.IO]: Archive list");
         console.debug(data);
         // TODO refactor board commit method to accept only ID.
-        if (store.state.board.board) {
-            const listItem = store.state.board.board.lists.find((el) => el.id == data.id);
+        if (boardStore.board) {
+            const listItem = boardStore.board.lists.find((el) => el.id == data.id);
             if (listItem) {
-                store.commit.board.removeList(listItem);
+                boardStore.removeList(listItem);
             }
         }
-        store.commit.archive.addArchivedList(BoardAPI.parseArchivedEntities(data) as ArchivedList);
+        archiveStore.addArchivedList(BoardAPI.parseArchivedEntities(data) as ArchivedList);
         console.groupEnd();
     },
     revertList: (data: BoardList) => {
+        const boardStore = useBoardStore();
+        const archiveStore = useArchiveStore();
         console.group("[Socket.IO] Revert list");
         console.debug(data);
         // We should archived list cards too.
         // FIXME: By some reasons not removing all non-archived cards of list from archive store.
-        store.state.archive.cards.forEach((el) => {
+        archiveStore.cards.forEach((el) => {
             if (el.board_list.id === data.id && !el.archived) {
-                store.commit.archive.removeArchivedCard(el.id);
+                archiveStore.removeArchivedCard(el.id);
             }
         });
-        store.commit.archive.removeArchivedList(data.id);
-        store.commit.board.saveList(BoardListAPI.parseBoardList(data));
+        archiveStore.removeArchivedList(data.id);
+        boardStore.saveList(BoardListAPI.parseBoardList(data));
 
         // Sort Boardlists to get proper positions.
-        store.state.board.board?.lists.sort((a, b) =>
+        boardStore.board?.lists.sort((a, b) =>
             a.position - b.position
         );
     },
     deleteList: (listId: number) => {
+        const archiveStore = useArchiveStore();
+
         console.group("[Socket.IO] Delete list");
         console.debug(listId);
-        store.commit.archive.removeArchivedList(listId);
+        archiveStore.removeArchivedList(listId);
         // We should remove archived list cards too. 
-        store.state.archive.cards.forEach((el) => {
+        archiveStore.cards.forEach((el) => {
             if (el.board_list.id === listId) {
-                store.commit.archive.removeArchivedCard(el.id);
+                archiveStore.removeArchivedCard(el.id);
             }
         });
     },
     onCardActivity: (data: CardActivity) => {
+        const cardStore = useCardStore();
+
         console.group(`[Socket.IO]: Card activity`);
         console.debug(data);
-        store.commit.card.addCardActivity(data);
+        cardStore.addCardActivity(data);
         console.groupEnd();
     },
     cardMemberAssigned: (data: SIOCardEvent) => {
+        const cardStore = useCardStore();
+        const boardStore = useBoardStore();
         console.group(`[Socket.IO]: Card member assignment`);
         console.log(data);
         // Add assignment to board assigned
         const entity = data.entity as CardMember;
-        store.commit.board.SIOAddEntityToCard(
+        boardStore.SIOAddEntityToCard(
             {
                 event: { list_id: data.list_id, card_id: data.card_id },
                 entityType: "member",
@@ -317,103 +352,121 @@ export const SIOBoardEventListeners = {
             }
         );
         // Add assignment to card if it's active
-        if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.addCardAsisgnment(entity);
+        if (cardStore.card?.id === data.card_id) {
+            cardStore.addCardAsisgnment(entity);
         }
         console.groupEnd();
     },
     cardMemberDeAssigned: (data: SIODeleteEvent) => {
+        const cardStore = useCardStore();
+        const boardStore = useBoardStore();
         console.group(`[Socket.IO]: Card member deassignment`);
         console.log(data);
-        store.commit.board.SIODeleteCardEntity({
+        boardStore.SIODeleteCardEntity({
             event: { list_id: data.list_id, card_id: data.card_id },
             entityType: "member",
             entity_id: data.entity_id
         });
         // Delete assignment to card if it's active
-        if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.removeCardAssignment(data.entity_id);
+        if (cardStore.card?.id === data.card_id) {
+            cardStore.removeCardAssignment(data.entity_id);
         }
         console.groupEnd();
     },
     newCardChecklist: (data: SIOCardEvent) => {
+        const cardStore = useCardStore();
+        const boardStore = useBoardStore();
         console.group(`[Socket.IO]: New checklist`);
         console.log(data);
         const entity = data.entity as CardChecklist;
-        if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.addChecklist(entity);
+
+        if (cardStore.card?.id === data.card_id) {
+            cardStore.addChecklist(entity);
         }
-        store.commit.board.SIOAddEntityToCard({ event: data, entityType: "checklist", entity });
+        boardStore.SIOAddEntityToCard({ event: data, entityType: "checklist", entity });
         console.groupEnd();
     },
     updateCardChecklist: (data: SIOCardEvent) => {
+        const cardStore = useCardStore();
+        const boardStore = useBoardStore();
+        const entity = data.entity as CardChecklist;
         console.group(`[Socket.IO]: Checklist updated`);
         console.log(data);
-        const entity = data.entity as CardChecklist;
-        if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.updateChecklist(entity);
+
+        if (cardStore.card?.id === data.card_id) {
+            cardStore.updateChecklist(entity);
         }
-        store.commit.board.SIOUpdateCardEntity({ event: data, entityType: "checklist", entity });
+        boardStore.SIOUpdateCardEntity({ event: data, entityType: "checklist", entity });
         console.groupEnd();
     },
     deleteCardChecklist: (data: SIODeleteEvent) => {
+        const cardStore = useCardStore();
+        const boardStore = useBoardStore();
         console.group(`[Socket.IO]: Checklist delete`);
         console.log(data);
 
-        if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.removeChecklist(data.entity_id);
+        if (cardStore.card?.id === data.card_id) {
+            cardStore.removeChecklist(data.entity_id);
         }
-        store.commit.board.SIODeleteCardEntity({ event: data, entityType: "checklist", entity_id: data.entity_id });
+        boardStore.SIODeleteCardEntity({ event: data, entityType: "checklist", entity_id: data.entity_id });
         console.groupEnd();
     },
     newChecklistItem: (data: SIOCardEvent) => {
+        const cardStore = useCardStore();
         console.group(`[Socket.IO]: Checklist item create`);
         console.log(data);
 
-        if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.addChecklistItem(data.entity as ChecklistItem);
+        if (cardStore.card?.id === data.card_id) {
+            cardStore.addChecklistItem(data.entity as ChecklistItem);
         }
-        // store.commit.board.SIOAddChecklistItem(data);
+        // boardStore.SIOAddChecklistItem(data);
         console.groupEnd();
     },
     updateChecklistItem: (data: SIOCardEvent) => {
+        const cardStore = useCardStore();
+        const boardStore = useBoardStore();
         console.group(`[Socket.IO]: Checklist item update`);
         console.log(data);
 
-        if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.updateChecklistItem(data.entity as ChecklistItem);
+        if (cardStore.card?.id === data.card_id) {
+            cardStore.updateChecklistItem(data.entity as ChecklistItem);
         }
-        store.commit.board.SIOUpdateChecklistItem(data);
+        boardStore.SIOUpdateChecklistItem(data);
         console.groupEnd();
     },
     deleteChecklistItem: (data: SIOChecklistItemDeleteEvent) => {
+        const cardStore = useCardStore();
+        const boardStore = useBoardStore();
         console.group(`[Socket.IO]: Checklist item delete`);
         console.log(data);
-        if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.removeChecklistItem(data);
+        if (cardStore.card?.id === data.card_id) {
+            cardStore.removeChecklistItem(data);
         }
-        store.commit.board.SIODeleteChecklistItem(data);
+        boardStore.SIODeleteChecklistItem(data);
         console.groupEnd();
     },
     updateChecklistItemOrder: (data: SIOChecklistItemUpdateOrder) => {
+        const cardStore = useCardStore();
         console.group("[Socket.IO]: Checklist item update order");
         console.log(data);
 
-        if (store.state.card.card && store.state.card.card.id === data.card_id) {
-            store.commit.card.updateChecklistItemOrder(data);
+        if (cardStore.card?.id === data.card_id) {
+            cardStore.updateChecklistItemOrder(data);
         }
         console.groupEnd();
     },
     updateCardActivity: (data: CardActivity) => {
+        const cardStore = useCardStore();
         console.group("[Socket.IO]: Card activity update");
         console.log(data);
-        store.commit.card.updateCardActivity(data);
+        cardStore.updateCardActivity(data);
         console.groupEnd();
     },
     deleteCardActivity: (data: number) => {
+        const cardStore = useCardStore();
         console.group("[Socket.IO]: Card activity delete");
         console.log(data);
-        store.commit.card.deleteCardActivity(data);
+        cardStore.deleteCardActivity(data);
         console.groupEnd();
     }
 };

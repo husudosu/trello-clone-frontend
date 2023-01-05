@@ -2,17 +2,18 @@ import { API } from ".";
 import { Board, BoardClaims, BoardRole, AddBoardMemberType, BoardAllowedUser, CardActivityQueryParams, PaginatedCardActivity, ArchivedCard, ArchivedList } from "./types";
 
 import moment from "moment-timezone";
-import store from "@/store";
 import { CardAPI } from "./card";
+import { useAuthStore } from "@/stores/auth";
 
 export const BoardAPI = {
     parseArchivedEntities: (data: ArchivedList[] | ArchivedCard[] | ArchivedCard | ArchivedList) => {
+        const authStore = useAuthStore();
         if (Array.isArray(data)) {
             data.forEach((el) => {
                 BoardAPI.parseArchivedEntities(el);
             });
         } else {
-            data.archived_on = moment.utc(data.archived_on).tz(store.getters.auth.timezone);
+            data.archived_on = moment.utc(data.archived_on).tz(authStore.timezone);
             return data;
         }
     },
@@ -37,11 +38,12 @@ export const BoardAPI = {
         return data;
     },
     getBoardActivities: async (boardId: number, params: CardActivityQueryParams): Promise<PaginatedCardActivity> => {
+        const authStore = useAuthStore();
         if (params.dt_to) {
-            params.dt_to = moment.tz(params.dt_to, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
+            params.dt_to = moment.tz(params.dt_to, authStore.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
         }
         if (params.dt_from) {
-            params.dt_from = moment.tz(params.dt_from, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
+            params.dt_from = moment.tz(params.dt_from, authStore.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
         }
         const { data } = await API.get<PaginatedCardActivity>(`/board/${boardId}/activities`, { params });
         data.data.forEach((el) => {
@@ -55,7 +57,7 @@ export const BoardAPI = {
     },
     getBoard: async (boardId: number): Promise<Board> => {
         const { data } = await API.get<Board>(`/board/${boardId}`);
-
+        const authStore = useAuthStore();
         // Convert datetimes to moment
         data.lists.forEach((list) => {
             list.cards.forEach((card) => {
@@ -63,9 +65,9 @@ export const BoardAPI = {
                 // Convert dates to moment dates.
                 card.dates.forEach((dt) => {
                     if (dt.dt_from) {
-                        dt.dt_from = moment.utc(dt.dt_from).tz(store.getters.auth.timezone);
+                        dt.dt_from = moment.utc(dt.dt_from).tz(authStore.timezone);
                     }
-                    dt.dt_to = moment.utc(dt.dt_to).tz(store.getters.auth.timezone);
+                    dt.dt_to = moment.utc(dt.dt_to).tz(authStore.timezone);
                 });
             });
         });

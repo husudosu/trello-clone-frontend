@@ -12,7 +12,6 @@
         "axios": "^0.27.2",
         "colorthief": "^2.3.2",
         "core-js": "^3.8.3",
-        "direct-vuex": "^1.0.0-rc3",
         "dompurify": "^2.4.1",
         "github-markdown-css": "^5.1.0",
         "jwt-decode": "^3.1.2",
@@ -20,12 +19,12 @@
         "marked": "^4.2.5",
         "moment": "^2.29.4",
         "moment-timezone": "^0.5.37",
+        "pinia": "^2.0.28",
         "quasar": "^2.0.0",
         "socket.io-client": "^4.5.4",
         "vue": "^3.2.13",
         "vue-router": "^4.0.3",
-        "vuedraggable": "^4.1.0",
-        "vuex": "^4.0.0"
+        "vuedraggable": "^4.1.0"
     },
     "devDependencies": {
         "@types/dompurify": "^2.4.0",
@@ -37,7 +36,6 @@
         "@vue/cli-plugin-eslint": "~5.0.0",
         "@vue/cli-plugin-router": "~5.0.0",
         "@vue/cli-plugin-typescript": "~5.0.0",
-        "@vue/cli-plugin-vuex": "~5.0.0",
         "@vue/cli-service": "~5.0.0",
         "@vue/eslint-config-typescript": "^9.1.0",
         "eslint": "^7.32.0",

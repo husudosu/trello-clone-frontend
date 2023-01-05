@@ -44,12 +44,13 @@ import { useQuasar } from 'quasar';
 
 import draggable from 'vuedraggable';
 
-import store from "@/store";
 import { ChecklistAPI } from '@/api/checklist';
 import ChecklistItem from './ChecklistItem.vue';
+import { useBoardStore } from '@/stores/board';
 
+const boardStore = useBoardStore();
 const $q = useQuasar();
-const hasPermission = store.getters.board.hasPermission;
+const hasPermission = boardStore.hasPermission;
 
 const props = defineProps<{ checklist: CardChecklist; }>();
 

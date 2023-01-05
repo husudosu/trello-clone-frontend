@@ -1,16 +1,17 @@
+import { useAuthStore } from "@/stores/auth";
 import moment from "moment-timezone";
 
 import { API } from ".";
 import { BoardAllowedUser, CardChecklist, ChecklistItem, DraftChecklistItem } from "./types";
-import store from "@/store";
 
 export const ChecklistAPI = {
     parseChecklistItem: (data: ChecklistItem) => {
+        const authStore = useAuthStore();
         if (data.marked_complete_on) {
-            data.marked_complete_on = moment.utc(data.marked_complete_on).tz(store.getters.auth.timezone);
+            data.marked_complete_on = moment.utc(data.marked_complete_on).tz(authStore.timezone);
         }
         if (data.due_date) {
-            data.due_date = moment.utc(data.due_date).tz(store.getters.auth.timezone);
+            data.due_date = moment.utc(data.due_date).tz(authStore.timezone);
         }
         return data;
     },
@@ -32,10 +33,11 @@ export const ChecklistAPI = {
     },
     patchChecklistItem: async (itemId: number, item: Partial<ChecklistItem>): Promise<ChecklistItem> => {
         // Make clone of dt before conversion
+        const authStore = useAuthStore();
         let due_date: undefined | moment.Moment | string = item.due_date;
         if (item.due_date) {
             // Convert date to UTC before pushing to API
-            due_date = moment.tz(item.due_date, store.getters.auth.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
+            due_date = moment.tz(item.due_date, authStore.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
         }
         const { data } = await API.patch<ChecklistItem>(`/checklist/item/${itemId}`, { ...item, due_date });
         return ChecklistAPI.parseChecklistItem(data);

@@ -68,25 +68,29 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
-import store from "../store";
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import BoardDetailsDialogVue from '@/components/Board/DetailsDialog/BoardDetailsDialog.vue';
+import { useAuthStore } from '@/stores/auth';
+import { useBoardStore } from '@/stores/board';
 
 const router = useRouter();
-const boards = computed(() => store.state.board.boards);
+const authStore = useAuthStore();
+const boardStore = useBoardStore();
+
+const boards = computed(() => boardStore.boards);
 const leftDrawerOpen = ref(false);
 
 
 const $q = useQuasar();
 
 const title = computed(() => {
-    return $q.screen.xs && store.state.board.board ? `${store.state.board.board.title} ${!store.state.board.board.archived ? '' : '(Archived)'}` : "Trello clone";
+    return $q.screen.xs && boardStore.board ? `${boardStore.board.title} ${!boardStore.board.archived ? '' : '(Archived)'}` : "Trello clone";
 });
 
-const user = computed(() => store.state.auth.user);
+const user = computed(() => authStore.user);
 const onLogoutClicked = () => {
-    store.dispatch.auth.doLogout().then(() => router.push({ name: "login" }));
+    authStore.doLogout().then(() => { router.push({ name: "login" }); console.log("login screen"); });
 };
 
 const onBoardDetailsClicked = () => {

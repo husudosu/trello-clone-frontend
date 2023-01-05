@@ -1,8 +1,10 @@
 <template>
     <q-item dense style="padding-left: 0px;">
         <q-tooltip v-if="props.item.marked_complete_user">
-            Done by <b>{{ props.item.marked_complete_user.user.name || props.item.marked_complete_user.user.username
-            }}</b> on <b>{{ props.item.marked_complete_on ?
+            Done by <b>{{
+                props.item.marked_complete_user.user.name || props.item.marked_complete_user.user.username
+            }}</b> on <b>{{
+    props.item.marked_complete_on ?
         props.item.marked_complete_on.format("YYYY-MM-DD HH:mm:ss") : "N/A"
 }}</b>
         </q-tooltip>
@@ -47,14 +49,16 @@
 </template>
 <script lang="ts" setup>
 import { defineProps, ref } from 'vue';
-import store from "@/store";
 import { ChecklistItem, BoardPermission, BoardAllowedUser } from "@/api/types";
 import { useQuasar } from 'quasar';
 import AssignMember from "@/components/Board/Card/AssignMember.vue";
 import UserAvatar from '@/components/UserAvatar.vue';
 import DateToItemDialog from './DateToItemDialog.vue';
 import { ChecklistAPI } from '@/api/checklist';
-const hasPermission = store.getters.board.hasPermission;
+import { useBoardStore } from '@/stores/board';
+
+const boardStore = useBoardStore();
+const hasPermission = boardStore.hasPermission;
 
 const $q = useQuasar();
 

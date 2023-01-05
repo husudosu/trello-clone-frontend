@@ -28,19 +28,19 @@
 
 import { ref, computed, defineEmits } from "vue";
 import { useDialogPluginComponent } from 'quasar';
-import store from "@/store/index";
 
 import { UserAPI } from "@/api/user";
 import { BoardAPI } from "@/api/board";
+import { useBoardStore } from "@/stores/board";
 
 defineEmits([
     ...useDialogPluginComponent.emits
 ]);
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent();
-
+const boardStore = useBoardStore();
 const addMemberFormUsername = ref("");
-const boardRoles = computed(() => store.state.board.roles);
+const boardRoles = computed(() => boardStore.roles);
 const form = ref();
 
 // These goes into type
@@ -50,7 +50,7 @@ const user_id = ref();
 
 const onAddMemberSubmit = () => {
     form.value.validate().then((success: boolean) => {
-        if (success && store.state.board.board) {
+        if (success && boardStore.board) {
             onDialogOK({ board_role_id: board_role_id.value, user_id: user_id.value });
         }
     });
@@ -65,9 +65,9 @@ const validateUser = (val: string): Promise<string | boolean> => {
         if (val.length > 0) {
             UserAPI.findUser(val).then((data) => {
                 user_id.value = data.id;
-                if (store.state.board.board) {
+                if (boardStore.board) {
                     // If board member returns 404 we good to go!
-                    BoardAPI.getBoardMember(store.state.board.board.id, data.id).then(() => {
+                    BoardAPI.getBoardMember(boardStore.board.id, data.id).then(() => {
                         resolve("Member already exists!");
                     }).catch(() => resolve(true));
                 }
