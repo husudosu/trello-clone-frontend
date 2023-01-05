@@ -29,13 +29,17 @@ interface CardPositionInBoard {
  * @returns Found index or throws an error.
  */
 const findCardIndex = (lists: BoardList[], listId: number, cardId: number): CardPositionInBoard => {
+    // console.debug(`Find card index on listId: ${listId} cardId: ${cardId} on list ${JSON.stringify(lists)}`);
     const listIndex = lists.findIndex((el) => el.id === listId);
 
     if (listIndex > -1) {
         const cardIndex = lists[listIndex].cards.findIndex((el) => el.id === cardId);
 
         if (cardIndex > -1) return { listIndex, cardIndex };
-        else throw "Card index of card not found!";
+        else {
+            console.debug(`Card not found, searchlet:  list id: ${listId} card id: ${cardId}`);
+            throw "Card index of card not found!";
+        }
     }
     else throw "List index of card not found!";
 };
@@ -221,15 +225,16 @@ export const useBoardStore = defineStore('board', {
             }
         },
         SIOUpdateCard(payload: SIOCardEvent) {
-            const cPos = findCardIndex(this.board?.lists || [], payload.list_id, payload.card_id);
-            const entity = payload.entity as Card;
-
             if (this.board) {
+                const cPos = findCardIndex(this.board.lists, payload.list_id, payload.card_id);
+                const entity = payload.entity as Card;
+
                 if (payload.list_id === entity.list_id) {
                     // Object.assign(state.board.lists[cPos.listIndex].cards[cPos.cardIndex], CardAPI.parseCard(entity));
                     this.board.lists[cPos.listIndex].cards[cPos.cardIndex] = CardAPI.parseCard(entity);
                 }
                 else {
+                    console.log("Move card to other list");
                     this.board.lists[cPos.listIndex].cards.splice(cPos.cardIndex, 1);
 
                     const newListIndex = this.board.lists.findIndex((el) => el.id === entity.list_id);
@@ -237,6 +242,7 @@ export const useBoardStore = defineStore('board', {
                         this.board.lists[newListIndex].cards.push(CardAPI.parseCard(entity));
                     }
                 }
+
             }
 
         },
@@ -291,12 +297,12 @@ export const useBoardStore = defineStore('board', {
             if (this.board) this.board.lists = lists;
         },
         setCards(payload: { cards: Card[], listId: number; }) {
-            const listIndex = this.board?.lists.findIndex((el) => el.id == payload.listId) || -1;
-
-            if (listIndex > -1 && this.board) {
-                this.board.lists[listIndex].cards = payload.cards;
+            if (this.board) {
+                const listIndex = this.board.lists.findIndex((el) => el.id === payload.listId);
+                if (listIndex > -1) {
+                    this.board.lists[listIndex].cards = payload.cards;
+                }
             }
-
         },
         updateListOrder(orderOfIds: number[]) {
             this.board?.lists.sort((a, b) => orderOfIds.indexOf(a.id) - orderOfIds.indexOf(b.id));
@@ -306,15 +312,15 @@ export const useBoardStore = defineStore('board', {
         },
         updateCardOrder(payload: SIOCardUpdateOrder) {
             // Find list
-            const listIndex = this.board?.lists.findIndex((el) => el.id === payload.list_id) || -1;
-
-            if (listIndex > -1) {
-                this.board?.lists[listIndex].cards.sort(
-                    (a, b) => payload.order.indexOf(a.id) - payload.order.indexOf(b.id));
-
-                this.board?.lists[listIndex].cards.forEach((el, index) => {
-                    el.position = index;
-                });
+            if (this.board) {
+                const listIndex = this.board.lists.findIndex((el) => el.id === payload.list_id);
+                if (listIndex > -1) {
+                    this.board.lists[listIndex].cards.sort(
+                        (a, b) => payload.order.indexOf(a.id) - payload.order.indexOf(b.id));
+                    this.board.lists[listIndex].cards.forEach((el, index) => {
+                        el.position = index;
+                    });
+                }
             }
         },
         async loadBoard(payload: { boardId: number; }) {

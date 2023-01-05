@@ -20,7 +20,7 @@ export const useCardStore = defineStore('card', {
         activities: null
     }),
     getters: {
-        activityList: (state: State) => state.activities?.data
+        activityList: (state: State) => state.activities?.data || []
     },
     actions: {
         setCard(payload: Card) {
