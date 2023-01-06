@@ -1,10 +1,10 @@
 import { defineStore } from "pinia";
-import { ArchivedCard, ArchivedList } from "@/api/types";
+import { IArchivedCard, IArchivedList } from "@/api/types";
 import { BoardAPI } from "@/api/board";
 
 export interface State {
-    cards: ArchivedCard[];
-    lists: ArchivedList[];
+    cards: IArchivedCard[];
+    lists: IArchivedList[];
 }
 
 export const useArchiveStore = defineStore('archive', {
@@ -14,20 +14,20 @@ export const useArchiveStore = defineStore('archive', {
     }),
     getters: {},
     actions: {
-        setArchivedCards(value: ArchivedCard[]) {
+        setArchivedCards(value: IArchivedCard[]) {
             this.cards = value;
         },
-        addArchivedCard(value: ArchivedCard) {
+        addArchivedCard(value: IArchivedCard) {
             this.cards.unshift(value);
         },
         removeArchivedCard(id: number) {
             const index = this.cards.findIndex((el) => el.id === id);
             if (index > -1) this.cards.splice(index, 1);
         },
-        setArchivedLists(value: ArchivedList[]) {
+        setArchivedLists(value: IArchivedList[]) {
             this.lists = value;
         },
-        addArchivedList(value: ArchivedList) {
+        addArchivedList(value: IArchivedList) {
             this.lists.unshift(value);
         },
         removeArchivedList(id: number) {

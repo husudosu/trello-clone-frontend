@@ -1,12 +1,12 @@
 import { API } from ".";
-import { Board, BoardClaims, BoardRole, AddBoardMemberType, BoardAllowedUser, CardActivityQueryParams, PaginatedCardActivity, ArchivedCard, ArchivedList } from "./types";
+import { IBoard, IBoardClaims, IBoardRole, IAddBoardMemberType, IBoardAllowedUser, ICardActivityQueryParams, IPaginatedCardActivity, IArchivedCard, IArchivedList } from "./types";
 
 import moment from "moment-timezone";
 import { CardAPI } from "./card";
 import { useAuthStore } from "@/stores/auth";
 
 export const BoardAPI = {
-    parseArchivedEntities: (data: ArchivedList[] | ArchivedCard[] | ArchivedCard | ArchivedList) => {
+    parseArchivedEntities: (data: IArchivedList[] | IArchivedCard[] | IArchivedCard | IArchivedList) => {
         const authStore = useAuthStore();
         if (Array.isArray(data)) {
             data.forEach((el) => {
@@ -17,27 +17,27 @@ export const BoardAPI = {
             return data;
         }
     },
-    getBoards: async (): Promise<Board[]> => {
-        const { data } = await API.get<Board[]>("board");
+    getBoards: async (): Promise<IBoard[]> => {
+        const { data } = await API.get<IBoard[]>("board");
         return data;
     },
-    getArchivedBoards: async (): Promise<Board[]> => {
-        const { data } = await API.get<Board[]>("board", { params: { archived: true } });
+    getArchivedBoards: async (): Promise<IBoard[]> => {
+        const { data } = await API.get<IBoard[]>("board", { params: { archived: true } });
         return data;
     },
-    getArchivedCards: async (boardId: number): Promise<ArchivedCard[]> => {
-        const { data } = await API.get<ArchivedCard[]>(`/board/${boardId}/archived-entities`, { params: { "entity_type": "card" } });
+    getArchivedCards: async (boardId: number): Promise<IArchivedCard[]> => {
+        const { data } = await API.get<IArchivedCard[]>(`/board/${boardId}/archived-entities`, { params: { "entity_type": "card" } });
         // Convert archived_on to moment
         BoardAPI.parseArchivedEntities(data);
         return data;
     },
-    getArchivedLists: async (boardId: number): Promise<ArchivedList[]> => {
-        const { data } = await API.get<ArchivedList[]>(`/board/${boardId}/archived-entities`, { params: { "entity_type": "list" } });
+    getArchivedLists: async (boardId: number): Promise<IArchivedList[]> => {
+        const { data } = await API.get<IArchivedList[]>(`/board/${boardId}/archived-entities`, { params: { "entity_type": "list" } });
         // Convert archived_on to moment
         BoardAPI.parseArchivedEntities(data);
         return data;
     },
-    getBoardActivities: async (boardId: number, params: CardActivityQueryParams): Promise<PaginatedCardActivity> => {
+    getBoardActivities: async (boardId: number, params: ICardActivityQueryParams): Promise<IPaginatedCardActivity> => {
         const authStore = useAuthStore();
         if (params.dt_to) {
             params.dt_to = moment.tz(params.dt_to, authStore.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
@@ -45,7 +45,7 @@ export const BoardAPI = {
         if (params.dt_from) {
             params.dt_from = moment.tz(params.dt_from, authStore.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
         }
-        const { data } = await API.get<PaginatedCardActivity>(`/board/${boardId}/activities`, { params });
+        const { data } = await API.get<IPaginatedCardActivity>(`/board/${boardId}/activities`, { params });
         data.data.forEach((el) => {
             CardAPI.parseCardActivity(el);
         });
@@ -55,8 +55,8 @@ export const BoardAPI = {
         const { data } = await API.post(`/board/${boardId}/revert`);
         return data;
     },
-    getBoard: async (boardId: number): Promise<Board> => {
-        const { data } = await API.get<Board>(`/board/${boardId}`);
+    getBoard: async (boardId: number): Promise<IBoard> => {
+        const { data } = await API.get<IBoard>(`/board/${boardId}`);
         const authStore = useAuthStore();
         // Convert datetimes to moment
         data.lists.forEach((list) => {
@@ -73,39 +73,39 @@ export const BoardAPI = {
         });
         return data;
     },
-    postBoard: async (board: Partial<Board>): Promise<Board> => {
-        const { data } = await API.post<Board>("/board", board);
+    postBoard: async (board: Partial<IBoard>): Promise<IBoard> => {
+        const { data } = await API.post<IBoard>("/board", board);
         return data;
     },
-    patchBoard: async (boardId: number, board: Partial<Board>): Promise<Board> => {
-        const { data } = await API.patch<Board>(`/board/${boardId}`, board);
+    patchBoard: async (boardId: number, board: Partial<IBoard>): Promise<IBoard> => {
+        const { data } = await API.patch<IBoard>(`/board/${boardId}`, board);
         return data;
     },
     deleteBoard: async (boardId: number) => {
         await API.delete(`/board/${boardId}`);
     },
-    updateBoardListsOrder: async (board: Board) => {
+    updateBoardListsOrder: async (board: IBoard) => {
         const order = board.lists.map((el) => el.id);
         await API.patch(`/board/${board.id}/boardlists-order`, order);
     },
-    getBoardClaims: async (boardId: number): Promise<BoardClaims> => {
-        const { data } = await API.get<BoardClaims>(`/board/${boardId}/user-claims`);
+    getBoardClaims: async (boardId: number): Promise<IBoardClaims> => {
+        const { data } = await API.get<IBoardClaims>(`/board/${boardId}/user-claims`);
         return data;
     },
-    getBoardRoles: async (boardId: number): Promise<BoardRole[]> => {
-        const { data } = await API.get<BoardRole[]>(`/board/${boardId}/roles`);
+    getBoardRoles: async (boardId: number): Promise<IBoardRole[]> => {
+        const { data } = await API.get<IBoardRole[]>(`/board/${boardId}/roles`);
         return data;
     },
-    addBoardMember: async (boardId: number, member: AddBoardMemberType): Promise<BoardAllowedUser> => {
-        const { data } = await API.post<BoardAllowedUser>(`/board/${boardId}/member`, member);
+    addBoardMember: async (boardId: number, member: IAddBoardMemberType): Promise<IBoardAllowedUser> => {
+        const { data } = await API.post<IBoardAllowedUser>(`/board/${boardId}/member`, member);
         return data;
     },
     getBoardMember: async (boardId: number, userId: number) => {
         const { data } = await API.post(`/board/${boardId}/find-member`, { user_id: userId });
         return data;
     },
-    getBoardMembers: async (boardId: number): Promise<BoardAllowedUser[]> => {
-        const { data } = await API.get<BoardAllowedUser[]>(`/board/${boardId}/member`);
+    getBoardMembers: async (boardId: number): Promise<IBoardAllowedUser[]> => {
+        const { data } = await API.get<IBoardAllowedUser[]>(`/board/${boardId}/member`);
         return data;
     },
     deleteBoardMember: async (boardId: number, userId: number) => {

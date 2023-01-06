@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
 
 import { UserAPI } from "@/api/user";
-import { User, UserLogin } from "@/api/types";
+import { IUser, IUserLogin } from "@/api/types";
 import { useBoardStore } from "./board";
 
 export interface State {
-    user: null | User;
+    user: null | IUser;
     loggedIn: boolean;
 }
 
@@ -21,14 +21,14 @@ export const useAuthStore = defineStore('auth', {
         },
     },
     actions: {
-        setUser(user: User | null) {
+        setUser(user: IUser | null) {
             this.user = user;
         },
         setLoggedIn(value: boolean) {
             localStorage.setItem("loggedIn", value.toString());
             this.loggedIn = value;
         },
-        async doLogin(payload: UserLogin) {
+        async doLogin(payload: IUserLogin) {
             await UserAPI.login(payload);
             await this.getUserClaims();
             this.setLoggedIn(true);

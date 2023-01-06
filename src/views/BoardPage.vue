@@ -50,7 +50,7 @@ import { useBoardStore } from "@/stores/board";
 import { CardAPI } from "@/api/card";
 import { BoardListAPI } from '@/api/boardList';
 import { BoardAPI } from "@/api/board";
-import { DraftBoardList, BoardPermission } from "@/api/types";
+import { IDraftBoardList, BoardPermission } from "@/api/types";
 
 import BoardListVue from "@/components/Board/List/BoardList.vue";
 import DraftBoardListVue from "@/components/Board/List/DraftBoardList.vue";
@@ -157,7 +157,7 @@ const onBoardDetailsClicked = () => {
     });
 };
 
-const onSaveBoardList = (boardList: DraftBoardList) => {
+const onSaveBoardList = (boardList: IDraftBoardList) => {
     showAddDraftList.value = false;
     BoardListAPI.postBoardList(boardId.value, boardList);
 };

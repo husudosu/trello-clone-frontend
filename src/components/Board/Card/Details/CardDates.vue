@@ -29,7 +29,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { CardDate, BoardPermission } from '@/api/types';
+import { ICardDate, BoardPermission } from '@/api/types';
 
 import { useQuasar } from "quasar";
 import CardDateDialog from "../CardDateDialog.vue";
@@ -44,19 +44,19 @@ const card = computed(() => cardStore.card);
 
 const $q = useQuasar();
 
-const onDateMark = async (cardDate: CardDate) => {
+const onDateMark = async (cardDate: ICardDate) => {
     CardAPI.patchCardDate(cardDate.id, { complete: cardDate.complete });
 };
 
-const onDateDelete = async (cardDate: CardDate) => {
+const onDateDelete = async (cardDate: ICardDate) => {
     CardAPI.deleteCardDate(cardDate.id);
 };
 
-const onDateEditClicked = async (cardDate: CardDate) => {
+const onDateEditClicked = async (cardDate: ICardDate) => {
     $q.dialog({
         component: CardDateDialog,
         componentProps: { cardDate }
-    }).onOk((data: CardDate) => {
+    }).onOk((data: ICardDate) => {
         CardAPI.patchCardDate(cardDate.id, data);
     });
 };

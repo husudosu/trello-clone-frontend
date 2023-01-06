@@ -66,7 +66,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import { useQuasar } from "quasar";
 import timezonesData from "../json/timezones.json";
-import { User, UserUpdate } from "@/api/types";
+import { IUser, IUserUpdate } from "@/api/types";
 import { UserAPI } from "@/api/user";
 import { requiredTextField, validateUser } from "@/formValidators";
 import { useAuthStore } from "@/stores/auth";
@@ -77,8 +77,8 @@ const router = useRouter();
 
 const authStore = useAuthStore();
 
-const user = ref<User>();
-const updateUser = ref<UserUpdate>();
+const user = ref<IUser>();
+const updateUser = ref<IUserUpdate>();
 const $q = useQuasar();
 
 const validationErrors = ref({});

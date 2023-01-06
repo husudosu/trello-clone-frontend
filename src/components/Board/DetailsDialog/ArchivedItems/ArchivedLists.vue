@@ -45,7 +45,7 @@
 <script lang="ts" setup>
 
 import { BoardListAPI } from "@/api/boardList";
-import { ArchivedList } from "@/api/types";
+import { IArchivedList } from "@/api/types";
 import { useArchiveStore } from "@/stores/archive";
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 
@@ -69,7 +69,7 @@ const onRevertListClick = async (listId: number) => {
     await BoardListAPI.patchBoardList(listId, { archived: false });
 };
 
-const onDeleteListClick = (list: ArchivedList) => {
+const onDeleteListClick = (list: IArchivedList) => {
     $q.dialog({
         title: "Delete card",
         cancel: true,

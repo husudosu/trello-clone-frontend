@@ -3,15 +3,15 @@ import { defineStore } from "pinia";
 import { BoardAPI } from "@/api/board";
 import { BoardListAPI } from "@/api/boardList";
 import { CardAPI } from "@/api/card";
-import { Board, BoardClaims, BoardList, BoardRole, Card, BoardPermission, DraftBoardList, BoardAllowedUser, CardDate, CardMember, CardChecklist, ChecklistItem } from "@/api/types";
+import { IBoard, IBoardClaims, IBoardList, IBoardRole, ICard, BoardPermission, IDraftBoardList, IBoardAllowedUser, ICardDate, ICardMember, ICardChecklist, IChecklistItem } from "@/api/types";
 import { SIOCardUpdateOrder, CardEntity, SIOCardEvent, SIOChecklistItemDeleteEvent } from "@/socket";
 
 export interface State {
-    boards: Board[];
-    board: null | Board;
-    claims: null | BoardClaims;
-    roles: BoardRole[];
-    users: BoardAllowedUser[],
+    boards: IBoard[];
+    board: null | IBoard;
+    claims: null | IBoardClaims;
+    roles: IBoardRole[];
+    users: IBoardAllowedUser[],
 }
 
 
@@ -28,7 +28,7 @@ interface CardPositionInBoard {
  * @param cardId 
  * @returns Found index or if the card indexes not found return listIndex: -1, cardIndex: -1
  */
-const findCardIndex = (lists: BoardList[], listId: number, cardId: number): CardPositionInBoard => {
+const findCardIndex = (lists: IBoardList[], listId: number, cardId: number): CardPositionInBoard => {
     const listIndex = lists.findIndex((el) => el.id === listId);
 
     if (listIndex > -1) {
@@ -47,7 +47,7 @@ const findCardIndex = (lists: BoardList[], listId: number, cardId: number): Card
  * @param cardId 
  * @returns Card
  */
-const findCard = (lists: BoardList[], listId: number, cardId: number): Card => {
+const findCard = (lists: IBoardList[], listId: number, cardId: number): ICard => {
     const listIndex = lists.findIndex((el) => el.id === listId);
 
     if (listIndex > -1) {
@@ -97,56 +97,59 @@ export const useBoardStore = defineStore('board', {
         }
     },
     actions: {
-        setBoard(board: Board) {
+        setBoard(board: IBoard) {
             this.board = board;
         },
-        updateBoard(board: Partial<Board>) {
-            Object.assign(this.board as Board, board as Board);
+        updateBoard(board: Partial<IBoard>) {
+            Object.assign(this.board as IBoard, board as IBoard);
             // if (state.board)
             //     state.board = Object.assign(state.board, board as Board);
         },
-        setBoards(boards: Board[]) {
+        setBoards(boards: IBoard[]) {
             this.boards = boards;
         },
-        addBoard(board: Board) {
+        addBoard(board: IBoard) {
             this.boards.push(board);
         },
-        setBoardClaims(claims: BoardClaims) {
+        setBoardClaims(claims: IBoardClaims) {
             this.claims = claims;
         },
-        saveList(boardList: BoardList) {
+        saveList(boardList: IBoardList) {
             // Check if exists
-            const index = this.board?.lists.findIndex((el) => el.id === boardList.id) || -1;
+            if (this.board) {
+                const index = this.board.lists.findIndex((el) => el.id === boardList.id);
 
-            if (index === -1) {
-                this.board?.lists.push(boardList);
-            } else if (this.board) {
-                Object.assign(this.board?.lists[index], boardList);
-            }
-        },
-        removeList(boardList: BoardList) {
-            if (boardList.id) {
-                // Delete existing card.
-                const listIndex = this.board?.lists.findIndex((el) => el.id == boardList.id) || -1;
-                if (listIndex > -1) this.board?.lists.splice(listIndex, 1);
-            }
-            else {
-                // Delete draft
-                this.board?.lists.splice(this.board.lists.length - 1, 1);
-            }
-        },
-        saveCard(card: Card) {
-            // Find list
-            const listIndex = this.board?.lists.findIndex((el) => el.id == card.list_id) || -1;
-            if (listIndex > -1) {
-                // Check if card already exists.
-                const cardId = this.board?.lists[listIndex].cards.findIndex((el) => el.id == card.id) || -1;
-
-                // Not exists on store yet (Required for Socket IO client)
-                if (cardId === -1) {
-                    this.board?.lists[listIndex].cards.push(card);
+                if (index === -1) {
+                    this.board.lists.push(boardList);
                 } else if (this.board) {
-                    this.board.lists[listIndex].cards[cardId] = card;
+                    Object.assign(this.board.lists[index], boardList);
+                }
+            }
+        },
+        removeList(boardList: IBoardList) {
+            if (this.board) {
+                if (boardList.id) {
+                    // Delete existing card.
+                    const listIndex = this.board.lists.findIndex((el) => el.id == boardList.id);
+                    if (listIndex > -1) this.board.lists.splice(listIndex, 1);
+                }
+                else {
+                    // Delete draft
+                    this.board.lists.splice(this.board.lists.length - 1, 1);
+                }
+            }
+        },
+        saveCard(card: ICard) {
+            // Find list
+            if (this.board) {
+                const listIndex = this.board.lists.findIndex((el) => el.id == card.list_id);
+                if (listIndex > -1) {
+                    const cardIndex = this.board.lists[listIndex].cards.findIndex((el) => el.id == card.id);
+                    if (cardIndex === -1) {
+                        this.board.lists[listIndex].cards.push(card);
+                    } else if (this.board) {
+                        this.board.lists[listIndex].cards[cardIndex] = card;
+                    }
                 }
             }
         },
@@ -159,13 +162,13 @@ export const useBoardStore = defineStore('board', {
 
             switch (payload.entityType) {
                 case "date":
-                    card.dates.push(CardAPI.parseCardDate(payload.entity as CardDate));
+                    card.dates.push(CardAPI.parseCardDate(payload.entity as ICardDate));
                     break;
                 case "member":
-                    card.assigned_members.push(payload.entity as CardMember);
+                    card.assigned_members.push(payload.entity as ICardMember);
                     break;
                 case "checklist":
-                    card.checklists.push(payload.entity as CardChecklist);
+                    card.checklists.push(payload.entity as ICardChecklist);
                     break;
             }
 
@@ -174,7 +177,7 @@ export const useBoardStore = defineStore('board', {
             const card = findCard(this.board?.lists || [], payload.event.list_id, payload.event.card_id);
 
             if (payload.entityType === "date") {
-                const entity = payload.entity as CardDate;
+                const entity = payload.entity as ICardDate;
                 const entityIndex = card.dates.findIndex((el) => el.id == entity.id);
 
                 if (entityIndex > -1) {
@@ -182,7 +185,7 @@ export const useBoardStore = defineStore('board', {
                 }
             }
             else if (payload.entityType === "member") {
-                const entity = payload.entity as CardMember;
+                const entity = payload.entity as ICardMember;
                 const entityIndex = card.assigned_members.findIndex((el) => el.id == entity.id);
 
                 if (entityIndex > -1) {
@@ -190,7 +193,7 @@ export const useBoardStore = defineStore('board', {
                 }
             }
             else if (payload.entityType === "checklist") {
-                const entity = payload.entity as CardChecklist;
+                const entity = payload.entity as ICardChecklist;
                 const entityIndex = card.checklists.findIndex((el) => el.id == entity.id);
                 if (entityIndex > -1) {
                     card.checklists[entityIndex] = entity;
@@ -221,7 +224,7 @@ export const useBoardStore = defineStore('board', {
         },
         SIOUpdateCard(payload: SIOCardEvent) {
             if (this.board) {
-                const entity = payload.entity as Card;
+                const entity = payload.entity as ICard;
 
                 // If this client changed the card, we should get entity.list_id else we need old list_id from payload.
                 let cPos = findCardIndex(this.board.lists, entity.list_id, payload.card_id);
@@ -252,7 +255,7 @@ export const useBoardStore = defineStore('board', {
         SIOAddChecklistItem(payload: SIOCardEvent) {
             if (this.board) {
                 const card = findCard(this.board.lists, payload.list_id, payload.card_id);
-                const entity = payload.entity as ChecklistItem;
+                const entity = payload.entity as IChecklistItem;
                 const checklist = card.checklists.find((el) => el.id === entity.checklist_id);
                 // Find checklist.
                 if (checklist) {
@@ -264,7 +267,7 @@ export const useBoardStore = defineStore('board', {
         },
         SIOUpdateChecklistItem(payload: SIOCardEvent) {
             const card = findCard(this.board?.lists || [], payload.list_id, payload.card_id);
-            const entity = payload.entity as ChecklistItem;
+            const entity = payload.entity as IChecklistItem;
             const checklist = card.checklists.find((el) => el.id === entity.checklist_id);
 
             if (checklist) {
@@ -286,10 +289,10 @@ export const useBoardStore = defineStore('board', {
             }
 
         },
-        setBoardRoles(roles: BoardRole[]) {
+        setBoardRoles(roles: IBoardRole[]) {
             this.roles = roles;
         },
-        setBoardUsers(users: BoardAllowedUser[]) {
+        setBoardUsers(users: IBoardAllowedUser[]) {
             this.users = users;
         },
         unLoadBoard() {
@@ -298,10 +301,10 @@ export const useBoardStore = defineStore('board', {
             this.roles = [];
             this.users = [];
         },
-        setLists(lists: BoardList[]) {
+        setLists(lists: IBoardList[]) {
             if (this.board) this.board.lists = lists;
         },
-        setCards(payload: { cards: Card[], listId: number; }) {
+        setCards(payload: { cards: ICard[], listId: number; }) {
             if (this.board) {
                 const list = this.board.lists.find((el) => el.id === payload.listId);
                 if (list) list.cards = payload.cards;
@@ -357,7 +360,7 @@ export const useBoardStore = defineStore('board', {
                 this.setBoardUsers(await BoardAPI.getBoardMembers(this.board.id));
             }
         },
-        async createBoard(payload: Partial<Board>) {
+        async createBoard(payload: Partial<IBoard>) {
             const data = await BoardAPI.postBoard(payload);
             this.addBoard(data);
             // TODO: Do we need returning for this action?
@@ -368,17 +371,17 @@ export const useBoardStore = defineStore('board', {
             const itemIndex: number = this.boards.findIndex((el) => el.id == boardId);
             if (itemIndex > -1) this.boards.splice(itemIndex, 1);
         },
-        async updateBoardList(list: BoardList) {
+        async updateBoardList(list: IBoardList) {
             this.saveList(await BoardListAPI.patchBoardList(list.id, list));
         },
-        async newBoardList(list: DraftBoardList) {
+        async newBoardList(list: IDraftBoardList) {
             if (this.board) {
                 this.saveList(await BoardListAPI.postBoardList(this.board.id, list));
                 // Update order of boardlists
                 await BoardAPI.updateBoardListsOrder(this.board);
             }
         },
-        async removeBoardList(list: BoardList) {
+        async removeBoardList(list: IBoardList) {
             if (list.id)
                 await BoardListAPI.deleteBoardList(list.id);
             this.removeList(list);

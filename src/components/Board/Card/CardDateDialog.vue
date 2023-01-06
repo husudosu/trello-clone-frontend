@@ -73,7 +73,7 @@
 <script setup lang="ts">
 import { defineEmits, ref, defineProps, onMounted } from 'vue';
 import { useDialogPluginComponent } from 'quasar';
-import { CardDate, DraftCardDate } from "@/api/types";
+import { ICardDate, IDraftCardDate } from "@/api/types";
 import { validateDateTime } from "@/formValidators";
 
 defineEmits([
@@ -83,13 +83,13 @@ defineEmits([
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent();
 
 interface Props {
-    cardDate?: CardDate;
+    cardDate?: ICardDate;
 }
 const props = defineProps<Props>();
 
 const frm = ref();
 const isRange = ref(false);
-const cardDate = ref<DraftCardDate>({
+const cardDate = ref<IDraftCardDate>({
     dt_to: "",
     description: "",
     complete: false

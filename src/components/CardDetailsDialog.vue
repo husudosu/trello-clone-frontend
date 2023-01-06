@@ -136,7 +136,7 @@ import { useQuasar } from 'quasar';
 import * as DOMPurify from 'dompurify';
 import { marked } from 'marked';
 
-import { BoardPermission, BoardAllowedUser, CardMember, DraftCardDate } from "@/api/types";
+import { BoardPermission, IBoardAllowedUser, ICardMember, IDraftCardDate } from "@/api/types";
 import { CardAPI } from '@/api/card';
 import CardActivity from './Board/Card/CardActivity.vue';
 import CardChecklist from './Board/Card/Checklist/CardChecklist.vue';
@@ -182,6 +182,7 @@ const newComment = ref("");
 const editCardDescription = ref(false);
 const editCardTitle = ref(false);
 const socketWereDisconnected = ref(false);
+
 
 
 defineEmits([
@@ -345,12 +346,12 @@ const onCreateChecklistClicked = () => {
 const onAssignMemberClicked = () => {
     $q.dialog({
         component: AssignMember,
-    }).onOk(async (data: BoardAllowedUser) => {
+    }).onOk(async (data: IBoardAllowedUser) => {
         await CardAPI.assignCardMember(props.cardId, { board_user_id: data.id, send_notification: true });
     });
 };
 
-const onDeassignMember = async (member: CardMember) => {
+const onDeassignMember = async (member: ICardMember) => {
     try {
         await CardAPI.deassignCardMember(props.cardId, member.board_user.id);
     }
@@ -362,7 +363,7 @@ const onDeassignMember = async (member: CardMember) => {
 const onAddDateClicked = () => {
     $q.dialog({
         component: CardDateDialog
-    }).onOk(async (data: DraftCardDate) => {
+    }).onOk(async (data: IDraftCardDate) => {
         await CardAPI.postCardDate(props.cardId, data);
     });
 };

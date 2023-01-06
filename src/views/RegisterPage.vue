@@ -72,7 +72,7 @@
 </template>
 
 <script lang="ts" setup>
-import { RegisterPayload } from "@/api/types";
+import { IRegisterPayload } from "@/api/types";
 import { UserAPI } from "@/api/user";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
@@ -101,7 +101,7 @@ const filterFn = (val: string, update: any) => {
         timezones.value = timezonesData.filter((v: string) => v.toLowerCase().indexOf(needle) > -1);
     });
 };
-const reg = ref<RegisterPayload>({
+const reg = ref<IRegisterPayload>({
     email: "",
     username: "",
     password: "",

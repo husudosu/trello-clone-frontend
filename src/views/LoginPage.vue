@@ -37,13 +37,13 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import { UserLogin } from '@/api/types.js';
+import { IUserLogin } from '@/api/types.js';
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 
 const router = useRouter();
 const authStore = useAuthStore();
-const loginPayload = ref<UserLogin>({ username: "", password: "" });
+const loginPayload = ref<IUserLogin>({ username: "", password: "" });
 const failedMessage = ref<string>("");
 
 const onLoginClicked = () => {

@@ -17,7 +17,7 @@
                 @keyup.enter="onTitleKeyUp"></q-input>
         </template>
         <q-list dense>
-            <draggable :list="props.checklist.items" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
+            <draggable :list="checklist.items" itemKey="id" :delayOnTouchOnly="true" :touchStartThreshold="100"
                 :delay="500" group="checklist-items" @end="onItemMoveEnd">
                 <template #item="{ element }">
                     <checklist-item :item="element"></checklist-item>
@@ -39,7 +39,7 @@
 </template>
 <script lang="ts" setup>
 import { defineProps, ref } from 'vue';
-import { CardChecklist, BoardPermission } from "@/api/types";
+import { ICardChecklist, BoardPermission } from "@/api/types";
 import { useQuasar } from 'quasar';
 
 import draggable from 'vuedraggable';
@@ -52,7 +52,7 @@ const boardStore = useBoardStore();
 const $q = useQuasar();
 const hasPermission = boardStore.hasPermission;
 
-const props = defineProps<{ checklist: CardChecklist; }>();
+const props = defineProps<{ checklist: ICardChecklist; }>();
 
 const addNewItem = ref(false);
 const newItemTitle = ref("");

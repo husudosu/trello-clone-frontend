@@ -49,7 +49,7 @@
 </template>
 <script lang="ts" setup>
 import { defineProps, ref } from 'vue';
-import { ChecklistItem, BoardPermission, BoardAllowedUser } from "@/api/types";
+import { IChecklistItem, BoardPermission, IBoardAllowedUser } from "@/api/types";
 import { useQuasar } from 'quasar';
 import AssignMember from "@/components/Board/Card/AssignMember.vue";
 import UserAvatar from '@/components/UserAvatar.vue';
@@ -63,7 +63,7 @@ const hasPermission = boardStore.hasPermission;
 const $q = useQuasar();
 
 interface Props {
-    item: ChecklistItem;
+    item: IChecklistItem;
 }
 
 const props = defineProps<Props>();
@@ -100,7 +100,7 @@ const onAssignMember = () => {
             showOnlyNotAssignedMembers: false
         }
     }
-    ).onOk((data: BoardAllowedUser) => {
+    ).onOk((data: IBoardAllowedUser) => {
         ChecklistAPI.assignMemberToChecklistItem(props.item.id, data);
     });
 };

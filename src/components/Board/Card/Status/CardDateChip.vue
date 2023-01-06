@@ -20,10 +20,10 @@
 
 <script lang="ts" setup>
 import { defineProps, computed } from "vue";
-import { CardDate } from "@/api/types";
+import { ICardDate } from "@/api/types";
 
 interface Props {
-    cardDate: CardDate;
+    cardDate: ICardDate;
 }
 
 const props = defineProps<Props>();

@@ -98,7 +98,7 @@ import { defineProps, defineEmits, ref, onMounted } from 'vue';
 import { useDialogPluginComponent, useQuasar } from 'quasar';
 import moment from "moment-timezone";
 import { validateDateTime } from "@/formValidators";
-import { CardActivityQueryParams, PaginatedCardActivity } from '@/api/types';
+import { ICardActivityQueryParams, IPaginatedCardActivity } from '@/api/types';
 import CardActivityVue from './CardActivity.vue';
 import { CardAPI } from '@/api/card';
 
@@ -111,8 +111,8 @@ const props = defineProps<Props>();
 
 const fromDate = ref();
 const toDate = ref();
-const activities = ref<PaginatedCardActivity>();
-const params = ref<CardActivityQueryParams>({
+const activities = ref<IPaginatedCardActivity>();
+const params = ref<ICardActivityQueryParams>({
     per_page: 15,
     type: "all"
 });

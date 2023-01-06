@@ -48,7 +48,7 @@
 
 <script lang="ts" setup>
 import { BoardAPI } from '@/api/board';
-import { Board } from '@/api/types.js';
+import { IBoard } from '@/api/types.js';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -58,13 +58,13 @@ const boardStore = useBoardStore();
 const boards = computed(() => boardStore.boards);
 const router = useRouter();
 const showBoardDialog = ref(false);
-const newBoard = ref<Partial<Board>>({
+const newBoard = ref<Partial<IBoard>>({
     title: ""
 });
 
 const titleRef = ref();
 
-const archivedBoards = ref<Board[]>([]);
+const archivedBoards = ref<IBoard[]>([]);
 
 const onBoardClick = (boardId: number) => {
     router.push({
@@ -76,7 +76,7 @@ const onBoardClick = (boardId: number) => {
 const onBoardSave = () => {
     titleRef.value.validate();
     if (!titleRef.value.hasError) {
-        boardStore.createBoard(newBoard.value).then((resp: Board) => {
+        boardStore.createBoard(newBoard.value).then((resp: IBoard) => {
             showBoardDialog.value = false;
             router.push({ name: "board", params: { boardId: resp.id } });
         });

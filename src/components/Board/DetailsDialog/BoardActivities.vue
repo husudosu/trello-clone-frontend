@@ -25,13 +25,13 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { PaginatedCardActivity } from '@/api/types';
+import { IPaginatedCardActivity } from '@/api/types';
 import { BoardAPI } from '@/api/board';
 import CardActivityVue from '../Card/CardActivity.vue';
 import { useBoardStore } from '@/stores/board';
 
 const boardStore = useBoardStore();
-const activities = ref<PaginatedCardActivity>();
+const activities = ref<IPaginatedCardActivity>();
 
 const onLoad = async (index: number, done: any) => {
     if (boardStore.board) {

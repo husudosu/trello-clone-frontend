@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-import { BoardList, BoardPermission, DraftCard } from '@/api/types';
+import { BoardList, BoardPermission, IDraftCard } from '@/api/types';
 import { defineProps, ref, nextTick, onMounted, computed, defineEmits } from 'vue';
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
@@ -149,7 +149,7 @@ const onTitleDblClick = () => {
     }
 };
 
-const onSaveCard = async (card: DraftCard) => {
+const onSaveCard = async (card: IDraftCard) => {
     showAddCard.value = false;
     await CardAPI.postCard(props.boardList.id, card);
 };

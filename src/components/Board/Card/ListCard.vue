@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Card, CardDate } from '@/api/types';
+import { Card, ICardDate } from '@/api/types';
 import { defineProps, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import UserAvatar from '@/components/UserAvatar.vue';
@@ -119,7 +119,7 @@ const onEditClick = (ev: Event) => {
 
 };
 
-const onDateMark = (ev: Event, cardDate: CardDate) => {
+const onDateMark = (ev: Event, cardDate: ICardDate) => {
     ev.stopPropagation();
     CardAPI.patchCardDate(cardDate.id, { complete: !cardDate.complete });
 };

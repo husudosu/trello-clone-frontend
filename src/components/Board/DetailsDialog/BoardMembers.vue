@@ -45,7 +45,7 @@ import { ref, computed } from "vue";
 
 import { useQuasar } from "quasar";
 import { BoardAPI } from "@/api/board";
-import { BoardAllowedUser, BoardRole } from "@/api/types";
+import { IBoardAllowedUser, IBoardRole } from "@/api/types";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AddMemberDialog from "../AddMemberDialog.vue";
 import { useBoardStore } from "@/stores/board";
@@ -57,7 +57,7 @@ const boardUser = computed(() => boardStore.boardUser);
 const isAdmin = computed(() => boardStore.isAdmin);
 const $q = useQuasar();
 
-const boardMembers = ref<BoardAllowedUser[]>([]);
+const boardMembers = ref<IBoardAllowedUser[]>([]);
 
 if (boardStore.board) {
     BoardAPI.getBoardMembers(boardStore.board.id).then((data) => {
@@ -65,11 +65,11 @@ if (boardStore.board) {
     });
 }
 
-const onRoleChange = async (role: BoardRole, member: BoardAllowedUser) => {
+const onRoleChange = async (role: IBoardRole, member: IBoardAllowedUser) => {
     BoardAPI.updateBoardMemberRole(member.board_id, member.user_id, role.id);
 };
 
-const onDeleteClicked = async (member: BoardAllowedUser) => {
+const onDeleteClicked = async (member: IBoardAllowedUser) => {
     $q.dialog({
         title: "Delete member?",
         cancel: true,
@@ -88,7 +88,7 @@ const onDeleteClicked = async (member: BoardAllowedUser) => {
     });
 };
 
-const onActivateUserClicked = async (member: BoardAllowedUser) => {
+const onActivateUserClicked = async (member: IBoardAllowedUser) => {
     $q.dialog({
         title: "Activate member?",
         cancel: true,

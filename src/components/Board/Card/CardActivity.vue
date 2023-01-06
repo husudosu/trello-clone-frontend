@@ -56,7 +56,7 @@
 
 <script lang="ts" setup>
 import { defineProps, ref, withDefaults } from "vue";
-import { CardActivityEvent, CardActivity, BoardActivityEvent } from "@/api/types";
+import { CardActivityEvent, ICardActivity, BoardActivityEvent } from "@/api/types";
 import UserAvatar from "@/components/UserAvatar.vue";
 import { useQuasar } from "quasar";
 import { CardAPI } from "@/api/card";
@@ -64,7 +64,7 @@ import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import { useBoardStore } from "@/stores/board";
 
 interface Props {
-    activity: CardActivity;
+    activity: ICardActivity;
     showCardTitle?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), { showCardTitle: false });

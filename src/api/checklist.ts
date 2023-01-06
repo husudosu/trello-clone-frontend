@@ -2,10 +2,10 @@ import { useAuthStore } from "@/stores/auth";
 import moment from "moment-timezone";
 
 import { API } from ".";
-import { BoardAllowedUser, CardChecklist, ChecklistItem, DraftChecklistItem } from "./types";
+import { IBoardAllowedUser, ICardChecklist, IChecklistItem, DraftChecklistItem } from "./types";
 
 export const ChecklistAPI = {
-    parseChecklistItem: (data: ChecklistItem) => {
+    parseChecklistItem: (data: IChecklistItem) => {
         const authStore = useAuthStore();
         if (data.marked_complete_on) {
             data.marked_complete_on = moment.utc(data.marked_complete_on).tz(authStore.timezone);
@@ -15,23 +15,23 @@ export const ChecklistAPI = {
         }
         return data;
     },
-    postCardChecklist: async (cardId: number, checklist: Partial<CardChecklist>): Promise<CardChecklist> => {
-        const { data } = await API.post<CardChecklist>(`/card/${cardId}/checklist`, checklist);
+    postCardChecklist: async (cardId: number, checklist: Partial<ICardChecklist>): Promise<ICardChecklist> => {
+        const { data } = await API.post<ICardChecklist>(`/card/${cardId}/checklist`, checklist);
         return data;
     },
-    patchCardChecklist: async (checklistId: number, checklist: Partial<CardChecklist>): Promise<CardChecklist> => {
-        const { data } = await API.patch<CardChecklist>(`/checklist/${checklistId}`, checklist);
+    patchCardChecklist: async (checklistId: number, checklist: Partial<ICardChecklist>): Promise<ICardChecklist> => {
+        const { data } = await API.patch<ICardChecklist>(`/checklist/${checklistId}`, checklist);
         return data;
     },
     deleteCardchecklist: async (checklistId: number) => {
         await API.delete(`/checklist/${checklistId}`);
         return {};
     },
-    postChecklistItem: async (checklistId: number, item: DraftChecklistItem): Promise<ChecklistItem> => {
-        const { data } = await API.post<ChecklistItem>(`/checklist/${checklistId}/item`, item);
+    postChecklistItem: async (checklistId: number, item: DraftChecklistItem): Promise<IChecklistItem> => {
+        const { data } = await API.post<IChecklistItem>(`/checklist/${checklistId}/item`, item);
         return ChecklistAPI.parseChecklistItem(data);
     },
-    patchChecklistItem: async (itemId: number, item: Partial<ChecklistItem>): Promise<ChecklistItem> => {
+    patchChecklistItem: async (itemId: number, item: Partial<IChecklistItem>): Promise<IChecklistItem> => {
         // Make clone of dt before conversion
         const authStore = useAuthStore();
         let due_date: undefined | moment.Moment | string = item.due_date;
@@ -39,25 +39,25 @@ export const ChecklistAPI = {
             // Convert date to UTC before pushing to API
             due_date = moment.tz(item.due_date, authStore.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
         }
-        const { data } = await API.patch<ChecklistItem>(`/checklist/item/${itemId}`, { ...item, due_date });
+        const { data } = await API.patch<IChecklistItem>(`/checklist/item/${itemId}`, { ...item, due_date });
         return ChecklistAPI.parseChecklistItem(data);
     },
-    assignMemberToChecklistItem: async (itemId: number, member: BoardAllowedUser) => {
-        const { data } = await API.patch<ChecklistItem>(`/checklist/item/${itemId}`, { assigned_board_user_id: member.id });
+    assignMemberToChecklistItem: async (itemId: number, member: IBoardAllowedUser) => {
+        const { data } = await API.patch<IChecklistItem>(`/checklist/item/${itemId}`, { assigned_board_user_id: member.id });
         return ChecklistAPI.parseChecklistItem(data);
     },
     deassignMemberToChecklistItem: async (itemId: number) => {
-        const { data } = await API.patch<ChecklistItem>(`/checklist/item/${itemId}`, { assigned_board_user_id: null });
+        const { data } = await API.patch<IChecklistItem>(`/checklist/item/${itemId}`, { assigned_board_user_id: null });
         return ChecklistAPI.parseChecklistItem(data);
     },
     deleteChecklistItem: async (itemId: number) => {
         await API.delete(`/checklist/item/${itemId}`);
     },
-    markChecklistItem: async (itemId: number, completed: boolean): Promise<ChecklistItem> => {
-        const { data } = await API.patch<ChecklistItem>(`/checklist/item/${itemId}`, { completed });
+    markChecklistItem: async (itemId: number, completed: boolean): Promise<IChecklistItem> => {
+        const { data } = await API.patch<IChecklistItem>(`/checklist/item/${itemId}`, { completed });
         return ChecklistAPI.parseChecklistItem(data);
     },
-    updateItemsOrder: async (checklist: CardChecklist) => {
+    updateItemsOrder: async (checklist: ICardChecklist) => {
         const orderData = checklist.items.map((el) => el.id);
         await API.patch(`/checklist/${checklist.id}/items-order`, orderData);
     }
