@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-import { Card, CardActivityQueryType, PaginatedCardActivity, CardActivity, CardChecklist, ChecklistItem, CardMember, CardDate } from "@/api/types";
+import { Card, PaginatedCardActivity, CardActivity, CardChecklist, ChecklistItem, CardMember, CardDate } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
 import { SIOChecklistItemDeleteEvent, SIOChecklistItemUpdateOrder } from "@/socket";

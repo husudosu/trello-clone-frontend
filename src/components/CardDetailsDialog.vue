@@ -117,9 +117,7 @@
                                 </card-activity>
                             </template>
                             <template v-else>
-                                <!-- <span class="q-ma-sm">
-                                    {{ cardActivityQueryType == "all" ? "No activity yet" : "No comments yet"; }}
-                                </span> -->
+                                <span class="q-ma-sm">No activity yet</span>
                             </template>
                         </q-list>
                     </div>

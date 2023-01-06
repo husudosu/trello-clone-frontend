@@ -26,22 +26,18 @@ interface CardPositionInBoard {
  * @param lists 
  * @param listId 
  * @param cardId 
- * @returns Found index or throws an error.
+ * @returns Found index or if the card indexes not found return listIndex: -1, cardIndex: -1
  */
 const findCardIndex = (lists: BoardList[], listId: number, cardId: number): CardPositionInBoard => {
-    // console.debug(`Find card index on listId: ${listId} cardId: ${cardId} on list ${JSON.stringify(lists)}`);
     const listIndex = lists.findIndex((el) => el.id === listId);
 
     if (listIndex > -1) {
         const cardIndex = lists[listIndex].cards.findIndex((el) => el.id === cardId);
 
         if (cardIndex > -1) return { listIndex, cardIndex };
-        else {
-            console.debug(`Card not found, searchlet:  list id: ${listId} card id: ${cardId}`);
-            throw "Card index of card not found!";
-        }
+        else return { listIndex: -1, cardIndex: -1 };
     }
-    else throw "List index of card not found!";
+    else return { listIndex: -1, cardIndex: -1 };
 };
 
 /**
@@ -219,7 +215,6 @@ export const useBoardStore = defineStore('board', {
             }
             else if (payload.entityType === "checklist") {
                 const entityIndex = card.checklists.findIndex((el) => el.id === payload.entity_id);
-
                 if (entityIndex > -1)
                     card.checklists.splice(entityIndex, 1);
             }
@@ -227,7 +222,13 @@ export const useBoardStore = defineStore('board', {
         SIOUpdateCard(payload: SIOCardEvent) {
             if (this.board) {
                 const entity = payload.entity as Card;
-                const cPos = findCardIndex(this.board.lists, entity.list_id, payload.card_id);
+
+                // If this client changed the card, we should get entity.list_id else we need old list_id from payload.
+                let cPos = findCardIndex(this.board.lists, entity.list_id, payload.card_id);
+                if (cPos.cardIndex === -1) {
+                    cPos = findCardIndex(this.board.lists, payload.list_id, payload.card_id);
+                    if (cPos.cardIndex === -1) throw "Card not found";
+                }
 
                 if (payload.list_id === entity.list_id) {
                     // Object.assign(state.board.lists[cPos.listIndex].cards[cPos.cardIndex], CardAPI.parseCard(entity));
@@ -302,10 +303,8 @@ export const useBoardStore = defineStore('board', {
         },
         setCards(payload: { cards: Card[], listId: number; }) {
             if (this.board) {
-                const listIndex = this.board.lists.findIndex((el) => el.id === payload.listId);
-                if (listIndex > -1) {
-                    this.board.lists[listIndex].cards = payload.cards;
-                }
+                const list = this.board.lists.find((el) => el.id === payload.listId);
+                if (list) list.cards = payload.cards;
             }
         },
         updateListOrder(orderOfIds: number[]) {
