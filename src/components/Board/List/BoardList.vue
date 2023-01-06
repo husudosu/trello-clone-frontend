@@ -84,7 +84,6 @@ const cards = computed({
         return props.boardList.cards;
     },
     set(value) {
-        console.debug("Update cards");
         boardStore.setCards({ cards: value, listId: props.boardList.id });
     }
 });

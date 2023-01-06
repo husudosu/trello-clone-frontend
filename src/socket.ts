@@ -413,13 +413,14 @@ export const SIOBoardEventListeners = {
     },
     newChecklistItem: (data: SIOCardEvent) => {
         const cardStore = useCardStore();
+        const boardStore = useBoardStore();
         console.group(`[Socket.IO]: Checklist item create`);
         console.log(data);
 
         if (cardStore.card?.id === data.card_id) {
             cardStore.addChecklistItem(data.entity as ChecklistItem);
         }
-        // boardStore.SIOAddChecklistItem(data);
+        boardStore.SIOAddChecklistItem(data);
         console.groupEnd();
     },
     updateChecklistItem: (data: SIOCardEvent) => {

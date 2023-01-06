@@ -7,7 +7,6 @@ import { SIOChecklistItemDeleteEvent, SIOChecklistItemUpdateOrder } from "@/sock
 
 interface State {
     card: null | Card;
-    cardActivityQueryType: CardActivityQueryType;
     cardMoved: boolean;
     activities: null | PaginatedCardActivity;
 }
@@ -15,7 +14,6 @@ interface State {
 export const useCardStore = defineStore('card', {
     state: (): State => ({
         card: null,
-        cardActivityQueryType: "all",
         cardMoved: false,
         activities: null
     }),
@@ -81,10 +79,6 @@ export const useCardStore = defineStore('card', {
         unloadCard() {
             this.card = null;
             this.activities = null;
-        },
-        setCardActivityQueryType(value: CardActivityQueryType) {
-            this.cardActivityQueryType = value;
-            localStorage.setItem("cardActivityQueryType", value);
         },
         addCardAsisgnment(member: CardMember) {
             this.card?.assigned_members.push(member);

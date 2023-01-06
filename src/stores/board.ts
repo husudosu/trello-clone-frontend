@@ -226,8 +226,8 @@ export const useBoardStore = defineStore('board', {
         },
         SIOUpdateCard(payload: SIOCardEvent) {
             if (this.board) {
-                const cPos = findCardIndex(this.board.lists, payload.list_id, payload.card_id);
                 const entity = payload.entity as Card;
+                const cPos = findCardIndex(this.board.lists, entity.list_id, payload.card_id);
 
                 if (payload.list_id === entity.list_id) {
                     // Object.assign(state.board.lists[cPos.listIndex].cards[cPos.cardIndex], CardAPI.parseCard(entity));
@@ -239,7 +239,9 @@ export const useBoardStore = defineStore('board', {
 
                     const newListIndex = this.board.lists.findIndex((el) => el.id === entity.list_id);
                     if (newListIndex > -1) {
-                        this.board.lists[newListIndex].cards.push(CardAPI.parseCard(entity));
+                        this.board.lists[newListIndex].cards.splice(
+                            entity.position, 0, CardAPI.parseCard(entity));
+                        // this.board.lists[newListIndex].cards.push(CardAPI.parseCard(entity));
                     }
                 }
 
@@ -247,13 +249,15 @@ export const useBoardStore = defineStore('board', {
 
         },
         SIOAddChecklistItem(payload: SIOCardEvent) {
-            const card = findCard(this.board?.lists || [], payload.list_id, payload.card_id);
-            const entity = payload.entity as ChecklistItem;
-            const checklist = card.checklists.find((el) => el.id === entity.checklist_id);
-            // Find checklist.
-            if (checklist) {
-                console.log("[SIOAddChecklistItem]:Push item into checklist.");
-                checklist.items.push(entity);
+            if (this.board) {
+                const card = findCard(this.board.lists, payload.list_id, payload.card_id);
+                const entity = payload.entity as ChecklistItem;
+                const checklist = card.checklists.find((el) => el.id === entity.checklist_id);
+                // Find checklist.
+                if (checklist) {
+                    console.log("[SIOAddChecklistItem]:Push item into checklist.");
+                    checklist.items.push(entity);
+                }
             }
 
         },
