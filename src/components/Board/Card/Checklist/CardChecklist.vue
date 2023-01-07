@@ -47,6 +47,7 @@ import draggable from 'vuedraggable';
 import { ChecklistAPI } from '@/api/checklist';
 import ChecklistItem from './ChecklistItem.vue';
 import { useBoardStore } from '@/stores/board';
+import { useCardStore } from '@/stores/card';
 
 const boardStore = useBoardStore();
 const $q = useQuasar();
@@ -58,6 +59,7 @@ const addNewItem = ref(false);
 const newItemTitle = ref("");
 const editTitle = ref(false);
 const newTitle = ref(props.checklist.title);
+const cardStore = useCardStore();
 
 const onChecklistDelete = () => {
     $q.dialog({
@@ -77,7 +79,7 @@ const onChecklistDelete = () => {
 const onNewItemAdd = async () => {
     try {
         addNewItem.value = false;
-        await ChecklistAPI.postChecklistItem(props.checklist.id, { title: newItemTitle.value, completed: false });
+        await cardStore.postChecklistItem(props.checklist.id, { title: newItemTitle.value, completed: false });
     }
     catch (err) {
         console.log(err);
@@ -98,7 +100,7 @@ const onItemMoveEnd = () => {
 
 const updateTitle = () => {
     editTitle.value = false;
-    ChecklistAPI.patchCardChecklist(props.checklist.id, { title: newTitle.value });
+    cardStore.patchCardCheckList(props.checklist.id, { title: newTitle.value });
 };
 
 const onTitleKeyUp = (ev: KeyboardEvent) => {

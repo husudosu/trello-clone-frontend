@@ -245,7 +245,7 @@ export interface IChecklistItem {
 }
 
 
-export type DraftChecklistItem = Optional<IChecklistItem, "id" | "checklist_id" | "completed">;
+export type IDraftChecklistItem = Optional<IChecklistItem, "id" | "checklist_id" | "completed">;
 
 export interface ICardChecklist {
     id: Readonly<number>;

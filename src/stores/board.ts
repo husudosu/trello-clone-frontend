@@ -259,8 +259,10 @@ export const useBoardStore = defineStore('board', {
                 const checklist = card.checklists.find((el) => el.id === entity.checklist_id);
                 // Find checklist.
                 if (checklist) {
-                    console.log("[SIOAddChecklistItem]:Push item into checklist.");
-                    checklist.items.push(entity);
+                    if (checklist.items.findIndex((el) => el.id === entity.id) === -1) {
+                        console.debug("[SIOAddChecklistItem]:Push item into checklist.");
+                        checklist.items.push(entity);
+                    }
                 }
             }
 

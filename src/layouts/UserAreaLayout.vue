@@ -7,8 +7,7 @@
                     {{ title }}
                 </q-toolbar-title>
 
-                <q-btn v-if="$q.screen.xs && store.state.board.board" flat dense round aria-label="Board menu"
-                    icon="more_vert">
+                <q-btn v-if="$q.screen.xs && board" flat dense round aria-label="Board menu" icon="more_vert">
                     <q-menu>
                         <q-list>
                             <q-item clickable v-close-popup @click="onBoardDetailsClicked">
@@ -79,6 +78,7 @@ const authStore = useAuthStore();
 const boardStore = useBoardStore();
 
 const boards = computed(() => boardStore.boards);
+const board = computed(() => boardStore.board);
 const leftDrawerOpen = ref(false);
 
 

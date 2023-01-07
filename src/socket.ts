@@ -28,6 +28,7 @@ export enum SIOEvent {
     SIOError = "error",
     SIOConnect = "connect",
     SIODisconnect = "disconnect",
+    SIOReconnect = "reconnect",
 
     BOARD_UPDATE = "board.update",
     BOARD_DELETE = "board.delete",
@@ -174,7 +175,7 @@ export const SIOBoardEventListeners = {
         // If list_id changed move to other list on store aswell
         boardStore.SIOUpdateCard(data);
         if (cardStore.card?.id === data.card_id) {
-            cardStore.updateCard(data.entity as ICard);
+            cardStore.setCard(data.entity as ICard);
         }
 
         console.groupEnd();
@@ -427,14 +428,6 @@ export const SIOBoardEventListeners = {
         boardStore.SIOAddChecklistItem(data);
         console.debug("End");
         console.debug(cardStore.card?.checklists);
-
-        // Get checklist item count
-        // const checklist = cardStore.card?.checklists.find((el) => el.id === entity.checklist_id);
-        // const res = checklist?.items.filter((el) => el.id === entity.id);
-        // if (res && res.length > 1) {
-        //     cardStore.removeChecklistItem(res[1].id)
-        // }
-        // console.log(res);
         console.groupEnd();
     },
     updateChecklistItem: (data: SIOCardEvent) => {

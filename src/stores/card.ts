@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-import { ICard, IPaginatedCardActivity, ICardActivity, ICardChecklist, IChecklistItem, ICardMember, ICardDate } from "@/api/types";
+import { ICard, IPaginatedCardActivity, ICardActivity, ICardChecklist, IChecklistItem, ICardMember, ICardDate, IDraftChecklistItem, IDraftCardMember } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
 import { SIOChecklistItemDeleteEvent, SIOChecklistItemUpdateOrder } from "@/socket";
@@ -27,14 +27,13 @@ export const useCardStore = defineStore('card', {
         setActivities(payload: IPaginatedCardActivity) {
             this.activities = payload;
         },
-        updateCard(payload: ICard) {
-            this.card = payload;
-        },
         addCardActivity(payload: ICardActivity) {
-            this.activities?.data.unshift(CardAPI.parseCardActivity(payload));
+            if (this.activities && this.activities.data.findIndex((el) => el.id === payload.id) === -1)
+                this.activities.data.unshift(CardAPI.parseCardActivity(payload));
         },
         addChecklist(payload: ICardChecklist) {
-            this.card?.checklists.push(payload);
+            if (this.card && this.card.checklists.findIndex((el) => el.id === payload.id) === -1)
+                this.card.checklists.push(payload);
         },
         removeChecklist(checklist_id: number) {
             if (this.card) {
@@ -47,7 +46,9 @@ export const useCardStore = defineStore('card', {
         addChecklistItem(item: IChecklistItem) {
             const checklist = this.card?.checklists.find((el) => el.id === item.checklist_id);
             if (checklist) {
-                checklist.items.push(ChecklistAPI.parseChecklistItem(item));
+                // Check if item already exists
+                if (checklist.items.findIndex((el) => el.id === item.id) === - 1)
+                    checklist.items.push(ChecklistAPI.parseChecklistItem(item));
             }
         },
         removeChecklistItem(deleteEvent: SIOChecklistItemDeleteEvent) {
@@ -85,7 +86,8 @@ export const useCardStore = defineStore('card', {
             this.activities = null;
         },
         addCardAsisgnment(member: ICardMember) {
-            this.card?.assigned_members.push(member);
+            if (this.card && this.card.assigned_members.findIndex((el) => el.id === member.id) === -1)
+                this.card.assigned_members.push(member);
         },
         removeCardAssignment(member_id: number) {
             // Find card member
@@ -141,5 +143,25 @@ export const useCardStore = defineStore('card', {
                 console.log(err);
             }
         },
+        async postChecklist(item: Partial<ICardChecklist>) {
+            if (this.card) {
+                const newItem = await ChecklistAPI.postCardChecklist(this.card.id, item);
+                this.addChecklist(newItem);
+            }
+        },
+        async postChecklistItem(checklistId: number, item: IDraftChecklistItem) {
+            const newItem = await ChecklistAPI.postChecklistItem(checklistId, item);
+            this.addChecklistItem(newItem);
+        },
+        async patchCardCheckList(checklistId: number, checklist: Partial<ICardChecklist>) {
+            const updatedItem = await ChecklistAPI.patchCardChecklist(checklistId, checklist);
+            this.updateChecklist(updatedItem);
+        },
+        async postCardMemberAssignment(member: IDraftCardMember) {
+            if (this.card) {
+                const newItem = await CardAPI.assignCardMember(this.card.id, member);
+                this.addCardAsisgnment(newItem);
+            }
+        }
     }
 });

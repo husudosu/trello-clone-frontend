@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, nextTick, onUnmounted, onMounted, ref } from "vue";
 import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
@@ -179,21 +179,20 @@ onMounted(() => {
         */
         socket.on(SIOEvent.SIODisconnect, (reason) => {
             console.log(`Disconnected from SIO server reason: ${reason}`);
-
-            if (reason === "transport close") {
-                socketWereDisconnected.value = true;
+            socketWereDisconnected.value = true;
+            if (reason !== "io client disconnect") {
                 $q.notify({
                     message: "Connection lost to server",
                     type: "negative",
                     position: "bottom-right"
                 });
             }
+
         });
         socket.on(SIOEvent.SIOConnect, async () => {
             console.log("Connected to server");
             await loadBoard(boardId.value);
             socket.emit("board_change", { board_id: route.params.boardId });
-
             if (socketWereDisconnected.value) {
                 $q.notify({
                     message: "Reconnected",
@@ -205,6 +204,7 @@ onMounted(() => {
         });
 
         socket.on(SIOEvent.SIOError, SIOBoardEventListeners.onError);
+
         socket.onAny((event: string) => {
             console.debug(`[Socket.IO->BoardPage]: Got event: ${event}`);
         });
@@ -246,11 +246,13 @@ onMounted(() => {
     }
 });
 
-onBeforeUnmount(() => {
+
+onUnmounted(() => {
     console.debug("[Socket.IO]: Leaving board route so disconnect from server.");
     boardStore.unLoadBoard();
     socket.disconnect();
 });
+
 </script>
 <style lang="scss">
 @import "../styles/board.scss";

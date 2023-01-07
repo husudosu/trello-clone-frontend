@@ -1,5 +1,5 @@
 <template>
-    <q-dialog :fullWidth="true" :fullHeight="true" :maximized="$q.screen.xs" @hide="onCloseDialog" ref="dialogRef">
+    <q-dialog :fullWidth="true" :fullHeight="true" :maximized="$q.screen.xs" @hide="onDialogHide" ref="dialogRef">
         <q-layout view="hHh lpR fFf" container class="bg-white" v-if="card">
             <q-header class="bg-primary">
                 <q-toolbar>
@@ -131,7 +131,7 @@
 <script lang="ts" setup>
 import { useDialogPluginComponent } from 'quasar';
 
-import { computed, ref, defineEmits, defineProps, onMounted } from 'vue';
+import { computed, ref, defineEmits, defineProps, onMounted, onUnmounted } from 'vue';
 import { useQuasar } from 'quasar';
 import * as DOMPurify from 'dompurify';
 import { marked } from 'marked';
@@ -147,7 +147,6 @@ import UserAvatar from './UserAvatar.vue';
 import CardDates from './Board/Card/Details/CardDates.vue';
 
 import { useSocketIO, SIOBoardEventListeners, SIOEvent } from "@/socket";
-import { ChecklistAPI } from '@/api/checklist';
 import CardHistoryDialog from './Board/Card/CardHistoryDialog.vue';
 
 import 'github-markdown-css/github-markdown-light.css';
@@ -205,8 +204,9 @@ onMounted(async () => {
         socket.on(SIOEvent.CARD_ACTIVITY_DELETE, SIOBoardEventListeners.deleteCardActivity);
 
         socket.on(SIOEvent.SIODisconnect, (reason) => {
-            if (reason === "transport close") {
-                socketWereDisconnected.value = true;
+            console.log(`[CardDetailsDialog->Socket.IO]: Disconnected from SIO server reason: ${reason}`);
+            socketWereDisconnected.value = true;
+            if (reason !== "io client disconnect") {
                 $q.notify({
                     message: "Connection lost to server",
                     type: "negative",
@@ -241,25 +241,6 @@ onMounted(async () => {
     }
 });
 
-const onCloseDialog = () => {
-    try {
-        cardStore.unloadCard();
-        // Unregister card activity listener
-        socket.disconnect();
-    }
-    catch (err) {
-        console.log(err);
-        $q.notify({
-            position: "bottom-right",
-            type: "negative",
-            message: "Cannot close card properly."
-        });
-    }
-    finally {
-        onDialogHide();
-    }
-};
-
 const addNewComment = async () => {
     if (card.value) {
         try {
@@ -288,9 +269,7 @@ const onDescriptionEdit = async (e: KeyboardEvent) => {
 const onTitleEdit = async () => {
     if (card.value && card.value.title && card.value.id) {
         editCardTitle.value = false;
-        // const updatedCard: Card = await CardAPI.patchCard(card.value.id, { title: card.value.title });
         await CardAPI.patchCard(card.value.id, { title: card.value.title });
-        // store.commit.board.saveCard(updatedCard);
     }
 };
 
@@ -315,9 +294,7 @@ const onDeleteClicked = () => {
         }
     }).onOk(() => {
         if (card.value) {
-            socket.disconnect();
             CardAPI.deleteCard(card.value.id);
-            cardStore.unloadCard();
             onDialogHide();
         }
     });
@@ -338,16 +315,14 @@ const onCreateChecklistClicked = () => {
         },
         cancel: true,
         persistent: true
-    }).onOk(async data => {
-        await ChecklistAPI.postCardChecklist(props.cardId, { title: data });
-    });
+    }).onOk(data => cardStore.postChecklist({ title: data }));
 };
 
 const onAssignMemberClicked = () => {
     $q.dialog({
         component: AssignMember,
-    }).onOk(async (data: IBoardAllowedUser) => {
-        await CardAPI.assignCardMember(props.cardId, { board_user_id: data.id, send_notification: true });
+    }).onOk((data: IBoardAllowedUser) => {
+        cardStore.postCardMemberAssignment({ board_user_id: data.id, send_notification: true });
     });
 };
 
@@ -367,6 +342,12 @@ const onAddDateClicked = () => {
         await CardAPI.postCardDate(props.cardId, data);
     });
 };
+
+onUnmounted(() => {
+    cardStore.unloadCard();
+    console.debug("Unmounted dialog, disconnect from Socket.IO");
+    socket.disconnect();
+});
 
 </script>
 

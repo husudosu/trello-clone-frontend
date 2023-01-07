@@ -19,7 +19,6 @@ const routes: Array<RouteRecordRaw> = [
     path: "/",
     component: () => import("../layouts/UserAreaLayout.vue"),
     beforeEnter: onlyUserCanAccess,
-    // redirect: { name: "boards" }
     children: [
       {
         path: "/",

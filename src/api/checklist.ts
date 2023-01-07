@@ -2,7 +2,7 @@ import { useAuthStore } from "@/stores/auth";
 import moment from "moment-timezone";
 
 import { API } from ".";
-import { IBoardAllowedUser, ICardChecklist, IChecklistItem, DraftChecklistItem } from "./types";
+import { IBoardAllowedUser, ICardChecklist, IChecklistItem, IDraftChecklistItem } from "./types";
 
 export const ChecklistAPI = {
     parseChecklistItem: (data: IChecklistItem) => {
@@ -27,7 +27,7 @@ export const ChecklistAPI = {
         await API.delete(`/checklist/${checklistId}`);
         return {};
     },
-    postChecklistItem: async (checklistId: number, item: DraftChecklistItem): Promise<IChecklistItem> => {
+    postChecklistItem: async (checklistId: number, item: IDraftChecklistItem): Promise<IChecklistItem> => {
         const { data } = await API.post<IChecklistItem>(`/checklist/${checklistId}/item`, item);
         return ChecklistAPI.parseChecklistItem(data);
     },
