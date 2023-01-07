@@ -14,16 +14,16 @@
         </q-markup-table>
         <q-separator class="q-mt-sm q-mb-sm"></q-separator>
         <div class="row">
-            <q-btn :disable="!store.getters.board.boardUser?.is_owner" @click="onDeleteBoardClicked">
-                {{ store.state.board.board?.archived ? 'Delete board' : 'Archive board' }}
+            <q-btn :disable="!boardStore.boardUser?.is_owner" @click="onDeleteBoardClicked">
+                {{ boardStore.board?.archived ? 'Delete board' : 'Archive board' }}
             </q-btn>
-            <q-btn class="q-ml-sm" v-if="(store.state.board.board?.archived && store.getters.board.boardUser?.is_owner)"
+            <q-btn class="q-ml-sm" v-if="(boardStore.board?.archived && boardStore.boardUser?.is_owner)"
                 @click="onRevertBoardClicked">
                 Revert board
             </q-btn>
-            <span v-if="!store.getters.board.boardUser?.is_owner" class="q-ml-sm">Only {{
-                    store.getters.board.owner?.user.name
-            }} ({{ store.getters.board.owner?.user.username }}) can
+            <span v-if="!boardStore.boardUser?.is_owner" class="q-ml-sm">Only {{
+                boardStore.owner?.user.name
+            }} ({{ boardStore.owner?.user.username }}) can
                 delete this
                 board!</span>
         </div>
@@ -37,20 +37,22 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import store from '@/store';
 import { BoardPermission } from "@/api/types";
 import { BoardAPI } from "@/api/board";
 import { useQuasar } from "quasar";
 import router from "@/router";
+import { useBoardStore } from "@/stores/board";
 
-const hasPermission = store.getters.board.hasPermission;
-const newBoardTitle = ref(store.state.board.board?.title);
-const board = store.state.board.board;
+const boardStore = useBoardStore();
+
+const hasPermission = boardStore.hasPermission;
+const newBoardTitle = ref(boardStore.board?.title);
+const board = boardStore.board;
 const $q = useQuasar();
 
 const onSubmit = () => {
-    if (store.state.board.board) {
-        BoardAPI.patchBoard(store.state.board.board.id, { title: newBoardTitle.value });
+    if (boardStore.board) {
+        BoardAPI.patchBoard(boardStore.board.id, { title: newBoardTitle.value });
         $q.notify({
             message: "Board updated",
             type: "positive",
@@ -72,7 +74,7 @@ const onDeleteBoardClicked = () => {
         }
     }).onOk(() => {
         if (board) {
-            store.dispatch.board.removeBoard(board.id)
+            boardStore.removeBoard(board.id)
                 .then(() => { router.push({ name: "boards" }); });
         }
     });

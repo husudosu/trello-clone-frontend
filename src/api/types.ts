@@ -2,33 +2,33 @@ import moment from "moment-timezone";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
-export interface PaginatedLinks {
+export interface IPaginatedLinks {
     first: string;
     last: string;
 }
 
-export interface PaginatedResponse {
-    links: PaginatedLinks;
+export interface IPaginatedResponse {
+    links: IPaginatedLinks;
     page: number;
     pages: number;
     per_page: number;
     total: number;
 }
 
-export interface PaginatedQuery {
+export interface IPaginatedQuery {
     page?: number;
     per_page?: number;
     sort_by?: number;
     order?: "asc" | "desc";
 }
 
-export interface UserLogin {
+export interface IUserLogin {
     username: string;
     password: string;
     remember_me?: boolean;
 }
 
-export interface User {
+export interface IUser {
     id: Readonly<number>;
     username: string;
     name?: string;
@@ -39,32 +39,32 @@ export interface User {
     timezone: string;
 }
 
-export interface UserUpdate extends Omit<User, "roles"> {
+export interface IUserUpdate extends Omit<IUser, "roles"> {
     password?: string; // New password
     current_password: string | null;
 }
 
 
-export interface DraftBoardList {
+export interface IDraftBoardList {
     board_id: number;
     title: string;
     archived: boolean;
 }
 
-export interface BoardList {
+export interface IBoardList {
     id: Readonly<number>;
     board_id: number;
     title: string;
     position: number;
-    cards: Card[];
+    cards: ICard[];
     archived: boolean;
 }
 
-export interface Board {
+export interface IBoard {
     id: Readonly<number>;
     owner_id: number;
     title: string;
-    lists: BoardList[];
+    lists: IBoardList[];
     background_image?: string;
     background_color?: string;
     archived: boolean;
@@ -72,56 +72,56 @@ export interface Board {
 }
 
 
-export interface BoardRolePermission {
+export interface IBoardRolePermission {
     id: Readonly<number>;
     name: string;
     allow: boolean;
 }
 
-export interface BoardRole {
+export interface IBoardRole {
     id: Readonly<number>;
     name: string;
     is_admin: boolean;
-    permissions: BoardRolePermission[];
+    permissions: IBoardRolePermission[];
 }
 
-export interface BoardClaims {
+export interface IBoardClaims {
     id: Readonly<number>;
     board_id: number;
     is_owner: boolean;
     user_id: number;
-    role: BoardRole;
+    role: IBoardRole;
 }
 
 
-export interface DraftCard {
+export interface IDraftCard {
     title: string;
     list_id: number;
 }
 
-export interface Card {
+export interface ICard {
     id: Readonly<number>;
     list_id: number;
     title: string;
     description?: string;
     position: number;
-    checklists: CardChecklist[];
-    assigned_members: CardMember[];
-    dates: CardDate[];
+    checklists: ICardChecklist[];
+    assigned_members: ICardMember[];
+    dates: ICardDate[];
     archived_on: Readonly<moment.Moment>;
     archived: Readonly<boolean>;
     archived_by_list: Readonly<boolean>;
 }
 
 
-export interface DraftCardDate {
+export interface IDraftCardDate {
     dt_from?: string;
     dt_to: string | null;
     description?: string;
     complete: boolean;
 }
 
-export interface CardDate {
+export interface ICardDate {
     id: Readonly<number>;
     card_id: Readonly<number>;
     dt_from?: moment.Moment | null;
@@ -130,19 +130,19 @@ export interface CardDate {
     complete: boolean;
 }
 
-export interface DraftCardMember {
+export interface IDraftCardMember {
     board_user_id: number;
     send_notification: boolean;
 }
 
-export interface CardMember {
+export interface ICardMember {
     id: Readonly<number>;
-    board_user: BoardMemberInfo;
+    board_user: IBoardMemberInfo;
     board_user_id: number;
     send_notification: boolean;
 }
 
-export interface UserBasicInfo {
+export interface IUserBasicInfo {
     id: Readonly<number>;
     name: string;
     avatar_url?: string;
@@ -150,22 +150,22 @@ export interface UserBasicInfo {
     timezone: string;
 }
 
-export interface BoardMemberInfo {
+export interface IBoardMemberInfo {
     id: Readonly<number>;
-    user: UserBasicInfo;
+    user: IUserBasicInfo;
     is_deleted: boolean;
 }
 
-export interface CardListChange {
+export interface ICardListChange {
     id: Readonly<number>;
     activity_id: number;
     from_list_id: number;
     to_list_id: number;
-    from_list: Partial<BoardList>;
-    to_list: Partial<BoardList>;
+    from_list: Partial<IBoardList>;
+    to_list: Partial<IBoardList>;
 }
 
-export interface CardActivity {
+export interface ICardActivity {
     id: Readonly<number>;
     card_id: number;
     board_id: number;
@@ -173,25 +173,25 @@ export interface CardActivity {
     activity_on: moment.Moment;
     entity_id?: number;
     event?: CardActivityEvent | BoardActivityEvent;
-    comment?: CardComment;
-    list_change?: CardListChange;
-    board_user: BoardMemberInfo;
+    comment?: ICardComment;
+    list_change?: ICardListChange;
+    board_user: IBoardMemberInfo;
     changes: string;
 }
 
-export interface PaginatedCardActivity extends PaginatedResponse {
-    data: CardActivity[];
+export interface IPaginatedCardActivity extends IPaginatedResponse {
+    data: ICardActivity[];
 }
 
 export type CardActivityQueryType = "all" | "comment";
 
-export interface CardActivityQueryParams extends PaginatedQuery {
+export interface ICardActivityQueryParams extends IPaginatedQuery {
     type?: CardActivityQueryType;
     dt_from?: string;
     dt_to?: string;
 }
 
-export interface CardComment {
+export interface ICardComment {
     id?: Readonly<number>;
     user_id?: number;
     card_id: number;
@@ -200,7 +200,7 @@ export interface CardComment {
     updated?: moment.Moment;
 }
 
-export interface RegisterPayload {
+export interface IRegisterPayload {
     email: string,
     username: string,
     password: string,
@@ -208,28 +208,28 @@ export interface RegisterPayload {
     timezone: string,
 }
 
-export interface BoardAllowedUser {
+export interface IBoardAllowedUser {
     id: Readonly<number>;
     user_id: number;
     board_id: number;
     board_role_id: number;
     is_owner: boolean;
     is_deleted: boolean;
-    role: BoardRole;
-    user: UserBasicInfo;
+    role: IBoardRole;
+    user: IUserBasicInfo;
 }
 
-export interface AddBoardMemberType {
+export interface IAddBoardMemberType {
     board_role_id: number;
     user_id: number;
 }
 
-export interface RemoveBoardMemberType {
+export interface IRemoveBoardMemberType {
     user_id: number;
 }
 
 
-export interface ChecklistItem {
+export interface IChecklistItem {
     id: Readonly<number>;
     checklist_id: Readonly<number>;
     marked_complete_board_user_id?: number;
@@ -239,34 +239,34 @@ export interface ChecklistItem {
     due_date?: moment.Moment;
     completed: boolean;
     marked_complete_on?: moment.Moment;
-    marked_complete_user?: BoardMemberInfo;
-    assigned_user?: BoardMemberInfo;
+    marked_complete_user?: IBoardMemberInfo;
+    assigned_user?: IBoardMemberInfo;
     position?: number;
 }
 
 
-export type DraftChecklistItem = Optional<ChecklistItem, "id" | "checklist_id" | "completed">;
+export type IDraftChecklistItem = Optional<IChecklistItem, "id" | "checklist_id" | "completed">;
 
-export interface CardChecklist {
+export interface ICardChecklist {
     id: Readonly<number>;
     card_id: Readonly<number>;
     title?: string;
-    items: ChecklistItem[];
+    items: IChecklistItem[];
 }
 
-export interface ArchivedCard {
+export interface IArchivedCard {
     archived_on: moment.Moment;
-    board_list: Pick<BoardList, "title" | "id" | "archived">;
+    board_list: Pick<IBoardList, "title" | "id" | "archived">;
     archived: boolean;
     id: number;
     title: string;
 }
 
-export interface ArchivedList {
+export interface IArchivedList {
     archived_on: moment.Moment;
     id: number;
     title: string;
-    cards: Array<Pick<Card, "id" | "title">>;
+    cards: Array<Pick<ICard, "id" | "title">>;
 }
 
 export enum BoardActivityEvent {

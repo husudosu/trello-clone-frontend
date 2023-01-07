@@ -1,14 +1,16 @@
+import { useAuthStore } from "@/stores/auth";
 import { createRouter, createWebHistory, RouteRecordRaw, RouteLocationNormalized, NavigationGuardNext } from "vue-router";
-import store from "@/store";
 
 
 const onlyAnonymousCanAccess = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  if (store.state.auth.loggedIn) next({ name: "boards" });
+  const authStore = useAuthStore();
+  if (authStore.loggedIn) next({ name: "boards" });
   else next();
 };
 
 const onlyUserCanAccess = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  if (store.state.auth.loggedIn) next();
+  const authStore = useAuthStore();
+  if (authStore.loggedIn) next();
   else next({ name: "login" });
 };
 
@@ -17,7 +19,6 @@ const routes: Array<RouteRecordRaw> = [
     path: "/",
     component: () => import("../layouts/UserAreaLayout.vue"),
     beforeEnter: onlyUserCanAccess,
-    // redirect: { name: "boards" }
     children: [
       {
         path: "/",

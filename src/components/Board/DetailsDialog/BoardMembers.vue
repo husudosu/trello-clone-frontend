@@ -11,9 +11,9 @@
                 </q-item-section>
                 <q-item-section>
                     <q-item-label :style="{ 'text-decoration': member.is_deleted ? 'line-through' : 'auto' }">{{
-                            member.user.name
+                        member.user.name
                     }} ({{
-        member.user.username
+    member.user.username
 }})</q-item-label>
                 </q-item-section>
                 <q-item-section top side>
@@ -45,29 +45,31 @@ import { ref, computed } from "vue";
 
 import { useQuasar } from "quasar";
 import { BoardAPI } from "@/api/board";
-import store from "@/store/index";
-import { BoardAllowedUser, BoardRole } from "@/api/types";
+import { IBoardAllowedUser, IBoardRole } from "@/api/types";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AddMemberDialog from "../AddMemberDialog.vue";
+import { useBoardStore } from "@/stores/board";
 
-const boardRoles = computed(() => store.state.board.roles);
-const boardUser = computed(() => store.getters.board.boardUser);
-const isAdmin = computed(() => store.getters.board.isAdmin);
+const boardStore = useBoardStore();
+
+const boardRoles = computed(() => boardStore.roles);
+const boardUser = computed(() => boardStore.boardUser);
+const isAdmin = computed(() => boardStore.isAdmin);
 const $q = useQuasar();
 
-const boardMembers = ref<BoardAllowedUser[]>([]);
+const boardMembers = ref<IBoardAllowedUser[]>([]);
 
-if (store.state.board.board) {
-    BoardAPI.getBoardMembers(store.state.board.board.id).then((data) => {
+if (boardStore.board) {
+    BoardAPI.getBoardMembers(boardStore.board.id).then((data) => {
         boardMembers.value = data;
     });
 }
 
-const onRoleChange = async (role: BoardRole, member: BoardAllowedUser) => {
+const onRoleChange = async (role: IBoardRole, member: IBoardAllowedUser) => {
     BoardAPI.updateBoardMemberRole(member.board_id, member.user_id, role.id);
 };
 
-const onDeleteClicked = async (member: BoardAllowedUser) => {
+const onDeleteClicked = async (member: IBoardAllowedUser) => {
     $q.dialog({
         title: "Delete member?",
         cancel: true,
@@ -86,7 +88,7 @@ const onDeleteClicked = async (member: BoardAllowedUser) => {
     });
 };
 
-const onActivateUserClicked = async (member: BoardAllowedUser) => {
+const onActivateUserClicked = async (member: IBoardAllowedUser) => {
     $q.dialog({
         title: "Activate member?",
         cancel: true,
@@ -107,8 +109,8 @@ const onAddMemberClicked = () => {
     $q.dialog({
         component: AddMemberDialog
     }).onOk(async (data) => {
-        if (store.state.board.board) {
-            const member = await BoardAPI.addBoardMember(store.state.board.board.id, data);
+        if (boardStore.board) {
+            const member = await BoardAPI.addBoardMember(boardStore.board.id, data);
             boardMembers.value.push(member);
         }
     });

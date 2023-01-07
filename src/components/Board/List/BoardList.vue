@@ -47,17 +47,16 @@
 </template>
 
 <script lang="ts" setup>
-import { BoardList, BoardPermission, DraftCard } from '@/api/types';
+import { BoardList, BoardPermission, IDraftCard } from '@/api/types';
 import { defineProps, ref, nextTick, onMounted, computed, defineEmits } from 'vue';
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
-
-import store from "@/store";
 
 import ListCard from "@/components/Board/Card/ListCard.vue";
 import DraftCardVue from "@/components/Board/Card/DraftCard.vue";
 import { BoardListAPI } from '@/api/boardList';
 import { CardAPI } from '@/api/card';
+import { useBoardStore } from '@/stores/board';
 
 /* TODO: Implement events of VueDraggable, Vue3 version off draggable is not contains event types
 Vue v2 sortable.js:
@@ -68,9 +67,10 @@ https://github.com/SortableJS/vue.draggable.next/blob/master/types/vuedraggable.
 
 defineEmits(['onCardMoveEnd']);
 
+const boardStore = useBoardStore();
 const listWrapperRef = ref();
 const props = defineProps<{ boardList: BoardList; }>();
-const hasPermission = store.getters.board.hasPermission;
+const hasPermission = boardStore.hasPermission;
 const cardsWrapper = ref();
 
 const editListTitle = ref(false);
@@ -84,7 +84,7 @@ const cards = computed({
         return props.boardList.cards;
     },
     set(value) {
-        store.commit.board.setCards({ cards: value, listId: props.boardList.id });
+        boardStore.setCards({ cards: value, listId: props.boardList.id });
     }
 });
 const showAddCard = ref(false);
@@ -149,7 +149,7 @@ const onTitleDblClick = () => {
     }
 };
 
-const onSaveCard = async (card: DraftCard) => {
+const onSaveCard = async (card: IDraftCard) => {
     showAddCard.value = false;
     await CardAPI.postCard(props.boardList.id, card);
 };

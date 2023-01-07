@@ -1,12 +1,11 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-
-import store from "@/store";
 import router from "@/router";
 import { Cookies } from 'quasar';
 
 import { ValidationError } from "./exceptions";
 import { Notify } from 'quasar';
 import * as DOMPurify from 'dompurify';
+import { useAuthStore } from "@/stores/auth";
 
 const config: AxiosRequestConfig = {
     withCredentials: true,
@@ -68,8 +67,9 @@ API.interceptors.response.use((response: AxiosResponse) => {
     return response;
 }, (error) => {
     if (error.response.status === 401 && !error.request.responseURL.includes("/auth/login")) {
-        store.commit.auth.setLoggedIn(false);
-        store.commit.auth.setUser(null);
+        const authStore = useAuthStore();
+        authStore.setLoggedIn(false);
+        authStore.setUser(null);
         router.push({ name: "login" });
     }
     else if (error.response)

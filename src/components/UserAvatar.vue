@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { UserBasicInfo } from '@/api/types';
+import { IUserBasicInfo } from '@/api/types';
 import { defineProps, ref, onBeforeMount, withDefaults, defineEmits } from 'vue';
 
 defineEmits(["delete"]);
@@ -22,7 +22,7 @@ interface Props {
     size?: string;
     rounded?: boolean;
     showTooltip?: boolean;
-    user: UserBasicInfo;
+    user: IUserBasicInfo;
     showDelete?: boolean;
 }
 

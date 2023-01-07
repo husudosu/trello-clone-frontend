@@ -14,13 +14,14 @@
                 </q-item-label>
                 <q-item-label caption>
                     #{{ item.id }} {{
-                            item.archived_on.format("YYYY-MM-DD HH:mm:ss")
+                        item.archived_on.format("YYYY-MM-DD HH:mm:ss")
                     }}
                     <p v-if="item.cards.length > 0">
                         <b>Cards on list:</b>
                     <ul>
                         <li v-for="card in item.cards" :key="card.id">
-                            <a href="javascript:void(0);" @click="cardOnClick(card.id)">#{{ card.id }}</a> {{ card.title
+                            <a href="javascript:void(0);" @click="cardOnClick(card.id)">#{{ card.id }}</a> {{
+                                card.title
                             }}
                         </li>
                     </ul>
@@ -44,16 +45,18 @@
 <script lang="ts" setup>
 
 import { BoardListAPI } from "@/api/boardList";
-import { ArchivedList } from "@/api/types";
+import { IArchivedList } from "@/api/types";
+import { useArchiveStore } from "@/stores/archive";
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
-import store from "@/store";
 
 import { useQuasar } from 'quasar';
 import { onMounted, computed } from 'vue';
+import { useBoardStore } from "@/stores/board";
 
 const $q = useQuasar();
-
-const archivedLists = computed(() => store.state.archive.lists);
+const boardStore = useBoardStore();
+const archiveStore = useArchiveStore();
+const archivedLists = computed(() => archiveStore.lists);
 
 const cardOnClick = (cardId: number) => {
     $q.dialog({
@@ -66,7 +69,7 @@ const onRevertListClick = async (listId: number) => {
     await BoardListAPI.patchBoardList(listId, { archived: false });
 };
 
-const onDeleteListClick = (list: ArchivedList) => {
+const onDeleteListClick = (list: IArchivedList) => {
     $q.dialog({
         title: "Delete card",
         cancel: true,
@@ -85,7 +88,8 @@ const onDeleteListClick = (list: ArchivedList) => {
 onMounted(async () => {
     try {
         $q.loading.show({ delay: 180 });
-        await store.dispatch.archive.loadArchivedLists();
+        if (boardStore.board)
+            await archiveStore.loadArchivedLists(boardStore.board.id);
     }
     finally {
         $q.loading.hide();

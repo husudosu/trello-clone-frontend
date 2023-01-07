@@ -20,13 +20,13 @@
                         </template>
                         <span class="text-bold" v-if="props.showCardTitle && props.activity.card_id">
                             On card <a href="javascript:void(0);" @click="onCardClicked(props.activity.card_id)">#{{
-                                    props.activity.card_id
+                                props.activity.card_id
                             }}</a>
                         </span>
                         {{
-                                props.activity.comment?.updated?.isValid() ?
-                                    "Updated: " + props.activity.comment?.updated?.format("YYYY-MM-DD HH:mm:ss")
-                                    : props.activity.activity_on.format("YYYY-MM-DD HH:mm:ss")
+                            props.activity.comment?.updated?.isValid() ?
+                                "Updated: " + props.activity.comment?.updated?.format("YYYY-MM-DD HH:mm:ss")
+                                : props.activity.activity_on.format("YYYY-MM-DD HH:mm:ss")
                         }}
                     </span>
                 </div>
@@ -35,7 +35,8 @@
                 <template v-if="props.activity.event == CardActivityEvent.CARD_COMMENT">
                     <template v-if="!editMode">
                         <div class="rounded-borders	q-pa-sm cardComment">
-                            <span style="white-space: pre-wrap;">{{ activity?.comment?.comment
+                            <span style="white-space: pre-wrap;">{{
+                                activity?.comment?.comment
                             }}</span>
                         </div>
                     </template>
@@ -55,21 +56,22 @@
 
 <script lang="ts" setup>
 import { defineProps, ref, withDefaults } from "vue";
-import { CardActivityEvent, CardActivity, BoardActivityEvent } from "@/api/types";
+import { CardActivityEvent, ICardActivity, BoardActivityEvent } from "@/api/types";
 import UserAvatar from "@/components/UserAvatar.vue";
-import store from "@/store";
 import { useQuasar } from "quasar";
 import { CardAPI } from "@/api/card";
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
+import { useBoardStore } from "@/stores/board";
 
 interface Props {
-    activity: CardActivity;
+    activity: ICardActivity;
     showCardTitle?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), { showCardTitle: false });
 const $q = useQuasar();
+const boardStore = useBoardStore();
 
-const canEdit = store.getters.board.boardUser?.id === props.activity.board_user_id || store.getters.board.isAdmin;
+const canEdit = boardStore.boardUser?.id === props.activity.board_user_id || boardStore.isAdmin;
 const editMode = ref(false);
 const updatedComment = ref("");
 
@@ -166,10 +168,10 @@ const createActivityText = () => {
         case CardActivityEvent.CHECKLIST_ITEM_USER_ASSIGN:
             break;
         case CardActivityEvent.CARD_ASSIGN_MEMBER:
-            return `Assigned card to <b>${store.getters.board.getBoardUsername(props.activity.changes.to?.board_user_id)
+            return `Assigned card to <b>${boardStore.getBoardUsername(props.activity.changes.to?.board_user_id)
                 }</b>`;
         case CardActivityEvent.CARD_DEASSIGN_MEMBER:
-            return `Deassigned card from <b>${store.getters.board.getBoardUsername(props.activity.changes.from?.board_user_id)
+            return `Deassigned card from <b>${boardStore.getBoardUsername(props.activity.changes.from?.board_user_id)
                 }</b>`;
         case CardActivityEvent.CARD_ADD_DATE:
             return "Created card date.";

@@ -1,5 +1,5 @@
 <template>
-    <q-dialog :fullWidth="true" :fullHeight="true" :maximized="$q.screen.xs" @hide="onCloseDialog" ref="dialogRef">
+    <q-dialog :fullWidth="true" :fullHeight="true" :maximized="$q.screen.xs" @hide="onDialogHide" ref="dialogRef">
         <q-layout view="hHh lpR fFf" container class="bg-white" v-if="card">
             <q-header class="bg-primary">
                 <q-toolbar>
@@ -102,13 +102,6 @@
                                 <span>Activity</span>
                             </span>
                         </div>
-                        <div class="q-ml-xs q-mb-xs on-right">
-                            <q-btn color="primary" size="sm" style="top: 10px;" @click="onCardDetailsButtonClicked">
-                                {{ cardActivityQueryType == "all" ? "Hide details" :
-    "Show details"
-                                }}
-                            </q-btn>
-                        </div>
                     </div>
                     <div class="q-pa-md" style="width:100%;">
                         <q-input v-model="newComment" type="textarea" placeholder="New comment..." autofocus
@@ -119,15 +112,12 @@
                     </div>
                     <div class="card-comments">
                         <q-list padding bordered>
-                            <template v-if="activities && activities.data.length > 0">
-                                <card-activity v-for="activity in activities.data" :key="activity.id"
-                                    :activity="activity">
+                            <template v-if="activities && activities.length > 0">
+                                <card-activity v-for="activity in activities" :key="activity.id" :activity="activity">
                                 </card-activity>
                             </template>
                             <template v-else>
-                                <!-- <span class="q-ma-sm">
-                                    {{ cardActivityQueryType == "all" ? "No activity yet" : "No comments yet"; }}
-                                </span> -->
+                                <span class="q-ma-sm">No activity yet</span>
                             </template>
                         </q-list>
                     </div>
@@ -141,13 +131,12 @@
 <script lang="ts" setup>
 import { useDialogPluginComponent } from 'quasar';
 
-import { computed, ref, defineEmits, defineProps, onMounted } from 'vue';
+import { computed, ref, defineEmits, defineProps, onMounted, onUnmounted } from 'vue';
 import { useQuasar } from 'quasar';
 import * as DOMPurify from 'dompurify';
 import { marked } from 'marked';
 
-import store from "@/store";
-import { BoardPermission, BoardAllowedUser, CardMember, DraftCardDate } from "@/api/types";
+import { BoardPermission, IBoardAllowedUser, ICardMember, IDraftCardDate } from "@/api/types";
 import { CardAPI } from '@/api/card';
 import CardActivity from './Board/Card/CardActivity.vue';
 import CardChecklist from './Board/Card/Checklist/CardChecklist.vue';
@@ -158,10 +147,11 @@ import UserAvatar from './UserAvatar.vue';
 import CardDates from './Board/Card/Details/CardDates.vue';
 
 import { useSocketIO, SIOBoardEventListeners, SIOEvent } from "@/socket";
-import { ChecklistAPI } from '@/api/checklist';
 import CardHistoryDialog from './Board/Card/CardHistoryDialog.vue';
 
 import 'github-markdown-css/github-markdown-light.css';
+import { useCardStore } from '@/stores/card';
+import { useBoardStore } from '@/stores/board';
 interface Props {
     cardId: number;
 }
@@ -171,25 +161,27 @@ const props = defineProps<Props>();
 const { socket } = useSocketIO();
 
 const $q = useQuasar();
-const hasPermission = store.getters.board.hasPermission;
+const boardStore = useBoardStore();
+const cardStore = useCardStore();
 
-const card = computed(() => store.state.card.card);
-const activities = computed(() => store.state.card.activities);
+const hasPermission = boardStore.hasPermission;
+
+const card = computed(() => cardStore.card);
+const activities = computed(() => cardStore.activityList);
 const cardDescription = computed(() => {
-    if (store.state.card.card?.description) {
-        return marked.parse(DOMPurify.sanitize(store.state.card.card.description));
+    if (cardStore.card?.description) {
+        return marked.parse(DOMPurify.sanitize(cardStore.card.description));
     } else {
         return "";
     }
 });
 
 const rightDrawerVisible = ref(false);
-const cardActivityQueryType = computed(() => store.state.card.cardActivityQueryType);
-
 const newComment = ref("");
 const editCardDescription = ref(false);
 const editCardTitle = ref(false);
 const socketWereDisconnected = ref(false);
+
 
 
 defineEmits([
@@ -212,8 +204,9 @@ onMounted(async () => {
         socket.on(SIOEvent.CARD_ACTIVITY_DELETE, SIOBoardEventListeners.deleteCardActivity);
 
         socket.on(SIOEvent.SIODisconnect, (reason) => {
-            if (reason === "transport close") {
-                socketWereDisconnected.value = true;
+            console.log(`[CardDetailsDialog->Socket.IO]: Disconnected from SIO server reason: ${reason}`);
+            socketWereDisconnected.value = true;
+            if (reason !== "io client disconnect") {
                 $q.notify({
                     message: "Connection lost to server",
                     type: "negative",
@@ -223,7 +216,7 @@ onMounted(async () => {
         });
         socket.on(SIOEvent.SIOConnect, async () => {
             socket.emit("card_change", { card_id: props.cardId });
-            await store.dispatch.card.loadCard(props.cardId);
+            await cardStore.loadCard(props.cardId);
             if (socketWereDisconnected.value) {
                 $q.notify({
                     message: "Reconnected",
@@ -247,25 +240,6 @@ onMounted(async () => {
         $q.loading.hide();
     }
 });
-
-const onCloseDialog = () => {
-    try {
-        store.commit.card.unloadCard();
-        // Unregister card activity listener
-        socket.disconnect();
-    }
-    catch (err) {
-        console.log(err);
-        $q.notify({
-            position: "bottom-right",
-            type: "negative",
-            message: "Cannot close card properly."
-        });
-    }
-    finally {
-        onDialogHide();
-    }
-};
 
 const addNewComment = async () => {
     if (card.value) {
@@ -295,9 +269,7 @@ const onDescriptionEdit = async (e: KeyboardEvent) => {
 const onTitleEdit = async () => {
     if (card.value && card.value.title && card.value.id) {
         editCardTitle.value = false;
-        // const updatedCard: Card = await CardAPI.patchCard(card.value.id, { title: card.value.title });
         await CardAPI.patchCard(card.value.id, { title: card.value.title });
-        // store.commit.board.saveCard(updatedCard);
     }
 };
 
@@ -322,9 +294,7 @@ const onDeleteClicked = () => {
         }
     }).onOk(() => {
         if (card.value) {
-            socket.disconnect();
             CardAPI.deleteCard(card.value.id);
-            store.commit.card.unloadCard();
             onDialogHide();
         }
     });
@@ -332,19 +302,6 @@ const onDeleteClicked = () => {
 
 const onCardRevertClicked = () => {
     CardAPI.patchCard(props.cardId, { archived: false });
-};
-
-
-const onCardDetailsButtonClicked = () => {
-    // First clear activities
-    // store.commit.card.unloadCardActivities();
-    // Set activity type globally
-    if (cardActivityQueryType.value == "comment")
-        store.commit.card.setCardActivityQueryType("all");
-    else
-        store.commit.card.setCardActivityQueryType("comment");
-    // Reload card activities
-    // store.dispatch.card.loadCardActivities({ page: 1 });
 };
 
 
@@ -358,25 +315,18 @@ const onCreateChecklistClicked = () => {
         },
         cancel: true,
         persistent: true
-    }).onOk(async data => {
-        await ChecklistAPI.postCardChecklist(props.cardId, { title: data });
-
-        // TODO: Solve the checklist item duplicate bug on new checklist Create
-        // This is a workaround for the bug (see above).
-        await store.dispatch.card.loadCard(props.cardId);
-    });
+    }).onOk(data => cardStore.postChecklist({ title: data }));
 };
 
 const onAssignMemberClicked = () => {
     $q.dialog({
         component: AssignMember,
-    }).onOk(async (data: BoardAllowedUser) => {
-        if (card.value)
-            await CardAPI.assignCardMember(card.value.id, { board_user_id: data.id, send_notification: true });
+    }).onOk((data: IBoardAllowedUser) => {
+        cardStore.postCardMemberAssignment({ board_user_id: data.id, send_notification: true });
     });
 };
 
-const onDeassignMember = async (member: CardMember) => {
+const onDeassignMember = async (member: ICardMember) => {
     try {
         await CardAPI.deassignCardMember(props.cardId, member.board_user.id);
     }
@@ -388,10 +338,16 @@ const onDeassignMember = async (member: CardMember) => {
 const onAddDateClicked = () => {
     $q.dialog({
         component: CardDateDialog
-    }).onOk(async (data: DraftCardDate) => {
+    }).onOk(async (data: IDraftCardDate) => {
         await CardAPI.postCardDate(props.cardId, data);
     });
 };
+
+onUnmounted(() => {
+    cardStore.unloadCard();
+    console.debug("Unmounted dialog, disconnect from Socket.IO");
+    socket.disconnect();
+});
 
 </script>
 

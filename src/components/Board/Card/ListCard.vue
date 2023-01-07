@@ -43,16 +43,16 @@
 </template>
 
 <script lang="ts" setup>
-import { Card, CardDate } from '@/api/types';
+import { Card, ICardDate } from '@/api/types';
 import { defineProps, ref } from 'vue';
 import { useQuasar } from 'quasar';
-import store from "@/store";
 import UserAvatar from '@/components/UserAvatar.vue';
 import CardDateChip from './Status/CardDateChip.vue';
 import { CardAPI } from '@/api/card';
 
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import ChecklistStatus from './Status/ChecklistStatus.vue';
+import { useCardStore } from '@/stores/card';
 
 const $q = useQuasar();
 const props = defineProps<{ card: Card; }>();
@@ -60,13 +60,15 @@ const editMode = ref(false);
 const listCardRef = ref();
 const newTitle = ref("");
 
+const cardStore = useCardStore();
+
 const onCardClick = () => {
     // Launch card details only if editMode inactive!
     /* FIXME: Hacky way to prevent card click event after move. 
      The issue only appears when you move card inside a list
     If you move one list to other it's not an isssued
     */
-    if (!editMode.value && !store.state.card.cardMoved) {
+    if (!editMode.value && !cardStore.cardMoved) {
         $q.dialog({
             component: CardDetailsDialog,
             componentProps: { cardId: props.card.id }
@@ -117,7 +119,7 @@ const onEditClick = (ev: Event) => {
 
 };
 
-const onDateMark = (ev: Event, cardDate: CardDate) => {
+const onDateMark = (ev: Event, cardDate: ICardDate) => {
     ev.stopPropagation();
     CardAPI.patchCardDate(cardDate.id, { complete: !cardDate.complete });
 };

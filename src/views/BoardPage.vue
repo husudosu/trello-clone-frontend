@@ -41,36 +41,41 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, nextTick, onUnmounted, onMounted, ref } from "vue";
 import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
 
-import store from "@/store/index";
+import { useBoardStore } from "@/stores/board";
 import { CardAPI } from "@/api/card";
 import { BoardListAPI } from '@/api/boardList';
 import { BoardAPI } from "@/api/board";
-import { DraftBoardList, BoardPermission } from "@/api/types";
+import { IDraftBoardList, BoardPermission } from "@/api/types";
 
 import BoardListVue from "@/components/Board/List/BoardList.vue";
 import DraftBoardListVue from "@/components/Board/List/DraftBoardList.vue";
 import { useSocketIO, SIOEvent, SIOBoardEventListeners } from "@/socket";
 import BoardInfoDialog from "@/components/Board/DetailsDialog/BoardDetailsDialog.vue";
+import { useCardStore } from "@/stores/card";
 
 const $q = useQuasar();
 const { socket } = useSocketIO();
-const board = computed(() => store.state.board.board);
+
+const boardStore = useBoardStore();
+const cardStore = useCardStore();
+
+const board = computed(() => boardStore.board);
 const boardId = ref<number>(0);
 const boardLists = computed({
     get() {
-        return store.state.board.board ? store.state.board.board.lists : [];
+        return boardStore.board ? boardStore.board.lists : [];
     },
     set(value) {
-        store.commit.board.setLists(value);
+        boardStore.setLists(value);
     }
 });
 
-const hasPermission = store.getters.board.hasPermission;
+const hasPermission = boardStore.hasPermission;
 const socketWereDisconnected = ref(false);
 
 const route = useRoute();
@@ -98,28 +103,22 @@ const onCardSortableMoveEnd = async (ev: any) => {
     The issue only appears when you move card inside a list
     If you move one list to other it's not an isssue
     */
-    store.commit.card.setCardMoved(true);
-    setTimeout(() => store.commit.card.setCardMoved(false), 30);
+    cardStore.setCardMoved(true);
+    setTimeout(() => cardStore.setCardMoved(false), 30);
 
     if (listFromId !== listToId) {
         // Change list id of card.
-        const updatedCard = await CardAPI.patchCard(cardId, { list_id: listToId });
-        /* 
-        Provide listToId as from_list_id because when this store commit runs.
-        The computed variables already by vue-draggable boardLists and cards on BoardPage, BoardList
-        */
-        // store.commit.board.SIOUpdateCard({ card: updatedCard, from_list_id: listToId });
-        store.commit.board.SIOUpdateCard({ entity: updatedCard, list_id: listToId, card_id: updatedCard.id });
-        // BoardList changed so need to update both fromList and toList
+        await CardAPI.patchCard(cardId, { list_id: listToId, position: ev.newIndex });
+
         const listFrom = board.value?.lists.find((el) => el.id == listFromId);
-        if (listFrom !== undefined) {
+        if (listFrom) {
             await BoardListAPI.updateCardsOrder(listFrom);
         }
     }
 
     if (ev.oldIndex !== ev.newIndex || listFromId !== listToId) {
         const listTo = board.value?.lists.find((el) => el.id == listToId);
-        if (listTo !== undefined) {
+        if (listTo) {
             await BoardListAPI.updateCardsOrder(listTo);
         }
     }
@@ -128,7 +127,7 @@ const onCardSortableMoveEnd = async (ev: any) => {
 
 const loadBoard = async (boardId: number) => {
     $q.loading.show({ delay: 400 });
-    await store.dispatch.board.loadBoard({ boardId })
+    await boardStore.loadBoard({ boardId })
         .catch((err) => {
             switch (err.response.status) {
                 case 404:
@@ -158,14 +157,14 @@ const onBoardDetailsClicked = () => {
     });
 };
 
-const onSaveBoardList = (boardList: DraftBoardList) => {
+const onSaveBoardList = (boardList: IDraftBoardList) => {
     showAddDraftList.value = false;
     BoardListAPI.postBoardList(boardId.value, boardList);
 };
 
 
 onBeforeRouteUpdate(async (to, from) => {
-    store.commit.board.unLoadBoard();
+    boardStore.unLoadBoard();
     if (to.params.boardId !== from.params.boardId && typeof to.params.boardId === "string") {
         await loadBoard(parseInt(to.params.boardId));
         socket.emit("board_change", { board_id: to.params.boardId });
@@ -180,21 +179,20 @@ onMounted(() => {
         */
         socket.on(SIOEvent.SIODisconnect, (reason) => {
             console.log(`Disconnected from SIO server reason: ${reason}`);
-
-            if (reason === "transport close") {
-                socketWereDisconnected.value = true;
+            socketWereDisconnected.value = true;
+            if (reason !== "io client disconnect") {
                 $q.notify({
                     message: "Connection lost to server",
                     type: "negative",
                     position: "bottom-right"
                 });
             }
+
         });
         socket.on(SIOEvent.SIOConnect, async () => {
             console.log("Connected to server");
             await loadBoard(boardId.value);
             socket.emit("board_change", { board_id: route.params.boardId });
-
             if (socketWereDisconnected.value) {
                 $q.notify({
                     message: "Reconnected",
@@ -206,6 +204,7 @@ onMounted(() => {
         });
 
         socket.on(SIOEvent.SIOError, SIOBoardEventListeners.onError);
+
         socket.onAny((event: string) => {
             console.debug(`[Socket.IO->BoardPage]: Got event: ${event}`);
         });
@@ -247,11 +246,13 @@ onMounted(() => {
     }
 });
 
-onBeforeUnmount(() => {
+
+onUnmounted(() => {
     console.debug("[Socket.IO]: Leaving board route so disconnect from server.");
-    store.commit.board.unLoadBoard();
+    boardStore.unLoadBoard();
     socket.disconnect();
 });
+
 </script>
 <style lang="scss">
 @import "../styles/board.scss";

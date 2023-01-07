@@ -8,10 +8,10 @@
                 </q-item-label>
                 <q-item-label caption>
                     <a href="javascript:void(0);" @click="cardOnClick(item.id)">#{{ item.id }}</a> {{
-                            item.archived_on.format("YYYY-MM-DD HH:mm:ss")
+                        item.archived_on.format("YYYY-MM-DD HH:mm:ss")
                     }}
                     On <b>{{ item.board_list.title }}</b> list {{ !item.board_list.archived ? "" :
-                            "(Archived)"
+    "(Archived)"
                     }}
                 </q-item-label>
             </q-item-section>
@@ -30,15 +30,17 @@
 <script lang="ts" setup>
 
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
-import store from "@/store";
+import { useArchiveStore } from "@/stores/archive";
+import { useBoardStore } from "@/stores/board";
 
 import { useQuasar } from 'quasar';
 import { computed, onMounted } from 'vue';
 
 const $q = useQuasar();
+const archiveStore = useArchiveStore();
+const boardStore = useBoardStore();
 
-const archivedCards = computed(() => store.state.archive.cards);
-
+const archivedCards = computed(() => archiveStore.cards);
 const cardOnClick = (cardId: number) => {
     $q.dialog({
         component: CardDetailsDialog,
@@ -49,7 +51,8 @@ const cardOnClick = (cardId: number) => {
 onMounted(async () => {
     try {
         $q.loading.show({ delay: 180 });
-        await store.dispatch.archive.loadArchivedCards();
+        if (boardStore.board)
+            await archiveStore.loadArchivedCards(boardStore.board.id);
     }
     finally {
         $q.loading.hide();

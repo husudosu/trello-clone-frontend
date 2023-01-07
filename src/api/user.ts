@@ -1,8 +1,8 @@
 import { API } from ".";
-import { UserLogin, RegisterPayload, User, UserUpdate } from "./types";
+import { IUserLogin, IRegisterPayload, IUser, IUserUpdate } from "./types";
 
 export const UserAPI = {
-    login: (loginPayload: UserLogin) => {
+    login: (loginPayload: IUserLogin) => {
         return API.post("/auth/login", loginPayload);
     },
     logout: () => {
@@ -12,20 +12,20 @@ export const UserAPI = {
         const { data } = await API.get("/auth/users/me");
         return data;
     },
-    getUser: async (userId: number): Promise<User> => {
-        const { data } = await API.get<User>(`/auth/users/${userId}`);
+    getUser: async (userId: number): Promise<IUser> => {
+        const { data } = await API.get<IUser>(`/auth/users/${userId}`);
         return data;
     },
-    register: async (payload: RegisterPayload) => {
+    register: async (payload: IRegisterPayload) => {
         const { data } = await API.post("/auth/register", payload);
         return data;
     },
-    findUser: async (username: string): Promise<User> => {
-        const { data } = await API.post<User>("/auth/find-user", { username });
+    findUser: async (username: string): Promise<IUser> => {
+        const { data } = await API.post<IUser>("/auth/find-user", { username });
         return data;
     },
-    updateUser: async (userId: number, user: UserUpdate): Promise<User> => {
-        const { data } = await API.patch<User>(`/auth/users/${userId}`, user);
+    updateUser: async (userId: number, user: IUserUpdate): Promise<IUser> => {
+        const { data } = await API.patch<IUser>(`/auth/users/${userId}`, user);
         return data;
     }
 };
