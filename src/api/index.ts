@@ -34,7 +34,9 @@ API.interceptors.request.use((config: AxiosRequestConfig) => {
     return Promise.reject(err);
 });
 
-// TODO: Ignore 404 on find-member request
+// eslint-disable-next-line no-useless-escape
+const IGNORE_404 = new RegExp('\/auth\/find-user|\/board\/[0-9]+\/find-member');
+
 const handleHTTPExc = (err: any) => {
     if (err.response.status === 400) {
         const validationErr = new ValidationError({ message: err.response.data.message, errors: err.response.data.errors });
@@ -47,11 +49,13 @@ const handleHTTPExc = (err: any) => {
         return Promise.reject(validationErr);
     }
     else if (err.response.status === 404) {
-        Notify.create({
-            position: "bottom-right",
-            type: "negative",
-            message: err.response.data.message
-        });
+        if (!IGNORE_404.test(err.config.url)) {
+            Notify.create({
+                position: "bottom-right",
+                type: "negative",
+                message: err.response.data.message
+            });
+        }
     }
     else if (err.response.status === 500) {
         router.replace({
