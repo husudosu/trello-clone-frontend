@@ -32,7 +32,7 @@ export const useCardStore = defineStore('card', {
                 this.activities.data.unshift(CardAPI.parseCardActivity(payload));
         },
         addChecklist(payload: ICardChecklist) {
-            if (this.card && this.card.checklists.findIndex((el) => el.id === payload.id) === -1)
+            if (this.card && !this.card.checklists.find((el) => el.id === payload.id))
                 this.card.checklists.push(payload);
         },
         removeChecklist(checklist_id: number) {

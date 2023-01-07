@@ -160,18 +160,24 @@ export const useBoardStore = defineStore('board', {
         SIOAddEntityToCard(payload: { event: SIOCardEvent, entityType: CardEntity, entity: unknown; }) {
             const card = findCard(this.board?.lists || [], payload.event.list_id, payload.event.card_id);
 
-            switch (payload.entityType) {
-                case "date":
-                    card.dates.push(CardAPI.parseCardDate(payload.entity as ICardDate));
-                    break;
-                case "member":
-                    card.assigned_members.push(payload.entity as ICardMember);
-                    break;
-                case "checklist":
-                    card.checklists.push(payload.entity as ICardChecklist);
-                    break;
-            }
+            if (payload.entityType === "date") {
+                const entity = payload.entity as ICardDate;
 
+                if (!card.dates.find((el) => el.id === entity.id))
+                    card.dates.push(CardAPI.parseCardDate(payload.entity as ICardDate));
+            }
+            else if (payload.entityType === "member") {
+                const entity = payload.entity as ICardMember;
+
+                if (!card.assigned_members.find((el) => el.id === entity.id))
+                    card.assigned_members.push(entity);
+            }
+            else if (payload.entityType === "checklist") {
+                const entity = payload.entity as ICardChecklist;
+
+                if (!card.checklists.find((el) => el.id === entity.id))
+                    card.checklists.push(entity);
+            }
         },
         SIOUpdateCardEntity(payload: { event: SIOCardEvent, entityType: CardEntity, entity: unknown; }) {
             const card = findCard(this.board?.lists || [], payload.event.list_id, payload.event.card_id);
@@ -365,7 +371,6 @@ export const useBoardStore = defineStore('board', {
         async createBoard(payload: Partial<IBoard>) {
             const data = await BoardAPI.postBoard(payload);
             this.addBoard(data);
-            // TODO: Do we need returning for this action?
             return data;
         },
         async removeBoard(boardId: number) {

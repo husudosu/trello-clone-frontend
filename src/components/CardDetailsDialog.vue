@@ -315,7 +315,7 @@ const onCreateChecklistClicked = () => {
         },
         cancel: true,
         persistent: true
-    }).onOk(data => cardStore.postChecklist({ title: data }));
+    }).onOk(async data => await cardStore.postChecklist({ title: data }));
 };
 
 const onAssignMemberClicked = () => {
