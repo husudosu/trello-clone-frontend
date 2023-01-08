@@ -1,6 +1,6 @@
 # Yamakanban frontend
 
-This is the frontend module for Yamakanban, if you're not a developer you probably looking for the root project which can be [accessed here](https://github.com/husudosu/yamakanban-backend).
+This is the frontend module for Yamakanban, if you're not a developer you probably looking for the root project which can be [accessed here](https://github.com/husudosu/yamakanban).
 
 # For developers
 

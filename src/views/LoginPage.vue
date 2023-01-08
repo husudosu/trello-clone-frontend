@@ -4,7 +4,7 @@
             <q-page class="window-height window-width row justify-center items-center">
                 <div class="column">
                     <div class="row">
-                        <h5 class="text-h5 q-my-md">Trello clone</h5>
+                        <h5 class="text-h5 q-my-md">Yamakanban</h5>
                     </div>
                     <div class="row">
                         <q-card square bordered class="q-pa-lg shadow-1">

@@ -85,7 +85,7 @@ const leftDrawerOpen = ref(false);
 const $q = useQuasar();
 
 const title = computed(() => {
-    return $q.screen.xs && boardStore.board ? `${boardStore.board.title} ${!boardStore.board.archived ? '' : '(Archived)'}` : "Trello clone";
+    return $q.screen.xs && boardStore.board ? `${boardStore.board.title} ${!boardStore.board.archived ? '' : '(Archived)'}` : "Yamakanban";
 });
 
 const user = computed(() => authStore.user);
