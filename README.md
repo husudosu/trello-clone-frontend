@@ -1,6 +1,6 @@
-# Trello clone frontend (name subject to change)
+# Yamakanban frontend
 
-This is the frontend module for Trello clone, if you're not a developer you probably looking for the root project which can be [accessed here](https://github.com/husudosu/trello-clone-backend).
+This is the frontend module for Yamakanban, if you're not a developer you probably looking for the root project which can be [accessed here](https://github.com/husudosu/yamakanban-backend).
 
 # For developers
 
