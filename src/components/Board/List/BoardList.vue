@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-import { BoardList, BoardPermission, IDraftCard } from '@/api/types';
+import { IBoardList, BoardPermission, IDraftCard } from '@/api/types';
 import { defineProps, ref, nextTick, onMounted, computed, defineEmits } from 'vue';
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
@@ -69,7 +69,7 @@ defineEmits(['onCardMoveEnd']);
 
 const boardStore = useBoardStore();
 const listWrapperRef = ref();
-const props = defineProps<{ boardList: BoardList; }>();
+const props = defineProps<{ boardList: IBoardList; }>();
 const hasPermission = boardStore.hasPermission;
 const cardsWrapper = ref();
 

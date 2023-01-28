@@ -60,7 +60,7 @@
             <q-page-container>
                 <q-page>
                     <q-tab-panels v-model="tab" animated>
-                        <q-tab-panel name="info" class="fit">
+                        <q-tab-panel name="info" class="fit bg-grey-1">
                             <div>
                                 <template v-if="card.assigned_members.length > 0">
                                     <user-avatar class="q-mr-xs" v-for="member in card.assigned_members" size="md"
@@ -131,13 +131,13 @@
                             </div>
                         </q-tab-panel>
 
-                        <q-tab-panel name="history" class="fit">
+                        <q-tab-panel name="history" class="fit bg-grey-1">
                             <div>
                                 <CardHistoryTab :card-id="props.cardId"></CardHistoryTab>
                             </div>
                         </q-tab-panel>
 
-                        <q-tab-panel name="github" class="fit">
+                        <q-tab-panel name="github" class="fit bg-grey-1">
                             <div>
                                 TODO Implement github issue handling
                             </div>
