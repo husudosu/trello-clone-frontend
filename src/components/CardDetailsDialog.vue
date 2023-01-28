@@ -16,7 +16,8 @@
                             </q-input>
                         </template>
                     </q-toolbar-title>
-
+                    <q-btn flat dense :icon="!card.archived ? 'archive' : 'delete'" @click="onDeleteClicked"
+                        :color="!card.archived ? 'orange' : 'red'"></q-btn>
                     <q-btn flat v-close-popup round dense icon="close" />
                 </q-toolbar>
                 <div class="q-pa-sm q-pl-md row items-center">
@@ -35,10 +36,21 @@
                     <q-btn size="sm" flat icon="attach_file" align="between" label="File" text-color="light-green-3"
                         @click="onFileAddClicked"></q-btn>
                 </div>
+                <q-bar v-if="card.archived" class="bg-orange-4 text-black text-center">
+                    <span class="text-center">Archived on: <b>{{
+                        card.archived_on.format("YYYY-MM-DD HH:mm")
+                    }}</b></span><q-space></q-space>
+                    <q-btn label="Revert" @click="onCardRevertClicked" flat outline color="accent"></q-btn>
+                </q-bar>
+                <q-bar v-if="card.board_list.archived" class="bg-orange-4 text-black text-center">
+                    This card is on an archived list: <b>{{ card.board_list.title }}</b>
+                </q-bar>
+                <!-- <div class="q-pa-sm q-pl-md bg-orange-4 text-black text-center" v-if="card.archived"> -->
+
 
             </q-header>
-            <q-drawer show-if-above v-model="leftDrawerVisible" side="left" :width="100" :breakpoint="400"
-                class="bg-primary text-white">
+            <q-drawer show-if-above v-model="leftDrawerVisible" side="left" :width="$q.screen.xs ? 250 : 100"
+                :breakpoint="400" class="bg-primary text-white">
                 <q-tabs v-model="tab" dense vertical indicator-color="green-8">
                     <q-tab name="info" label="Info"></q-tab>
                     <q-tab name="history" label="History"></q-tab>
@@ -49,21 +61,14 @@
                     <q-tab-panel name="info">
                         <q-page class="bg-grey-1">
                             <template v-if="card.assigned_members.length > 0">
-
                                 <user-avatar class="q-mr-xs" v-for="member in card.assigned_members" size="md"
                                     :rounded="false" :user="member.board_user.user" :key="member.id"
                                     :show-delete="hasPermission(BoardPermission.CARD_DEASSIGN_MEMBER)"
                                     @delete="onDeassignMember(member)"></user-avatar>
 
                             </template>
-                            <q-bar v-if="card.board_list.archived" class="bg-orange-4 q-mb-sm">
-                                This card is on an archived list: {{ card.board_list.title }}
-                            </q-bar>
-                            <q-bar v-if="card.archived" class="bg-orange-4 q-mb-sm">This card archived on: {{
-                                card.archived_on.format("YYYY-MM-DD HH:mm")
-                            }}
-                                <q-space /> <q-btn color="primary" flat outline
-                                    @click="onCardRevertClicked">Revert</q-btn></q-bar>
+
+
 
                             <!-- Card dates -->
                             <card-dates v-if="card.dates.length > 0"></card-dates>
@@ -195,7 +200,7 @@ const cardDescription = computed(() => {
 });
 
 const tab = ref("info");
-const leftDrawerVisible = ref(true);
+const leftDrawerVisible = ref(false);
 const newComment = ref("");
 const editCardDescription = ref(false);
 const editCardTitle = ref(false);
