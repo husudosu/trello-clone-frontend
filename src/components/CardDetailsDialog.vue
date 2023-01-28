@@ -1,6 +1,6 @@
 <template>
     <q-dialog maximized :fullWidth="true" :fullHeight="true" @hide="onDialogHide" ref="dialogRef">
-        <q-layout view="hHh lpR fFf" container class="bg-white" v-if="card">
+        <q-layout view="hHh lpR lFf" container class="bg-grey-1" v-if="card">
             <q-header class="bg-primary">
                 <q-toolbar>
                     <q-btn flat @click="leftDrawerVisible = !leftDrawerVisible" round dense icon="info"
@@ -12,7 +12,8 @@
                             {{ card?.title }}
                         </template>
                         <template v-else>
-                            <q-input v-model="card.title" @blur="onTitleEdit" @keydown.enter="onTitleEdit" autofocus>
+                            <q-input v-model="card.title" @blur="onTitleEdit" @keydown.enter="onTitleEdit" autofocus
+                                :input-style="{ color: 'white' }">
                             </q-input>
                         </template>
                     </q-toolbar-title>
@@ -45,8 +46,6 @@
                 <q-bar v-if="card.board_list.archived" class="bg-orange-4 text-black text-center">
                     This card is on an archived list: <b>{{ card.board_list.title }}</b>
                 </q-bar>
-                <!-- <div class="q-pa-sm q-pl-md bg-orange-4 text-black text-center" v-if="card.archived"> -->
-
 
             </q-header>
             <q-drawer show-if-above v-model="leftDrawerVisible" side="left" :width="$q.screen.xs ? 250 : 100"
@@ -57,95 +56,86 @@
                 </q-tabs>
             </q-drawer>
             <q-page-container>
-                <q-tab-panels v-model="tab" animated>
-                    <q-tab-panel name="info">
-                        <q-page class="bg-grey-1">
-                            <template v-if="card.assigned_members.length > 0">
-                                <user-avatar class="q-mr-xs" v-for="member in card.assigned_members" size="md"
-                                    :rounded="false" :user="member.board_user.user" :key="member.id"
-                                    :show-delete="hasPermission(BoardPermission.CARD_DEASSIGN_MEMBER)"
-                                    @delete="onDeassignMember(member)"></user-avatar>
+                <q-page>
+                    <q-tab-panels v-model="tab" animated>
+                        <q-tab-panel name="info" class="fit">
+                            <div>
+                                <template v-if="card.assigned_members.length > 0">
+                                    <user-avatar class="q-mr-xs" v-for="member in card.assigned_members" size="md"
+                                        :rounded="false" :user="member.board_user.user" :key="member.id"
+                                        :show-delete="hasPermission(BoardPermission.CARD_DEASSIGN_MEMBER)"
+                                        @delete="onDeassignMember(member)"></user-avatar>
 
-                            </template>
+                                </template>
 
+                                <!-- Card dates -->
+                                <card-dates v-if="card.dates.length > 0"></card-dates>
 
-
-                            <!-- Card dates -->
-                            <card-dates v-if="card.dates.length > 0"></card-dates>
-
-                            <!-- Card  description -->
-                            <q-expansion-item q-expansion-item default-opened icon="article" label="Description"
-                                class="q-mt-md" header-class="cardDetailsExpansionItem">
-                                <div class="q-list--bordered card-description"
-                                    @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardDescription = !editCardDescription : false">
-                                    <template v-if="!editCardDescription">
-                                        <div class="markdown-body" style="margin-left: 5px; margin-right: 5px;"
-                                            v-html="cardDescription"></div>
-                                    </template>
-                                    <template v-else>
-                                        <q-input v-model="card.description" type="textarea"
-                                            @keydown.enter="onDescriptionEdit" autofocus>
-                                        </q-input>
-                                    </template>
-                                </div>
-                            </q-expansion-item>
-
-                            <!-- Card checklists -->
-                            <q-expansion-item q-expansion-item default-opened icon="checklist" label="Checklists"
-                                class="q-mt-md" header-class="cardDetailsExpansionItem">
-                                <div v-for="checklist in card.checklists" :key="checklist.id">
-                                    <card-checklist :checklist="checklist"></card-checklist>
-                                </div>
-                                <div v-if="card.checklists.length === 0">
-                                    No checklists yet.
-                                </div>
-                            </q-expansion-item>
-
-                            <q-expansion-item q-expansion-item default-opened icon="attach_file" label="Files"
-                                class="q-mt-md" header-class="cardDetailsExpansionItem">
-                                TODO: implement it
-                            </q-expansion-item>
-                            <!-- Activity -->
-                            <q-expansion-item q-expansion-item default-opened icon="view_list" label="Activity"
-                                class="q-mt-md" header-class="cardDetailsExpansionItem">
-                                <div class="q-pa-md" style="width:100%;">
-                                    <q-input v-model="newComment" type="textarea" placeholder="New comment..." autofocus
-                                        @keydown.enter="onNewCommentKeyddown"
-                                        :disable="!hasPermission(BoardPermission.CARD_COMMENT)" autogrow />
-                                    <q-btn class="q-mt-sm" size="sm" color="primary" :disable="newComment.length == 0"
-                                        @click="addNewComment">Send</q-btn>
-                                </div>
-                                <div class="card-comments">
-                                    <q-list padding bordered>
-                                        <template v-if="activities && activities.length > 0">
-                                            <card-activity v-for="activity in activities" :key="activity.id"
-                                                :activity="activity">
-                                            </card-activity>
+                                <!-- Card  description -->
+                                <q-expansion-item q-expansion-item default-opened icon="article" label="Description"
+                                    class="q-mt-md" header-class="cardDetailsExpansionItem">
+                                    <div class="q-list--bordered card-description"
+                                        @dblclick="hasPermission(BoardPermission.CARD_EDIT) ? editCardDescription = !editCardDescription : false">
+                                        <template v-if="!editCardDescription">
+                                            <div class="markdown-body" style="margin-left: 5px; margin-right: 5px;"
+                                                v-html="cardDescription"></div>
                                         </template>
                                         <template v-else>
-                                            <span class="q-ma-sm">No activity yet</span>
+                                            <q-input v-model="card.description" type="textarea"
+                                                @keydown.enter="onDescriptionEdit" autofocus>
+                                            </q-input>
                                         </template>
-                                    </q-list>
-                                </div>
-                            </q-expansion-item>
-                            <!-- <div class="row justify-between">
-                                        <div class="q-mb-sm q-mt-sm">
-                                            <q-icon name="view_list" class="q-mr-sm text-h5" style="top: -2px;"> </q-icon>
-                                            <span class="text-h5">
-                                                <span>Activity</span>
-                                            </span>
-                                        </div>
-                                    </div> -->
+                                    </div>
+                                </q-expansion-item>
 
-                        </q-page>
-                    </q-tab-panel>
+                                <!-- Card checklists -->
+                                <q-expansion-item q-expansion-item default-opened icon="checklist" label="Checklists"
+                                    class="q-mt-md" header-class="cardDetailsExpansionItem">
+                                    <div v-for="checklist in card.checklists" :key="checklist.id">
+                                        <card-checklist :checklist="checklist"></card-checklist>
+                                    </div>
+                                    <div v-if="card.checklists.length === 0">
+                                        No checklists yet.
+                                    </div>
+                                </q-expansion-item>
 
-                    <q-tab-panel name="history">
-                        <q-page class="bg-grey-1">
-                            <CardHistoryTab :card-id="props.cardId"></CardHistoryTab>
-                        </q-page>
-                    </q-tab-panel>
-                </q-tab-panels>
+                                <q-expansion-item q-expansion-item default-opened icon="attach_file" label="Files"
+                                    class="q-mt-md" header-class="cardDetailsExpansionItem">
+                                    TODO: implement it
+                                </q-expansion-item>
+                                <!-- Activity -->
+                                <q-expansion-item q-expansion-item default-opened icon="view_list" label="Activity"
+                                    class="q-mt-md" header-class="cardDetailsExpansionItem">
+                                    <div class="q-pa-md" style="width:100%;">
+                                        <q-input v-model="newComment" type="textarea" placeholder="New comment..."
+                                            autofocus @keydown.enter="onNewCommentKeyddown"
+                                            :disable="!hasPermission(BoardPermission.CARD_COMMENT)" autogrow />
+                                        <q-btn class="q-mt-sm" size="sm" color="primary"
+                                            :disable="newComment.length == 0" @click="addNewComment">Send</q-btn>
+                                    </div>
+                                    <div class="card-comments">
+                                        <q-list padding bordered>
+                                            <template v-if="activities && activities.length > 0">
+                                                <card-activity v-for="activity in activities" :key="activity.id"
+                                                    :activity="activity">
+                                                </card-activity>
+                                            </template>
+                                            <template v-else>
+                                                <span class="q-ma-sm">No activity yet</span>
+                                            </template>
+                                        </q-list>
+                                    </div>
+                                </q-expansion-item>
+                            </div>
+                        </q-tab-panel>
+
+                        <q-tab-panel name="history" class="fit">
+                            <div>
+                                <CardHistoryTab :card-id="props.cardId"></CardHistoryTab>
+                            </div>
+                        </q-tab-panel>
+                    </q-tab-panels>
+                </q-page>
             </q-page-container>
         </q-layout>
     </q-dialog>

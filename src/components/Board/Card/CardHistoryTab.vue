@@ -1,7 +1,7 @@
 <template>
 
     <div class="row q-gutter-lg">
-        <div class="col col-xs-11">
+        <div class="col-sm-4 col-xs-11">
             <q-input :model-value="fromDate" mask="####-##-## ##:##" :rules="[validateDateTime]" label="From" fill-mask
                 dense @update:model-value="onFromDateChange" :debounce="500">
                 <template v-slot:prepend>
@@ -30,7 +30,7 @@
                 </template>
             </q-input>
         </div>
-        <div class="col col-xs-11">
+        <div class="col-sm-4 col-xs-11">
             <q-input :model-value="toDate" @update:model-value="onToDateChange" mask="####-##-## ##:##"
                 :rules="[validateDateTime]" label="To" fill-mask dense :debounce="500">
                 <template v-slot:prepend>
