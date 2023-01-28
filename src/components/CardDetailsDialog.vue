@@ -48,11 +48,13 @@
                 </q-bar>
 
             </q-header>
-            <q-drawer show-if-above v-model="leftDrawerVisible" side="left" :width="$q.screen.xs ? 250 : 100"
+            <q-drawer show-if-above v-model="leftDrawerVisible" side="left" :width="$q.screen.xs ? 250 : 120"
                 :breakpoint="400" class="bg-primary text-white">
                 <q-tabs v-model="tab" dense vertical indicator-color="green-8">
                     <q-tab name="info" label="Info"></q-tab>
                     <q-tab name="history" label="History"></q-tab>
+                    <q-tab name="github" label="Github issue"></q-tab>
+
                 </q-tabs>
             </q-drawer>
             <q-page-container>
@@ -132,6 +134,12 @@
                         <q-tab-panel name="history" class="fit">
                             <div>
                                 <CardHistoryTab :card-id="props.cardId"></CardHistoryTab>
+                            </div>
+                        </q-tab-panel>
+
+                        <q-tab-panel name="github" class="fit">
+                            <div>
+                                TODO Implement github issue handling
                             </div>
                         </q-tab-panel>
                     </q-tab-panels>

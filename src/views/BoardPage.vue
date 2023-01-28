@@ -1,12 +1,12 @@
 <template>
     <div class="ui" ref="boardWrapper">
         <!-- Add member dialog -->
-        <nav class="navbar board" v-if="!$q.screen.xs">
+        <!-- <nav class="navbar board" v-if="!$q.screen.xs">
             <span>{{ board?.title }}</span> <span class="q-ml-sm text-orange" v-if="board?.archived">(Archived)</span>
             <q-space></q-space>
             <q-btn class="q-mr-md btn" color="primary" @click="onBoardDetailsClicked">Board details
             </q-btn>
-        </nav>
+        </nav> -->
         <!-- Dragabble object for reordering lists-->
         <div class="lists" ref="listsWrapper" v-if="board">
             <draggable v-model="boardLists" itemKey="data-id" :delayOnTouchOnly="true" :touchStartThreshold="100"

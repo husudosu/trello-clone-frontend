@@ -25,11 +25,6 @@ const routes: Array<RouteRecordRaw> = [
         redirect: { name: "boards" }
       },
       {
-        path: "/board/:boardId",
-        name: "board",
-        component: () => import("../views/BoardPage.vue"),
-      },
-      {
         path: "/board",
         name: "boards",
         component: () => import("../views/BoardsPage.vue"),
@@ -44,6 +39,18 @@ const routes: Array<RouteRecordRaw> = [
         name: "user.edit",
         component: () => import("../views/EditUserPage.vue"),
       },
+    ]
+  },
+  {
+    component: () => import("../layouts/BoardAreaLayout.vue"),
+    beforeEnter: onlyUserCanAccess,
+    path: "/",
+    children: [
+      {
+        path: "/board/:boardId",
+        name: "board",
+        component: () => import("../views/BoardPage.vue")
+      }
     ]
   },
   {
