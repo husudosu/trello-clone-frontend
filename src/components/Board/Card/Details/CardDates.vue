@@ -1,11 +1,5 @@
 <template>
-    <div class="row q-mb-sm">
-        <q-icon name="schedule" class="q-mr-sm text-h5" style="top: 6px;"> </q-icon>
-        <span class="text-h5">
-            <span>Dates</span>
-        </span>
-    </div>
-    <q-list>
+    <q-list class="q-mt-md">
         <q-item v-for="dt in card?.dates" :key="dt.id" dense style="padding-left: 0px;">
             <q-item-section avatar top>
                 <q-checkbox v-model="dt.complete" size="sm" @update:model-value="onDateMark(dt)"></q-checkbox>
