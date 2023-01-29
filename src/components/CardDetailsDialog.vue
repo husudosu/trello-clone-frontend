@@ -73,6 +73,25 @@
                                 <!-- Card dates -->
                                 <card-dates v-if="card.dates.length > 0"></card-dates>
 
+                                <!-- Basic card data-->
+                                <q-expansion-item q-expansion-item default-opened icon="info" label="Info"
+                                    class="q-mt-md" header-class="cardDetailsExpansionItem">
+                                    <q-markup-table dense flat>
+                                        <tr>
+                                            <td class="text-bold">Created on:</td>
+                                            <td>TODO</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-bold">Last activity:</td>
+                                            <td>TODO</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-bold">Created by:</td>
+                                            <td>TODO</td>
+                                        </tr>
+                                    </q-markup-table>
+                                </q-expansion-item>
+
                                 <!-- Card  description -->
                                 <q-expansion-item q-expansion-item default-opened icon="article" label="Description"
                                     class="q-mt-md" header-class="cardDetailsExpansionItem">

@@ -4,13 +4,11 @@ $appbar-height: 50px;
 $navbar-height: 44px;
 $lists-margin-top: 10px;
 $list-width: 272px;
-$list-gap: 17px;
+$list-gap: 5px;
 $gap: 10px;
 $scrollbar-thickness: 17px;
 $list-header-height: 36px;
 $list-footer-height: 36px;
-// Misc
-$card-border-radius: 3px;
 // Colors
 $board-bg-color: #0079bf;
 $list-bg-color: #e2e4e6;
@@ -35,23 +33,13 @@ body {
 
   color: #eee;
 }
-
-.navbar {
-  padding-left: $gap;
-  display: flex;
-  align-items: center;
-  width: 100%;
-
-  &.board {
-    font-size: 1.1rem;
-  }
-  background-color: #64869b;
-}
 // TODO: Convert this to quasar variable, but I cannot get working quasar variables here!
 @media only screen and (max-width: 599.99px) {
   // Do not render navbar-height here we don't show it on mobile view!
   .lists {
-    height: calc(100vh - #{$appbar-height} - #{$lists-margin-top});
+    height: calc(
+      100vh - #{$appbar-height} - #{$lists-margin-top} - #{$navbar-height}
+    );
   }
 }
 
@@ -68,11 +56,16 @@ body {
   overflow-x: auto;
   margin-top: #{$lists-margin-top};
 
-  //width: 100%; // This is needed for FF < 54
   margin-left: 5px;
+
+  // List elements design
   > div > * {
     flex: 0 0 auto; // 'rigid' lists
-    margin-right: $list-gap;
+
+    &:not(:last-child) {
+      border-right: 4px solid rgba(255, 255, 255, 0.671);
+    }
+    // margin-right: $list-gap;
   }
 
   &::after {
@@ -111,7 +104,7 @@ body {
 
   footer {
     line-height: $list-footer-height;
-    color: #888;
+    color: #fff;
     padding-top: 5px;
     padding-bottom: 5px;
 
@@ -119,7 +112,7 @@ body {
       width: 100%;
     }
     .boardListAddCard:hover {
-      background-color: #cbcbcc;
+      background-color: #12517a;
     }
   }
 
@@ -130,6 +123,7 @@ body {
     // max-height: calc(100% - #{$list-header-height} - #{$list-footer-height});
     height: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
 
     .listCard {
       margin-top: 10px;
@@ -168,26 +162,5 @@ body {
     .draftCard {
       margin-top: $gap;
     }
-  }
-}
-
-.addNewList {
-  // margin-left: $list-gap;
-  width: $list-width;
-  display: flex;
-  flex-direction: column;
-  max-height: 100%;
-
-  header {
-    line-height: $list-header-height;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: #e2e4e632;
-    color: #333;
-    padding: 0 $gap;
-  }
-
-  header:hover {
-    background-color: #cbcbcc;
   }
 }

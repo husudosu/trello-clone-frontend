@@ -7,7 +7,7 @@
                     </q-input>
                 </template>
                 <template v-else>
-                    {{ props.boardList.title }}
+                    <span class="non-selectable">{{ props.boardList.title }}</span>
                     <q-btn flat round icon="more_horiz" style="float: right;">
                         <q-menu v-model="showMenu">
                             <q-list style="min-width: 100px">
@@ -34,7 +34,7 @@
                 </template>
             </ul>
             <footer @click="onAddCardClick">
-                <div v-if="props.boardList.id" class="boardListAddCard non-selectable">
+                <div v-if="props.boardList.id" class="boardListAddCard non-selectable text-center">
                     <q-icon class="q-mr-xs" name="add"></q-icon>Add a card...
                 </div>
                 <div v-else>

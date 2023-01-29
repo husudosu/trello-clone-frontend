@@ -77,51 +77,13 @@
             <div class="q-pa-sm q-pl-md row items-center">
                 <span class="text-subtitle1">{{ board?.title }}</span>
                 <q-space></q-space>
+                <q-btn v-if="!$q.screen.xs" flat icon="add" align="between" label="List" @click="onNewListClicked"
+                    size=sm text-color="light-green-3"></q-btn>
                 <q-btn v-if="!$q.screen.xs" flat icon="info" align="between" label="Board details"
                     @click="onBoardDetailsClicked" size=sm></q-btn>
+
             </div>
         </q-header>
-
-        <!-- <q-drawer v-model="leftDrawerOpen" show-if-above bordered class="bg-grey-2">
-            <q-list>
-                <q-item-label header>Welcome {{ user?.name || user?.username }} </q-item-label>
-                <q-item clickable :to="{ name: 'user', params: { userId: user?.id } }">
-                    <q-item-section avatar>
-                        <q-icon name="person" />
-                    </q-item-section>
-                    <q-item-section>
-                        <q-item-label>Profile</q-item-label>
-                    </q-item-section>
-                </q-item>
-                <q-item clickable :to="{ name: 'boards' }">
-                    <q-item-section avatar>
-                        <q-icon name="developer_board" />
-                    </q-item-section>
-                    <q-item-section>
-                        <q-item-label>Boards</q-item-label>
-                    </q-item-section>
-                </q-item>
-                <q-item clickable @click="onLogoutClicked">
-                    <q-item-section avatar>
-                        <q-icon name="logout" />
-                    </q-item-section>
-                    <q-item-section>
-                        <q-item-label>Logout</q-item-label>
-                    </q-item-section>
-                </q-item>
-                <q-separator spaced inset />
-                <q-item :to="{ name: 'board', params: { boardId: board.id } }" clickable v-for="board in boards"
-                    :key=board.id>
-                    <q-item-section avatar>
-                        <q-icon name="developer_board" />
-                    </q-item-section>
-                    <q-item-section>
-                        <q-item-label>{{ board.title }}</q-item-label>
-                    </q-item-section>
-                </q-item>
-            </q-list>
-        </q-drawer> -->
-
         <q-page-container>
             <router-view></router-view>
         </q-page-container>
@@ -129,12 +91,15 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import BoardDetailsDialogVue from '@/components/Board/DetailsDialog/BoardDetailsDialog.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useBoardStore } from '@/stores/board';
+import NewBoardListDialog from '@/components/Board/List/NewBoardListDialog.vue';
+import { IDraftBoardList } from '@/api/types';
+import { BoardListAPI } from '@/api/boardList';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -142,8 +107,6 @@ const boardStore = useBoardStore();
 
 const boards = computed(() => boardStore.boards);
 const board = computed(() => boardStore.board);
-// const leftDrawerOpen = ref(false);
-
 
 const $q = useQuasar();
 
@@ -159,4 +122,13 @@ const onBoardDetailsClicked = () => {
     });
 };
 
+const onNewListClicked = () => {
+    $q.dialog({
+        component: NewBoardListDialog
+    }).onOk((newList: IDraftBoardList) => {
+        if (board.value) {
+            BoardListAPI.postBoardList(board.value?.id, newList);
+        }
+    });
+};
 </script>

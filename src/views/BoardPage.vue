@@ -12,29 +12,12 @@
                     </board-list-vue>
                 </template>
             </draggable>
-
-            <!-- Add new list -->
-            <div v-if="hasPermission(BoardPermission.LIST_CREATE)">
-                <template v-if="!showAddDraftList">
-                    <div class="listWrapper">
-                        <div class="addNewList non-selectable">
-                            <header class="listHeader" @click="onNewListClicked">
-                                <q-icon class="q-mr-xs" name="add"></q-icon>Add a list...
-                            </header>
-                        </div>
-                    </div>
-                </template>
-                <template v-else>
-                    <draft-board-list-vue @cancel="showAddDraftList = false"
-                        @save="onSaveBoardList"></draft-board-list-vue>
-                </template>
-            </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onUnmounted, onMounted, ref } from "vue";
+import { computed, onUnmounted, onMounted, ref } from "vue";
 import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
@@ -43,12 +26,9 @@ import { useBoardStore } from "@/stores/board";
 import { CardAPI } from "@/api/card";
 import { BoardListAPI } from '@/api/boardList';
 import { BoardAPI } from "@/api/board";
-import { IDraftBoardList, BoardPermission } from "@/api/types";
 
 import BoardListVue from "@/components/Board/List/BoardList.vue";
-import DraftBoardListVue from "@/components/Board/List/DraftBoardList.vue";
 import { useSocketIO, SIOEvent, SIOBoardEventListeners } from "@/socket";
-import BoardInfoDialog from "@/components/Board/DetailsDialog/BoardDetailsDialog.vue";
 import { useCardStore } from "@/stores/card";
 
 const $q = useQuasar();
@@ -68,14 +48,11 @@ const boardLists = computed({
     }
 });
 
-const hasPermission = boardStore.hasPermission;
 const socketWereDisconnected = ref(false);
 
 const route = useRoute();
 const router = useRouter();
 const listsWrapper = ref();
-
-const showAddDraftList = ref(false);
 
 /*
     Dragabble object events for board lists
@@ -133,28 +110,6 @@ const loadBoard = async (boardId: number) => {
         });
     $q.loading.hide();
 };
-
-
-const onNewListClicked = () => {
-    // This will scroll the end of div.
-    showAddDraftList.value = true;
-    nextTick(() => {
-        listsWrapper.value.scroll(listsWrapper.value.scrollWidth, 0);
-    });
-};
-
-
-const onBoardDetailsClicked = () => {
-    $q.dialog({
-        component: BoardInfoDialog
-    });
-};
-
-const onSaveBoardList = (boardList: IDraftBoardList) => {
-    showAddDraftList.value = false;
-    BoardListAPI.postBoardList(boardId.value, boardList);
-};
-
 
 onBeforeRouteUpdate(async (to, from) => {
     boardStore.unLoadBoard();
