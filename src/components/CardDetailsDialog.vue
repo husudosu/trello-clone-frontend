@@ -63,11 +63,12 @@
                         <q-tab-panel name="info" class="fit bg-grey-1">
                             <div>
                                 <template v-if="card.assigned_members.length > 0">
-                                    <user-avatar class="q-mr-xs" v-for="member in card.assigned_members" size="md"
-                                        :rounded="false" :user="member.board_user.user" :key="member.id"
-                                        :show-delete="hasPermission(BoardPermission.CARD_DEASSIGN_MEMBER)"
-                                        @delete="onDeassignMember(member)"></user-avatar>
-
+                                    <div class="row">
+                                        <user-avatar class="q-mr-xs" v-for="member in card.assigned_members" size="md"
+                                            :rounded="false" :user="member.board_user.user" :key="member.id"
+                                            :show-delete="hasPermission(BoardPermission.CARD_DEASSIGN_MEMBER)"
+                                            @delete="onDeassignMember(member)"></user-avatar>
+                                    </div>
                                 </template>
 
                                 <!-- Card dates -->
