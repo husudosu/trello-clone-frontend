@@ -17,12 +17,20 @@
                 </q-btn>
                 <q-btn-dropdown icon="developer_board" flat v-if="!$q.screen.xs">
                     <q-list>
-                        <q-item clickable v-close-popup>
+                        <q-item clickable v-close-popup @click="onNewBoardClicked">
                             <q-item-section side>
                                 <q-icon name="add"></q-icon>
                             </q-item-section>
                             <q-item-section>
                                 <q-item-label>New board</q-item-label>
+                            </q-item-section>
+                        </q-item>
+                        <q-item clickable v-close-popup @click="onArchivedBoardsClicked">
+                            <q-item-section side>
+                                <q-icon name="archive"></q-icon>
+                            </q-item-section>
+                            <q-item-section>
+                                <q-item-label>Archived</q-item-label>
                             </q-item-section>
                         </q-item>
                         <q-separator></q-separator>
@@ -75,7 +83,8 @@
 
             </q-toolbar>
             <div class="q-pa-sm q-pl-md row items-center">
-                <span class="text-subtitle1">{{ board?.title }}</span>
+                <span class="text-subtitle1">{{ board?.title }} <span v-if="board?.archived"
+                        style="color: orange;">(Archived)</span></span>
                 <q-space></q-space>
                 <q-btn v-if="!$q.screen.xs" flat icon="add" align="between" label="List" @click="onNewListClicked"
                     size=sm text-color="light-green-3"></q-btn>
@@ -98,8 +107,11 @@ import BoardDetailsDialogVue from '@/components/Board/DetailsDialog/BoardDetails
 import { useAuthStore } from '@/stores/auth';
 import { useBoardStore } from '@/stores/board';
 import NewBoardListDialog from '@/components/Board/List/NewBoardListDialog.vue';
-import { IDraftBoardList } from '@/api/types';
+import { IDraftBoardList, IBoard } from '@/api/types';
 import { BoardListAPI } from '@/api/boardList';
+import NewBoardDialog from '@/components/Board/NewBoardDialog.vue';
+import { BoardAPI } from '@/api/board';
+import ArchivedBoardsDialog from '@/components/Board/ArchivedBoardsDialog.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -129,6 +141,22 @@ const onNewListClicked = () => {
         if (board.value) {
             BoardListAPI.postBoardList(board.value?.id, newList);
         }
+    });
+};
+
+const onNewBoardClicked = () => {
+    $q.dialog({
+        component: NewBoardDialog
+    }).onOk(async (payload: Partial<IBoard>) => {
+        const newBoard = await BoardAPI.postBoard(payload);
+        boardStore.boards.push(newBoard);
+        router.push({ name: "board", params: { boardId: newBoard.id } });
+    });
+};
+
+const onArchivedBoardsClicked = () => {
+    $q.dialog({
+        component: ArchivedBoardsDialog
     });
 };
 </script>

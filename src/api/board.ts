@@ -51,8 +51,8 @@ export const BoardAPI = {
         });
         return data;
     },
-    revertBoard: async (boardId: number) => {
-        const { data } = await API.post(`/board/${boardId}/revert`);
+    revertBoard: async (boardId: number): Promise<IBoard> => {
+        const { data } = await API.post<IBoard>(`/board/${boardId}/revert`);
         return data;
     },
     getBoard: async (boardId: number): Promise<IBoard> => {

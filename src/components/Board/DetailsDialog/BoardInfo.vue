@@ -91,7 +91,8 @@ const onRevertBoardClicked = () => {
         }
     }).onOk(async () => {
         if (board) {
-            await BoardAPI.revertBoard(board.id);
+            const revertedBoard = await BoardAPI.revertBoard(board.id);
+            boardStore.addBoard(revertedBoard);
         }
     });
 };

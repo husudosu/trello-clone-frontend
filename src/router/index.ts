@@ -25,11 +25,6 @@ const routes: Array<RouteRecordRaw> = [
         redirect: { name: "boards" }
       },
       {
-        path: "/board",
-        name: "boards",
-        component: () => import("../views/BoardsPage.vue"),
-      },
-      {
         path: "/user/view/:userId",
         name: "user",
         component: () => import("../views/UserPage.vue"),
