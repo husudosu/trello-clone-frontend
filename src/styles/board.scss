@@ -132,9 +132,10 @@ body {
       overflow-wrap: anywhere;
       background-color: #fff;
       padding: $gap;
-      &:not(:last-child) {
-        margin-bottom: $gap;
-      }
+      // &:not(:last-child) {
+      //   margin-bottom: $gap;
+      // }
+      margin-bottom: $gap;
 
       .title {
         position: relative;

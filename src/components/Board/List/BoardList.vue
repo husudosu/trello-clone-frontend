@@ -28,14 +28,14 @@
                     <template #item="{ element }">
                         <list-card :card="element"></list-card>
                     </template>
+                    <template #footer v-if="showAddCard">
+                        <draft-card-vue @save="onSaveCard" @cancel="showAddCard = false"></draft-card-vue>
+                    </template>
                 </draggable>
-                <template v-if="showAddCard">
-                    <draft-card-vue @save="onSaveCard" @cancel="showAddCard = false"></draft-card-vue>
-                </template>
             </ul>
             <footer @click="onAddCardClick">
                 <div v-if="props.boardList.id" class="boardListAddCard non-selectable text-center">
-                    <q-icon class="q-mr-xs" name="add"></q-icon>Add a card...
+                    <q-icon class="q-mr-xs" name="add"></q-icon>Add card...
                 </div>
                 <div v-else>
                     <q-btn size="sm" class="q-ml-xs q-mr-sm" color="primary" @click="onListSave">Save</q-btn>

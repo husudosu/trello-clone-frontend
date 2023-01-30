@@ -22,7 +22,12 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: "/",
-        redirect: { name: "boards" }
+        redirect: { name: "dashboard" }
+      },
+      {
+        path: "/dashboard",
+        name: "dashboard",
+        component: () => import("../views/DashboardPage.vue")
       },
       {
         path: "/user/view/:userId",

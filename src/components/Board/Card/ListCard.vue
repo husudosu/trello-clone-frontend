@@ -2,28 +2,43 @@
     <div ref="listCardRef" class="listCard non-selectable" @click="onCardClick" :data-id="props.card.id">
         <template v-if="!editMode">
             <div class="title">
+                <template v-if="props.card.assigned_members.length > 0 || props.card.dates.length > 0">
+                    <div class="q-mb-sm row">
+                        <div class="col">
+                            <div class="row">
+                                <user-avatar v-for="member in props.card.assigned_members.slice(0, 2)" :key="member.id"
+                                    class="" size="sm" :user="member.board_user.user">
+                                </user-avatar>
+                                <template v-if="props.card.assigned_members.length > 2">
+                                    ...
+                                </template>
+                            </div>
+                        </div>
+                        <div class="col-7 text-right" v-if="props.card.dates.length > 0">
+                            <!-- TODO: Check on backend if card dates ordered! -->
+                            <card-date-chip :card-date="props.card.dates[0]"
+                                @click="onDateMark($event, props.card.dates[0])">
+                            </card-date-chip>
+                        </div>
+                    </div>
+                    <q-separator class="q-mb-md"></q-separator>
+                </template>
                 <li>
                     {{ props.card.title }}
                 </li>
-                <div class="row q-mb-xs q-mt-sm" v-if="props.card.assigned_members.length > 0">
-                    <user-avatar v-for="member in props.card.assigned_members" :key="member.id" class="q-mr-xs"
-                        size="sm" :user="member.board_user.user">
-                    </user-avatar>
-                </div>
-                <div class="row q-mb-xs q-mt-sm" v-if="props.card.dates.length > 0">
-                    <card-date-chip v-for="dt in props.card.dates" :key="dt.id" class="q-mr-xs" :card-date="dt"
-                        @click="onDateMark($event, dt)">
-                    </card-date-chip>
-                </div>
-                <div class="row q-mb-xs q-mt-sm" v-if="props.card.checklists.length > 0">
-                    <checklist-status v-for="checklist in props.card.checklists" :key="checklist.id" class="q-mr-xs"
-                        :checklist="checklist"></checklist-status>
-                </div>
                 <div class="cardEditButton">
                     <q-btn size="xs" dense color="blue-grey-6" @click="onEditClick">
                         <q-icon name="edit"></q-icon>
                     </q-btn>
                 </div>
+                <template v-if="props.card.checklists.length > 0">
+                    <q-separator class="q-mt-md"></q-separator>
+                    <div class="row" v-if="props.card.checklists.length > 0">
+                        <checklist-status v-for="checklist in props.card.checklists" :key="checklist.id" class="q-mr-xs"
+                            :checklist="checklist"></checklist-status>
+                    </div>
+
+                </template>
             </div>
         </template>
         <template v-else>
