@@ -50,8 +50,7 @@ const onLoginClicked = () => {
     failedMessage.value = "";
     authStore.doLogin(loginPayload.value).then(
         () => {
-            router.push({ name: "boards" });
-            console.log("login success");
+            router.push({ name: "dashboard" });
         }
     ).catch((err) => {
         console.log(err);

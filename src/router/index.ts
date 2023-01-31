@@ -4,7 +4,7 @@ import { createRouter, createWebHistory, RouteRecordRaw, RouteLocationNormalized
 
 const onlyAnonymousCanAccess = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
   const authStore = useAuthStore();
-  if (authStore.loggedIn) next({ name: "boards" });
+  if (authStore.loggedIn) next({ name: "dashboard" });
   else next();
 };
 
