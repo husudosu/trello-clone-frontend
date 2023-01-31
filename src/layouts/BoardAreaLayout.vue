@@ -50,9 +50,7 @@
                     <q-list>
                         <q-item>
                             <q-item-section top avatar>
-                                <q-avatar rounded>
-                                    <img src="https://cdn.quasar.dev/img/boy-avatar.png">
-                                </q-avatar>
+                                <user-avatar :user="authStore.user" size="md"></user-avatar>
                             </q-item-section>
 
                             <q-item-section>
@@ -103,14 +101,16 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import BoardDetailsDialogVue from '@/components/Board/DetailsDialog/BoardDetailsDialog.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useBoardStore } from '@/stores/board';
-import NewBoardListDialog from '@/components/Board/List/NewBoardListDialog.vue';
 import { IDraftBoardList, IBoard } from '@/api/types';
 import { BoardListAPI } from '@/api/boardList';
-import NewBoardDialog from '@/components/Board/NewBoardDialog.vue';
 import { BoardAPI } from '@/api/board';
+
+import UserAvatar from '@/components/UserAvatar.vue';
+import BoardDetailsDialogVue from '@/components/Board/DetailsDialog/BoardDetailsDialog.vue';
+import NewBoardListDialog from '@/components/Board/List/NewBoardListDialog.vue';
+import NewBoardDialog from '@/components/Board/NewBoardDialog.vue';
 import ArchivedBoardsDialog from '@/components/Board/ArchivedBoardsDialog.vue';
 
 const router = useRouter();

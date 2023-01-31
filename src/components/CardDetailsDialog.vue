@@ -21,22 +21,77 @@
                         :color="!card.archived ? 'orange' : 'red'"></q-btn>
                     <q-btn flat v-close-popup round dense icon="close" />
                 </q-toolbar>
-                <div class="q-pa-sm q-pl-md row items-center">
-                    <span class="q-mr-sm">
-                        <q-icon name="add"></q-icon>
-                        Add:
-                    </span>
-                    <q-btn size="sm" flat icon="checklist" align="between" label="Checklist" text-color="light-green-3"
-                        :disable="!hasPermission(BoardPermission.CHECKLIST_CREATE)"
-                        @click="onCreateChecklistClicked"></q-btn>
-                    <q-btn size="sm" flat icon="person" align="between" label="Member" text-color="light-green-3"
-                        :disable="!hasPermission(BoardPermission.CARD_ASSIGN_MEMBER)"
-                        @click="onAssignMemberClicked"></q-btn>
-                    <q-btn size="sm" flat icon="schedule" align="between" label="Date" @click="onAddDateClicked"
-                        text-color="light-green-3" :disable="!hasPermission(BoardPermission.CARD_ADD_DATE)"></q-btn>
-                    <q-btn size="sm" flat icon="attach_file" align="between" label="File" text-color="light-green-3"
-                        @click="onFileAddClicked"></q-btn>
-                </div>
+
+                <!-- Add entity to card template-->
+                <template v-if="!$q.screen.xs">
+                    <div class="q-pa-sm q-pl-md row items-center">
+                        <span class="q-mr-sm">
+                            <q-icon name="add"></q-icon>
+                            Add:
+                        </span>
+                        <q-btn size="sm" flat icon="checklist" align="between" label="Checklist"
+                            text-color="light-green-3" :disable="!hasPermission(BoardPermission.CHECKLIST_CREATE)"
+                            @click="onCreateChecklistClicked"></q-btn>
+                        <q-btn size="sm" flat icon="person" align="between" label="Member" text-color="light-green-3"
+                            :disable="!hasPermission(BoardPermission.CARD_ASSIGN_MEMBER)"
+                            @click="onAssignMemberClicked"></q-btn>
+                        <q-btn size="sm" flat icon="schedule" align="between" label="Date" @click="onAddDateClicked"
+                            text-color="light-green-3" :disable="!hasPermission(BoardPermission.CARD_ADD_DATE)"></q-btn>
+                        <q-btn size="sm" flat icon="attach_file" align="between" label="File" text-color="light-green-3"
+                            @click="onFileAddClicked"></q-btn>
+                    </div>
+                </template>
+                <template v-else>
+                    <q-btn-dropdown icon="add" flat label="Add" text-color="light-green-3">
+                        <q-list>
+                            <q-item clickable v-close-popup @click="onCreateChecklistClicked"
+                                :disable="!hasPermission(BoardPermission.CHECKLIST_CREATE)">
+                                <q-item-section side>
+                                    <q-icon name="checklist"></q-icon>
+                                </q-item-section>
+                                <q-item-section>
+                                    <q-item-label>
+                                        Checklist
+                                    </q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-item clickable v-close-popup @click="onAssignMemberClicked"
+                                :disable="!hasPermission(BoardPermission.CARD_ASSIGN_MEMBER)">
+                                <q-item-section side>
+                                    <q-icon name="person"></q-icon>
+                                </q-item-section>
+                                <q-item-section>
+                                    <q-item-label>
+                                        Member
+                                    </q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-item clickable v-close-popup @click="onAddDateClicked"
+                                :disable="!hasPermission(BoardPermission.CARD_ADD_DATE)">
+                                <q-item-section side>
+                                    <q-icon name="schedule"></q-icon>
+                                </q-item-section>
+                                <q-item-section>
+                                    <q-item-label>
+                                        Date
+                                    </q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-item clickable v-close-popup @click="onFileAddClicked"
+                                :disable="!hasPermission(BoardPermission.CARD_ADD_DATE)">
+                                <q-item-section side>
+                                    <q-icon name="attach_file"></q-icon>
+                                </q-item-section>
+                                <q-item-section>
+                                    <q-item-label>
+                                        File
+                                    </q-item-label>
+                                </q-item-section>
+                            </q-item>
+
+                        </q-list>
+                    </q-btn-dropdown>
+                </template>
                 <q-bar v-if="card.archived" class="bg-orange-4 text-black text-center">
                     <span class="text-center">Archived on: <b>{{
                         card.archived_on.format("YYYY-MM-DD HH:mm")

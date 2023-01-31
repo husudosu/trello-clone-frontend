@@ -7,7 +7,7 @@
                         <div class="col">
                             <div class="row">
                                 <user-avatar v-for="member in props.card.assigned_members.slice(0, 2)" :key="member.id"
-                                    class="" size="sm" :user="member.board_user.user">
+                                    size="sm" :user="member.board_user.user">
                                 </user-avatar>
                                 <template v-if="props.card.assigned_members.length > 2">
                                     ...
@@ -58,7 +58,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Card, ICardDate } from '@/api/types';
+import { ICard, ICardDate } from '@/api/types';
 import { defineProps, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import UserAvatar from '@/components/UserAvatar.vue';
@@ -70,7 +70,7 @@ import ChecklistStatus from './Status/ChecklistStatus.vue';
 import { useCardStore } from '@/stores/card';
 
 const $q = useQuasar();
-const props = defineProps<{ card: Card; }>();
+const props = defineProps<{ card: ICard; }>();
 const editMode = ref(false);
 const listCardRef = ref();
 const newTitle = ref("");

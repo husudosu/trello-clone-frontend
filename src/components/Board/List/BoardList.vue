@@ -3,7 +3,8 @@
         <div class="list">
             <header @dblclick="onTitleDblClick" class="listHeader">
                 <template v-if="editListTitle">
-                    <q-input v-model="newListTitle" label="Name" @keyup.enter="onListSave" @blur="onListSave" autofocus>
+                    <q-input v-model="newListTitle" label="Name" @keyup.enter="onListSave" @blur="onListSave" autofocus
+                        :input-style="{ color: 'white' }">
                     </q-input>
                 </template>
                 <template v-else>
