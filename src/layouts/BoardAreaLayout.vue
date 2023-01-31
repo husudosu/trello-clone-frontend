@@ -5,17 +5,7 @@
                 <q-toolbar-title>
                     Yamakanban
                 </q-toolbar-title>
-
-                <q-btn v-if="$q.screen.xs && board" flat dense round aria-label="Board menu" icon="more_vert">
-                    <q-menu>
-                        <q-list>
-                            <q-item clickable v-close-popup @click="onBoardDetailsClicked">
-                                <q-item-section>Board details</q-item-section>
-                            </q-item>
-                        </q-list>
-                    </q-menu>
-                </q-btn>
-                <q-btn-dropdown icon="developer_board" flat v-if="!$q.screen.xs">
+                <q-btn-dropdown icon="developer_board" flat>
                     <q-list>
                         <q-item clickable v-close-popup @click="onNewBoardClicked">
                             <q-item-section side>
@@ -46,6 +36,48 @@
                     </q-list>
 
                 </q-btn-dropdown>
+
+                <q-btn v-if="$q.screen.xs && board" flat dense round aria-label="Board menu" icon="more_vert">
+                    <q-menu>
+                        <q-list>
+                            <q-item clickable v-close-popup @click="onNewListClicked">
+                                <q-item-section side>
+                                    <q-icon name="add"></q-icon>
+                                </q-item-section>
+                                <q-item-section>
+                                    <q-item-label>List</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-item clickable v-close-popup @click="onBoardDetailsClicked">
+                                <q-item-section side>
+                                    <q-icon name="developer_board"></q-icon>
+                                </q-item-section>
+                                <q-item-section>
+                                    <q-item-label>Board details</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-separator></q-separator>
+                            <q-item clickable v-close-popup :to="{ name: 'user', params: { userId: user?.id } }">
+                                <q-item-section side>
+                                    <q-icon name="person"></q-icon>
+                                </q-item-section>
+                                <q-item-section>
+                                    <q-item-label>Details</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-item clickable v-close-popup @click="onLogoutClicked">
+                                <q-item-section side>
+                                    <q-icon name="logout"></q-icon>
+                                </q-item-section>
+                                <q-item-section>
+                                    <q-item-label>Logout</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-separator></q-separator>
+
+                        </q-list>
+                    </q-menu>
+                </q-btn>
                 <q-btn-dropdown icon="person" flat v-if="!$q.screen.xs">
                     <q-list>
                         <q-item>
