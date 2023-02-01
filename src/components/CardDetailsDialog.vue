@@ -135,15 +135,15 @@
                                     <q-markup-table dense flat>
                                         <tr>
                                             <td class="text-bold">Created on:</td>
-                                            <td>TODO</td>
+                                            <td>{{ card.created_on.format("YYYY-MM-DD HH:mm") }}</td>
                                         </tr>
                                         <tr>
                                             <td class="text-bold">Last activity:</td>
-                                            <td>TODO</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-bold">Created by:</td>
-                                            <td>TODO</td>
+                                            <td>{{
+                                                activities.length > 0 ?
+                                                    activities[0].activity_on.format("YYYY-MM-DD HH:mm") :
+                                                    card.created_on.format("YYYY-MM-DD HH:mm")
+                                            }}</td>
                                         </tr>
                                     </q-markup-table>
                                 </q-expansion-item>

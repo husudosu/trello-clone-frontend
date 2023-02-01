@@ -68,6 +68,10 @@ export enum SIOEvent {
     LIST_UPDATE = "list.update",
     LIST_ARCHIVE = "list.archive",
     LIST_DELETE = "list.delete",
+
+    FILE_UPLOAD = "file.upload",
+    FILE_DELETE = "file.delete"
+
 }
 
 export interface SIOCardUpdateOrder {
