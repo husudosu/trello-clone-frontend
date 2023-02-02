@@ -163,5 +163,8 @@ export const CardAPI = {
                 document.body.appendChild(link);
                 link.click();
             });
+    },
+    deleteFile: async (fileId: number) => {
+        await API.delete(`/card-upload/${fileId}`);
     }
 };

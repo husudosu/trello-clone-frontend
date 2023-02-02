@@ -1,5 +1,8 @@
 <template>
     <q-list>
+        <div v-if="props.files.length === 0">
+            No uploaded files yet.
+        </div>
         <q-item v-for="file in props.files" :key="file.id">
             <q-item-section>
                 <q-item-label>
@@ -19,6 +22,7 @@
             </q-item-section>
         </q-item>
     </q-list>
+
 </template>
 
 <script lang="ts" setup>
@@ -34,7 +38,18 @@ const props = defineProps<{ files: ICardFileUpload[]; }>();
 
 const boardStore = useBoardStore();
 const onDeleteFileClicked = (file: ICardFileUpload) => {
-    console.log(file);
+    $q.dialog({
+        title: "Delete file",
+        cancel: true,
+        persistent: true,
+        message: `Delete ${file.file_name}? This is permanent!`,
+        ok: {
+            label: "Delete",
+            color: "negative"
+        }
+    }).onOk(() => {
+        CardAPI.deleteFile(file.id);
+    });
 };
 
 const onDownloadFileClicked = (file: ICardFileUpload) => {
