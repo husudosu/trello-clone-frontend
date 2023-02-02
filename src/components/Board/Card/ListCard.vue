@@ -34,8 +34,11 @@
                 <template v-if="props.card.checklists.length > 0">
                     <q-separator class="q-mt-md q-mb-sm"></q-separator>
                     <div class="row" v-if="props.card.checklists.length > 0">
-                        <checklist-status v-for="checklist in props.card.checklists" :key="checklist.id" class="q-mr-xs"
-                            :checklist="checklist"></checklist-status>
+                        <checklist-status v-for="checklist in props.card.checklists.slice(0, 3)" :key="checklist.id"
+                            class="q-mr-xs" :checklist="checklist"></checklist-status>
+                        <template v-if="props.card.checklists.length > 3">
+                            ...
+                        </template>
                     </div>
 
                 </template>
