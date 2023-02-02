@@ -58,6 +58,11 @@ export const CardAPI = {
                 ChecklistAPI.parseChecklistItem(item);
             });
         });
+
+        data.file_uploads.forEach((file) => {
+            file.created_on = moment.utc(file.created_on).tz(authStore.timezone);
+        });
+
         return data;
     },
     getCard: async (cardId: number): Promise<ICard> => {
@@ -146,5 +151,17 @@ export const CardAPI = {
     },
     deleteComment: async (commentId: number) => {
         await API.delete(`/comment/${commentId}`);
+    },
+    downloadFile: async (fileId: number, fileName: string) => {
+        API.get(`/card-upload/${fileId}`, { responseType: "blob" })
+            .then((response) => {
+                console.log(response.data);
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', fileName);
+                document.body.appendChild(link);
+                link.click();
+            });
     }
 };

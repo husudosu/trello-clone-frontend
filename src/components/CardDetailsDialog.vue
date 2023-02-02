@@ -145,6 +145,12 @@
                                                     card.created_on.format("YYYY-MM-DD HH:mm")
                                             }}</td>
                                         </tr>
+                                        <tr>
+                                            <td class="text-bold">Card ID:</td>
+                                            <td>
+                                                {{ card.id }}
+                                            </td>
+                                        </tr>
                                     </q-markup-table>
                                 </q-expansion-item>
 
@@ -178,7 +184,7 @@
 
                                 <q-expansion-item q-expansion-item default-opened icon="attach_file" label="Files"
                                     class="q-mt-md" header-class="cardDetailsExpansionItem">
-                                    TODO: implement it
+                                    <CardFileList :files="card.file_uploads"></CardFileList>
                                 </q-expansion-item>
                                 <!-- Activity -->
                                 <q-expansion-item q-expansion-item default-opened icon="view_list" label="Activity"
@@ -248,6 +254,7 @@ import { useSocketIO, SIOBoardEventListeners, SIOEvent } from "@/socket";
 import 'github-markdown-css/github-markdown-light.css';
 import { useCardStore } from '@/stores/card';
 import { useBoardStore } from '@/stores/board';
+import CardFileList from './Board/Card/CardFileList.vue';
 interface Props {
     cardId: number;
 }
