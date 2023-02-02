@@ -255,6 +255,7 @@ import 'github-markdown-css/github-markdown-light.css';
 import { useCardStore } from '@/stores/card';
 import { useBoardStore } from '@/stores/board';
 import CardFileList from './Board/Card/CardFileList.vue';
+import UploadFileDialog from './Board/Card/UploadFileDialog.vue';
 interface Props {
     cardId: number;
 }
@@ -441,7 +442,11 @@ const onAddDateClicked = () => {
 };
 
 const onFileAddClicked = () => {
-    alert("Todo: Implement it!");
+    $q.dialog({
+        component: UploadFileDialog
+    }).onOk(async (data) => {
+        await CardAPI.uploadFile(props.cardId, data.file);
+    });
 };
 onUnmounted(() => {
     cardStore.unloadCard();

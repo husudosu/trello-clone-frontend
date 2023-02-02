@@ -152,6 +152,16 @@ export const CardAPI = {
     deleteComment: async (commentId: number) => {
         await API.delete(`/comment/${commentId}`);
     },
+    uploadFile: async (cardId: number, file: Blob) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const { data } = await API.post(`/card/${cardId}/uploads`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return data;
+    },
     downloadFile: async (fileId: number, fileName: string) => {
         API.get(`/card-upload/${fileId}`, { responseType: "blob" })
             .then((response) => {
