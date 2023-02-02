@@ -132,7 +132,7 @@ export const SIOBoardEventListeners = {
         Dialog.create({
             message: "Board has been deleted!"
         }).onDismiss(() => {
-            router.push({ name: "boards" });
+            router.push({ name: "dashboard" });
         });
     },
     boardUpdate: (board: Partial<IBoard>) => {
