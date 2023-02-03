@@ -307,6 +307,8 @@ onMounted(async () => {
 
         socket.on(SIOEvent.CARD_ACTIVITY_UPDATE, SIOBoardEventListeners.updateCardActivity);
         socket.on(SIOEvent.CARD_ACTIVITY_DELETE, SIOBoardEventListeners.deleteCardActivity);
+        socket.on(SIOEvent.FILE_UPLOAD, SIOBoardEventListeners.fileUpload);
+        socket.on(SIOEvent.FILE_DELETE, SIOBoardEventListeners.fileDelete);
 
         socket.on(SIOEvent.SIODisconnect, (reason) => {
             console.log(`[CardDetailsDialog->Socket.IO]: Disconnected from SIO server reason: ${reason}`);

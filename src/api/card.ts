@@ -1,7 +1,7 @@
 import moment from "moment-timezone";
 
 import { API } from ".";
-import { ICard, ICardActivity, ICardActivityQueryParams, ICardComment, ICardDate, ICardMember, IDraftCard, IDraftCardDate, IDraftCardMember, IPaginatedCardActivity } from "./types";
+import { ICard, ICardActivity, ICardActivityQueryParams, ICardComment, ICardDate, ICardFileUpload, ICardMember, IDraftCard, IDraftCardDate, IDraftCardMember, IPaginatedCardActivity } from "./types";
 import { ChecklistAPI } from "./checklist";
 import { useAuthStore } from "@/stores/auth";
 
@@ -35,6 +35,11 @@ export const CardAPI = {
             data.changes = JSON.parse(data.changes);
         return data;
     },
+    parseCardFileUpload: (file: ICardFileUpload) => {
+        const authStore = useAuthStore();
+        file.created_on = moment.utc(file.created_on).tz(authStore.timezone);
+        return file;
+    },
     /*
     Parses card, for example converts dates into moment object.
     */
@@ -60,7 +65,7 @@ export const CardAPI = {
         });
 
         data.file_uploads.forEach((file) => {
-            file.created_on = moment.utc(file.created_on).tz(authStore.timezone);
+            CardAPI.parseCardFileUpload(file);
         });
 
         return data;

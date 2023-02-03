@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-import { ICard, IPaginatedCardActivity, ICardActivity, ICardChecklist, IChecklistItem, ICardMember, ICardDate, IDraftChecklistItem, IDraftCardMember } from "@/api/types";
+import { ICard, IPaginatedCardActivity, ICardActivity, ICardChecklist, IChecklistItem, ICardMember, ICardDate, IDraftChecklistItem, IDraftCardMember, ICardFileUpload } from "@/api/types";
 import { CardAPI } from "@/api/card";
 import { ChecklistAPI } from "@/api/checklist";
 import { SIOChecklistItemDeleteEvent, SIOChecklistItemUpdateOrder } from "@/socket";
@@ -131,6 +131,17 @@ export const useCardStore = defineStore('card', {
                 const index = this.activities.data.findIndex((el) => el.id == activity_id);
                 if (index > -1) {
                     this.activities.data.splice(index, 1);
+                }
+            }
+        },
+        addFileUpload(item: ICardFileUpload) {
+            this.card?.file_uploads.push(CardAPI.parseCardFileUpload(item));
+        },
+        deleteFileUpload(fileUploadId: number) {
+            if (this.card) {
+                const index = this.card.file_uploads.findIndex((el) => el.id === fileUploadId);
+                if (index > -1) {
+                    this.card.file_uploads.splice(index, 1);
                 }
             }
         },

@@ -16,8 +16,10 @@
                         </div>
                         <div class="col-7 text-right" v-if="props.card.dates.length > 0">
                             <!-- TODO: Check on backend if card dates ordered! -->
-                            <card-date-chip :card-date="props.card.dates[0]"
-                                @click="onDateMark($event, props.card.dates[0])">
+                            <!-- @click="onDateMark($event, props.card.dates[0])" 
+                                Mark on click disabled
+                            -->
+                            <card-date-chip :card-date="props.card.dates[0]">
                             </card-date-chip>
                         </div>
                     </div>
@@ -136,9 +138,9 @@ const onEditClick = (ev: Event) => {
 
 };
 
-const onDateMark = (ev: Event, cardDate: ICardDate) => {
-    ev.stopPropagation();
-    CardAPI.patchCardDate(cardDate.id, { complete: !cardDate.complete });
-};
+// const onDateMark = (ev: Event, cardDate: ICardDate) => {
+//     ev.stopPropagation();
+//     CardAPI.patchCardDate(cardDate.id, { complete: !cardDate.complete });
+// };
 
 </script>
