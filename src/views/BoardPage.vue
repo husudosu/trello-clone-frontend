@@ -92,8 +92,8 @@ const onCardSortableMoveEnd = async (ev: any) => {
             await BoardListAPI.updateCardsOrder(listTo);
         }
     }
-
 };
+
 
 const loadBoard = async (boardId: number) => {
     $q.loading.show({ delay: 400 });

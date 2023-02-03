@@ -49,6 +49,7 @@ export interface IDraftBoardList {
     board_id: number;
     title: string;
     archived: boolean;
+    wip_limit: number;
 }
 
 export interface IBoardList {
@@ -58,6 +59,7 @@ export interface IBoardList {
     position: number;
     cards: ICard[];
     archived: boolean;
+    wip_limit: number;
 }
 
 export interface IBoard {

@@ -37,7 +37,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginC
 const boardStore = useBoardStore();
 
 const listTitle = ref("");
-const listWIPLimit = ref(0);
+const listWIPLimit = ref(-1);
 
 const onSubmit = async () => {
     if (boardStore.board) {
@@ -45,7 +45,8 @@ const onSubmit = async () => {
         onDialogOK({
             board_id: boardStore.board.id,
             archived: false,
-            title: listTitle.value
+            title: listTitle.value,
+            wip_limit: listWIPLimit.value
         });
     }
 };

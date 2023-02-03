@@ -25,7 +25,8 @@
                 <draggable :data-id="props.boardList.id" class="list-group" v-model="cards" group="board-cards"
                     itemKey="id" @end="$emit('onCardMoveEnd', $event)" draggable=".listCard" :delayOnTouchOnly="true"
                     :touchStartThreshold="100" :delay="100" v-if="props.boardList.id" :scroll-sensitivity="200"
-                    :fallback-tolerance="1" :force-fallback="true" :animation="200" filter=".draftCard">
+                    :fallback-tolerance="1" :force-fallback="true" :animation="200" filter=".draftCard"
+                    :move="onCardMove">
                     <template #item="{ element }">
                         <list-card :card="element"></list-card>
                     </template>
@@ -34,13 +35,16 @@
                     </template>
                 </draggable>
             </ul>
-            <footer @click="onAddCardClick">
-                <div v-if="props.boardList.id" class="boardListAddCard non-selectable text-center">
+            <footer @click="onAddCardClick"
+                v-if="boardList.wip_limit === -1 || boardList.cards.length < boardList.wip_limit">
+                <div class="boardListAddCard non-selectable text-center">
                     <q-icon class="q-mr-xs" name="add"></q-icon>Add card...
                 </div>
-                <div v-else>
-                    <q-btn size="sm" class="q-ml-xs q-mr-sm" color="primary" @click="onListSave">Save</q-btn>
-                    <q-btn size="sm" outline @click="onCancelClicked">Cancel</q-btn>
+            </footer>
+            <footer v-else>
+                <div class="boardListAddCard non-selectable text-center text-orange text-bold">
+                    <q-icon class="q-mr-xs" name="warning"></q-icon>
+                    WIP limit reached
                 </div>
             </footer>
         </div>
@@ -104,6 +108,17 @@ const onListSave = async () => {
     }
 };
 
+const onCardMove = (ev: any) => {
+    const listToId: number = parseInt(ev.to.getAttribute("data-id"));
+
+    // Check target list WIP limit
+    const list = boardStore.boardLists.find((el) => el.id === listToId);
+    if (list) {
+        if (list.wip_limit === list.cards.length) {
+            return false;
+        }
+    }
+};
 
 const onCancelClicked = () => {
     if (props.boardList.id)
