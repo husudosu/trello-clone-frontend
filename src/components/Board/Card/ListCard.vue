@@ -3,7 +3,7 @@
         <template v-if="!editMode">
             <div>
                 <template v-if="props.card.assigned_members.length > 0 || props.card.dates.length > 0">
-                    <div class="q-mb-sm row">
+                    <div class="row">
                         <div class="col">
                             <div class="row">
                                 <user-avatar v-for="member in props.card.assigned_members.slice(0, 2)" :key="member.id"
@@ -21,7 +21,7 @@
                             </card-date-chip>
                         </div>
                     </div>
-                    <q-separator class="q-mb-md"></q-separator>
+                    <q-separator class="q-mb-sm"></q-separator>
                 </template>
                 <li class="title">
                     {{ props.card.title }}
@@ -32,7 +32,7 @@
                     </div>
                 </li>
                 <template v-if="props.card.checklists.length > 0">
-                    <q-separator class="q-mt-md q-mb-sm"></q-separator>
+                    <q-separator class="q-mt-sm q-mb-xs"></q-separator>
                     <div class="row" v-if="props.card.checklists.length > 0">
                         <checklist-status v-for="checklist in props.card.checklists.slice(0, 3)" :key="checklist.id"
                             class="q-mr-xs" :checklist="checklist"></checklist-status>
@@ -40,7 +40,6 @@
                             ...
                         </template>
                     </div>
-
                 </template>
             </div>
         </template>
