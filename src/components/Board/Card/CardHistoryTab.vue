@@ -1,5 +1,4 @@
 <template>
-
     <div class="row q-gutter-lg">
         <div class="col-sm-4 col-xs-11">
             <q-input :model-value="fromDate" mask="####-##-## ##:##" :rules="[validateDateTime]" label="From" fill-mask
@@ -80,8 +79,8 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits, ref, onMounted } from 'vue';
-import { useDialogPluginComponent, useQuasar } from 'quasar';
+import { defineProps, ref, onMounted } from 'vue';
+import { useQuasar } from 'quasar';
 import moment from "moment-timezone";
 import { validateDateTime } from "@/formValidators";
 import { ICardActivityQueryParams, IPaginatedCardActivity } from '@/api/types';
@@ -102,12 +101,6 @@ const params = ref<ICardActivityQueryParams>({
     per_page: 15,
     type: "all"
 });
-
-defineEmits([
-    ...useDialogPluginComponent.emits
-]);
-
-const { dialogRef, onDialogHide, onDialogCancel } = useDialogPluginComponent();
 
 const loadMore = async (value: number) => {
     try {

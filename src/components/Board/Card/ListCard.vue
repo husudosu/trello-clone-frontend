@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ICard, ICardDate } from '@/api/types';
+import { ICard } from '@/api/types';
 import { defineProps, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import UserAvatar from '@/components/UserAvatar.vue';

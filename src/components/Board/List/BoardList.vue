@@ -120,11 +120,6 @@ const onCardMove = (ev: any) => {
     }
 };
 
-const onCancelClicked = () => {
-    if (props.boardList.id)
-        editListTitle.value = false;
-};
-
 const onAddCardClick = () => {
     if (hasPermission(BoardPermission.CARD_EDIT) && props.boardList.id) {
         showAddCard.value = true;
