@@ -10,11 +10,25 @@
                 <template v-else>
                     <span class="non-selectable">{{ props.boardList.title }}</span>
                     <q-btn flat round icon="more_horiz" style="float: right;">
-                        <q-menu v-model="showMenu">
+                        <q-menu>
                             <q-list style="min-width: 100px">
                                 <q-item clickable @click="onDeleteBoardList"
-                                    :disable="!hasPermission(BoardPermission.LIST_DELETE)">
-                                    <q-item-section>Archive</q-item-section>
+                                    :disable="!hasPermission(BoardPermission.LIST_DELETE)" v-close-popup>
+                                    <q-item-section side>
+                                        <q-icon name="archive"></q-icon>
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <q-item-label>Archive</q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                                <q-item clickable @click="onListEdit"
+                                    :disable="!hasPermission(BoardPermission.LIST_EDIT)" v-close-popup>
+                                    <q-item-section side>
+                                        <q-icon name="edit"></q-icon>
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <q-item-label>Edit list</q-item-label>
+                                    </q-item-section>
                                 </q-item>
                             </q-list>
                         </q-menu>
@@ -62,6 +76,7 @@ import DraftCardVue from "@/components/Board/Card/DraftCard.vue";
 import { BoardListAPI } from '@/api/boardList';
 import { CardAPI } from '@/api/card';
 import { useBoardStore } from '@/stores/board';
+import NewBoardListDialog from './NewBoardListDialog.vue';
 
 /* TODO: Implement events of VueDraggable, Vue3 version off draggable is not contains event types
 Vue v2 sortable.js:
@@ -81,7 +96,6 @@ const cardsWrapper = ref();
 const editListTitle = ref(false);
 const newListTitle = ref("");
 
-const showMenu = ref(false);
 const $q = useQuasar();
 
 const cards = computed({
@@ -110,11 +124,11 @@ const onListSave = async () => {
 
 const onCardMove = (ev: any) => {
     const listToId: number = parseInt(ev.to.getAttribute("data-id"));
-
+    const listFromId: number = parseInt(ev.from.getAttribute("data-id"));
     // Check target list WIP limit
     const list = boardStore.boardLists.find((el) => el.id === listToId);
     if (list) {
-        if (list.wip_limit === list.cards.length) {
+        if (list.wip_limit === list.cards.length && listToId !== listFromId) {
             return false;
         }
     }
@@ -141,9 +155,6 @@ const onDeleteBoardList = () => {
         }
     }).onOk(() => {
         BoardListAPI.deleteBoardList(props.boardList.id);
-        showMenu.value = false;
-    }).onCancel(() => {
-        showMenu.value = false;
     });
 };
 
@@ -163,6 +174,16 @@ const onTitleDblClick = () => {
 const onSaveCard = async (card: IDraftCard) => {
     showAddCard.value = false;
     await CardAPI.postCard(props.boardList.id, card);
+};
+
+
+const onListEdit = async () => {
+    $q.dialog({
+        component: NewBoardListDialog,
+        componentProps: { boardList: props.boardList }
+    }).onOk((data: Partial<IBoardList>) => {
+        BoardListAPI.patchBoardList(props.boardList.id, data);
+    });
 };
 
 // If the board draft don't allow drag.
