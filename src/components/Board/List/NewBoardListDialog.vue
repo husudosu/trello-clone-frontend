@@ -59,7 +59,8 @@ const onSubmit = async () => {
 
 const validateWIPLimit = (val: number): Promise<string | boolean> => {
     return new Promise((resolve) => {
-        if (!props.boardList) resolve(true);
+        console.log(val);
+        if (!props.boardList || val == -1) resolve(true);
         else if (props.boardList.cards.length > val) resolve("You cannot have lower WIP limit than current card count!");
         else resolve(true);
     });
