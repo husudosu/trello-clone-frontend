@@ -39,14 +39,27 @@ const IGNORE_404 = new RegExp('\/auth\/find-user|\/board\/[0-9]+\/find-member');
 
 const handleHTTPExc = (err: any) => {
     if (err.response.status === 400) {
-        const validationErr = new ValidationError({ message: err.response.data.message, errors: err.response.data.errors });
-        Notify.create({
-            position: "bottom-right",
-            type: "negative",
-            message: DOMPurify.sanitize(`Server validation error: ${validationErr.formatErrors()}`),
-            html: true
-        });
-        return Promise.reject(validationErr);
+        if (err.response.data.errors) {
+            const validationErr = new ValidationError({ message: err.response.data.message, errors: err.response.data.errors });
+            Notify.create({
+                position: "bottom-right",
+                type: "negative",
+                message: DOMPurify.sanitize(`Server validation error: ${validationErr.formatErrors()}`),
+                html: true
+            });
+            return Promise.reject(validationErr);
+        }
+        else if (err.response.data.message) {
+            Notify.create({
+                position: "bottom-right",
+                type: "negative",
+                message: err.response.data.message,
+            });
+            return Promise.reject(err.response.data.message);
+        }
+        else {
+            return Promise.reject(err.toJSON());
+        }
     }
     else if (err.response.status === 404) {
         if (!IGNORE_404.test(err.config.url)) {

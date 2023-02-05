@@ -4,7 +4,7 @@ import { createRouter, createWebHistory, RouteRecordRaw, RouteLocationNormalized
 
 const onlyAnonymousCanAccess = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
   const authStore = useAuthStore();
-  if (authStore.loggedIn) next({ name: "boards" });
+  if (authStore.loggedIn) next({ name: "dashboard" });
   else next();
 };
 
@@ -22,17 +22,12 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: "/",
-        redirect: { name: "boards" }
+        redirect: { name: "dashboard" }
       },
       {
-        path: "/board/:boardId",
-        name: "board",
-        component: () => import("../views/BoardPage.vue"),
-      },
-      {
-        path: "/board",
-        name: "boards",
-        component: () => import("../views/BoardsPage.vue"),
+        path: "/dashboard",
+        name: "dashboard",
+        component: () => import("../views/DashboardPage.vue")
       },
       {
         path: "/user/view/:userId",
@@ -44,6 +39,18 @@ const routes: Array<RouteRecordRaw> = [
         name: "user.edit",
         component: () => import("../views/EditUserPage.vue"),
       },
+    ]
+  },
+  {
+    component: () => import("../layouts/BoardAreaLayout.vue"),
+    beforeEnter: onlyUserCanAccess,
+    path: "/",
+    children: [
+      {
+        path: "/board/:boardId",
+        name: "board",
+        component: () => import("../views/BoardPage.vue")
+      }
     ]
   },
   {

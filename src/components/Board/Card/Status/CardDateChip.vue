@@ -1,5 +1,6 @@
 <template>
-    <q-chip :color="chipColor" icon="schedule" size="md" text-color="white" class="non-selectable" dense clickable>
+    <q-chip :color="chipColor" icon="schedule" size="md" text-color="white" class="non-selectable" dense clickable
+        square>
         <template v-if="!props.cardDate.dt_from">
             {{ props.cardDate.dt_to.format('MMM DD') }}
         </template>

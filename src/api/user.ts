@@ -27,5 +27,9 @@ export const UserAPI = {
     updateUser: async (userId: number, user: IUserUpdate): Promise<IUser> => {
         const { data } = await API.patch<IUser>(`/auth/users/${userId}`, user);
         return data;
+    },
+    forgotPassword: async (username: string) => {
+        const { data } = await API.post(`/auth/forgot-password`, { username });
+        return data;
     }
 };

@@ -24,8 +24,11 @@
                                     @click="onLoginClicked" />
                             </q-card-actions>
                             <q-card-section class="text-center q-pa-none">
-                                <router-link :to="{ name: 'register' }" class="text-grey-6">Create an
+                                <router-link :to="{ name: 'register' }" class="text-grey-8">Create an
                                     account</router-link>
+                                <br />
+                                <a href="#" @click.prevent="onForgotPasswordClicked" class="text-grey-8">Forgot
+                                    password</a>
                             </q-card-section>
                         </q-card>
                     </div>
@@ -40,6 +43,7 @@ import { ref } from "vue";
 import { IUserLogin } from '@/api/types.js';
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import { UserAPI } from "@/api/user";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -50,8 +54,7 @@ const onLoginClicked = () => {
     failedMessage.value = "";
     authStore.doLogin(loginPayload.value).then(
         () => {
-            router.push({ name: "boards" });
-            console.log("login success");
+            router.push({ name: "dashboard" });
         }
     ).catch((err) => {
         console.log(err);
@@ -60,6 +63,16 @@ const onLoginClicked = () => {
         }
     });
 
+};
+
+const onForgotPasswordClicked = async () => {
+    if (loginPayload.value.username.length > 0) {
+        const data = await UserAPI.forgotPassword(loginPayload.value.username);
+        alert(data.message);
+    }
+    else {
+        alert("Username/Email required!");
+    }
 };
 </script>
 

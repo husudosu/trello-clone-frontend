@@ -179,6 +179,10 @@ const createActivityText = () => {
             return `Updated card date: ${props.activity.changes.description || props.activity.changes.dt_to}`;
         case CardActivityEvent.CARD_DELETE_DATE:
             return "Removed card date.";
+        case CardActivityEvent.FILE_UPLOAD:
+            return `File uploaded <b>${props.activity.changes.to.file_name}</b>`;
+        case CardActivityEvent.FILE_DELETE:
+            return `Removed upload <b>${props.activity.changes.from ? props.activity.changes.from.file_name : ""}</b>`;
         default:
             return props.activity.event;
     }

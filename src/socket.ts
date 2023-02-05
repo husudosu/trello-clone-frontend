@@ -1,5 +1,5 @@
 import SocketIO from 'socket.io-client';
-import { IArchivedCard, IArchivedList, IBoard, IBoardList, ICard, ICardActivity, ICardChecklist, ICardDate, ICardMember, IChecklistItem } from './api/types';
+import { IArchivedCard, IArchivedList, IBoard, IBoardList, ICard, ICardActivity, ICardChecklist, ICardDate, ICardFileUpload, ICardMember, IChecklistItem } from './api/types';
 
 const options = { withCredentials: true, debug: process.env.NODE_ENV === "development" };
 import { BoardAPI } from './api/board';
@@ -68,6 +68,10 @@ export enum SIOEvent {
     LIST_UPDATE = "list.update",
     LIST_ARCHIVE = "list.archive",
     LIST_DELETE = "list.delete",
+
+    FILE_UPLOAD = "file.upload",
+    FILE_DELETE = "file.delete"
+
 }
 
 export interface SIOCardUpdateOrder {
@@ -128,7 +132,7 @@ export const SIOBoardEventListeners = {
         Dialog.create({
             message: "Board has been deleted!"
         }).onDismiss(() => {
-            router.push({ name: "boards" });
+            router.push({ name: "dashboard" });
         });
     },
     boardUpdate: (board: Partial<IBoard>) => {
@@ -476,5 +480,26 @@ export const SIOBoardEventListeners = {
         console.log(data);
         cardStore.deleteCardActivity(data);
         console.groupEnd();
+    },
+    fileUpload: (data: SIOCardEvent) => {
+        const cardStore = useCardStore();
+        console.group(`[Socket.IO->CardDetailsDialog]: File added`);
+        console.log(data);
+
+        if (cardStore.card?.id === data.card_id) {
+            cardStore.addFileUpload(data.entity as ICardFileUpload);
+        }
+        console.groupEnd();
+    },
+    fileDelete: (data: SIODeleteEvent) => {
+        const cardStore = useCardStore();
+        console.group(`[Socket.IO->CardDetailsDialog]: File deleted`);
+        console.log(data);
+
+        if (cardStore.card?.id === data.card_id) {
+            cardStore.deleteFileUpload(data.entity_id);
+        }
+        console.groupEnd();
+
     }
 };

@@ -1,7 +1,7 @@
 import moment from "moment-timezone";
 
 import { API } from ".";
-import { ICard, ICardActivity, ICardActivityQueryParams, ICardComment, ICardDate, ICardMember, IDraftCard, IDraftCardDate, IDraftCardMember, IPaginatedCardActivity } from "./types";
+import { ICard, ICardActivity, ICardActivityQueryParams, ICardComment, ICardDate, ICardFileUpload, ICardMember, IDraftCard, IDraftCardDate, IDraftCardMember, IPaginatedCardActivity } from "./types";
 import { ChecklistAPI } from "./checklist";
 import { useAuthStore } from "@/stores/auth";
 
@@ -35,6 +35,11 @@ export const CardAPI = {
             data.changes = JSON.parse(data.changes);
         return data;
     },
+    parseCardFileUpload: (file: ICardFileUpload) => {
+        const authStore = useAuthStore();
+        file.created_on = moment.utc(file.created_on).tz(authStore.timezone);
+        return file;
+    },
     /*
     Parses card, for example converts dates into moment object.
     */
@@ -47,15 +52,22 @@ export const CardAPI = {
             dt.dt_to = moment.utc(dt.dt_to).tz(authStore.timezone);
         });
 
+        data.created_on = moment.utc(data.created_on).tz(authStore.timezone);
         if (data.archived_on) {
             data.archived_on = moment.utc(data.archived_on).tz(authStore.timezone);
         }
+
         data.checklists.forEach((checklist) => {
             checklist.items.forEach((item) => {
                 // Parse checklist items
                 ChecklistAPI.parseChecklistItem(item);
             });
         });
+
+        data.file_uploads.forEach((file) => {
+            CardAPI.parseCardFileUpload(file);
+        });
+
         return data;
     },
     getCard: async (cardId: number): Promise<ICard> => {
@@ -144,5 +156,30 @@ export const CardAPI = {
     },
     deleteComment: async (commentId: number) => {
         await API.delete(`/comment/${commentId}`);
+    },
+    uploadFile: async (cardId: number, file: Blob) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const { data } = await API.post(`/card/${cardId}/uploads`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return data;
+    },
+    downloadFile: async (fileId: number, fileName: string) => {
+        API.get(`/card-upload/${fileId}`, { responseType: "blob" })
+            .then((response) => {
+                console.log(response.data);
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', fileName);
+                document.body.appendChild(link);
+                link.click();
+            });
+    },
+    deleteFile: async (fileId: number) => {
+        await API.delete(`/card-upload/${fileId}`);
     }
 };

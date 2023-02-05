@@ -49,6 +49,7 @@ export interface IDraftBoardList {
     board_id: number;
     title: string;
     archived: boolean;
+    wip_limit: number;
 }
 
 export interface IBoardList {
@@ -58,6 +59,7 @@ export interface IBoardList {
     position: number;
     cards: ICard[];
     archived: boolean;
+    wip_limit: number;
 }
 
 export interface IBoard {
@@ -109,8 +111,11 @@ export interface ICard {
     assigned_members: ICardMember[];
     dates: ICardDate[];
     archived_on: Readonly<moment.Moment>;
+    created_on: Readonly<moment.Moment>;
     archived: Readonly<boolean>;
     archived_by_list: Readonly<boolean>;
+    file_uploads: ICardFileUpload[];
+
 }
 
 
@@ -269,6 +274,14 @@ export interface IArchivedList {
     cards: Array<Pick<ICard, "id" | "title">>;
 }
 
+export interface ICardFileUpload {
+    id: number;
+    board_id: number;
+    card_id: number;
+    file_name: string;
+    created_on: moment.Moment;
+}
+
 export enum BoardActivityEvent {
     BOARD_CREATE = "board.create",
     BOARD_ARCHIVE = "board.archive",
@@ -309,6 +322,8 @@ export enum CardActivityEvent {
     CARD_ADD_DATE = "card.date.create",
     CARD_EDIT_DATE = "card.date.update",
     CARD_DELETE_DATE = "card.date.delete",
+    FILE_UPLOAD = "file.upload",
+    FILE_DELETE = "file.delete"
 }
 
 
@@ -327,4 +342,7 @@ export enum BoardPermission {
     CHECKLIST_CREATE = "checklist.create",
     CHECKLIST_EDIT = "checklist.edit",
     CHECKLIST_ITEM_MARK = "checklist_item.mark",
+    FILE_DOWNLOAD = "file.download",
+    FILE_UPLOAD = "file.upload",
+    FILE_DELETE = "file.delete"
 }
