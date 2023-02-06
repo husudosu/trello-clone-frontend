@@ -12,6 +12,47 @@
                     <q-input v-model="listTitle" label="Title *" lazyRules
                         :rules="[val => val && val.length > 0 || 'Title required!']" />
                     <q-input v-model="listWIPLimit" label="WIP limit" type="number" :rules=[validateWIPLimit] />
+                    <q-input v-model="listHeaderTextColor" class="my-input" :rules="['rgbOrRgbaColor']"
+                        label="Header text">
+                        <template v-slot:append>
+                            <q-icon name="colorize" class="cursor-pointer">
+                                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                    <q-color v-model="listHeaderTextColor" defaultValue="#0d344e" formatModel="rgba" />
+                                </q-popup-proxy>
+                            </q-icon>
+                        </template>
+                    </q-input>
+                    <q-input v-model="listHeaderBackgroundColor" class="my-input" :rules="['rgbOrRgbaColor']"
+                        label="Header background">
+                        <template v-slot:append>
+                            <q-icon name="colorize" class="cursor-pointer">
+                                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                    <q-color v-model="listHeaderBackgroundColor" defaultValue="#ffffff"
+                                        formatModel="rgba" />
+                                </q-popup-proxy>
+                            </q-icon>
+                        </template>
+                    </q-input>
+                    <q-input v-model="listTextcolor" class="my-input" :rules="['rgbOrRgbaColor']" label="List text">
+                        <template v-slot:append>
+                            <q-icon name="colorize" class="cursor-pointer">
+                                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                    <q-color v-model="listTextcolor" defaultValue="#ffffff" formatModel="rgba" />
+                                </q-popup-proxy>
+                            </q-icon>
+                        </template>
+                    </q-input>
+                    <q-input v-model="listBackgroundColor" class="my-input" :rules="['rgbOrRgbaColor']"
+                        label="List background">
+                        <template v-slot:append>
+                            <q-icon name="colorize" class="cursor-pointer">
+                                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                    <q-color v-model="listBackgroundColor" defaultValue="#ffffff" formatModel="rgba" />
+                                </q-popup-proxy>
+                            </q-icon>
+                        </template>
+                    </q-input>
+
                 </q-card-section>
 
                 <q-card-actions align="right" class="form_actions">
@@ -45,6 +86,11 @@ const boardStore = useBoardStore();
 
 const listTitle = ref("");
 const listWIPLimit = ref(-1);
+const listHeaderTextColor = ref("");
+const listHeaderBackgroundColor = ref("");
+const listTextcolor = ref("");
+const listBackgroundColor = ref("");
+
 
 const onSubmit = async () => {
     if (boardStore.board) {
@@ -52,14 +98,17 @@ const onSubmit = async () => {
             board_id: boardStore.board.id,
             archived: false,
             title: listTitle.value,
-            wip_limit: listWIPLimit.value
+            wip_limit: listWIPLimit.value,
+            header_textcolor: listHeaderTextColor.value,
+            header_bgcolor: listHeaderBackgroundColor.value,
+            list_bgcolor: listBackgroundColor.value,
+            list_textcolor: listTextcolor.value
         });
     }
 };
 
 const validateWIPLimit = (val: number): Promise<string | boolean> => {
     return new Promise((resolve) => {
-        console.log(val);
         if (!props.boardList || val == -1) resolve(true);
         else if (props.boardList.cards.length > val) resolve("You cannot have lower WIP limit than current card count!");
         else resolve(true);
@@ -70,6 +119,11 @@ onMounted(() => {
     if (props.boardList) {
         listTitle.value = props.boardList.title;
         listWIPLimit.value = props.boardList.wip_limit;
+        listHeaderTextColor.value = props.boardList.header_textcolor;
+        listHeaderBackgroundColor.value = props.boardList.header_bgcolor;
+
+        listTextcolor.value = props.boardList.list_textcolor;
+        listBackgroundColor.value = props.boardList.list_bgcolor;
     }
 });
 </script>

@@ -50,6 +50,10 @@ export interface IDraftBoardList {
     title: string;
     archived: boolean;
     wip_limit: number;
+    header_bgcolor?: string;
+    header_textcolor?: string;
+    list_bgcolor?: string;
+    list_textcolor?: string;
 }
 
 export interface IBoardList {
@@ -60,6 +64,10 @@ export interface IBoardList {
     cards: ICard[];
     archived: boolean;
     wip_limit: number;
+    header_bgcolor: string;
+    header_textcolor: string;
+    list_bgcolor: string;
+    list_textcolor: string;
 }
 
 export interface IBoard {

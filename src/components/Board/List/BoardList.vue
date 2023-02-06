@@ -1,7 +1,9 @@
 <template>
-    <div class="listWrapper" ref="listWrapperRef">
+    <div class="listWrapper" ref="listWrapperRef"
+        :style="{ color: props.boardList.list_textcolor, background: props.boardList.list_bgcolor }">
         <div class="list">
-            <header @dblclick="onTitleDblClick" class="listHeader">
+            <header @dblclick="onTitleDblClick" class="listHeader"
+                :style="{ color: props.boardList.header_textcolor, backgroundColor: props.boardList.header_bgcolor }">
                 <template v-if="editListTitle">
                     <q-input v-model="newListTitle" label="Name" @keyup.enter="onListSave" @blur="onListSave" autofocus
                         :input-style="{ color: 'white' }">
