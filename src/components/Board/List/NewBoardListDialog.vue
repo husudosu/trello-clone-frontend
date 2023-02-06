@@ -11,48 +11,56 @@
                 <q-card-section>
                     <q-input v-model="listTitle" label="Title *" lazyRules
                         :rules="[val => val && val.length > 0 || 'Title required!']" />
-                    <q-input v-model="listWIPLimit" label="WIP limit" type="number" :rules=[validateWIPLimit] />
-                    <q-input v-model="listHeaderTextColor" class="my-input" :rules="['rgbOrRgbaColor']"
-                        label="Header text">
-                        <template v-slot:append>
-                            <q-icon name="colorize" class="cursor-pointer">
-                                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                    <q-color v-model="listHeaderTextColor" defaultValue="#0d344e" formatModel="rgba" />
-                                </q-popup-proxy>
-                            </q-icon>
-                        </template>
-                    </q-input>
-                    <q-input v-model="listHeaderBackgroundColor" class="my-input" :rules="['rgbOrRgbaColor']"
-                        label="Header background">
-                        <template v-slot:append>
-                            <q-icon name="colorize" class="cursor-pointer">
-                                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                    <q-color v-model="listHeaderBackgroundColor" defaultValue="#ffffff"
-                                        formatModel="rgba" />
-                                </q-popup-proxy>
-                            </q-icon>
-                        </template>
-                    </q-input>
-                    <q-input v-model="listTextcolor" class="my-input" :rules="['rgbOrRgbaColor']" label="List text">
-                        <template v-slot:append>
-                            <q-icon name="colorize" class="cursor-pointer">
-                                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                    <q-color v-model="listTextcolor" defaultValue="#ffffff" formatModel="rgba" />
-                                </q-popup-proxy>
-                            </q-icon>
-                        </template>
-                    </q-input>
-                    <q-input v-model="listBackgroundColor" class="my-input" :rules="['rgbOrRgbaColor']"
-                        label="List background">
-                        <template v-slot:append>
-                            <q-icon name="colorize" class="cursor-pointer">
-                                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                    <q-color v-model="listBackgroundColor" defaultValue="#ffffff" formatModel="rgba" />
-                                </q-popup-proxy>
-                            </q-icon>
-                        </template>
-                    </q-input>
+                    <q-input v-model="listWIPLimit" label="WIP limit" type="number" :rules=[validateWIPLimit]
+                        hint="-1 means no WIP limit set" />
+                    <q-list class="non-selectable">
+                        <q-item v-ripple>
+                            <q-item-section>Header background</q-item-section>
+                            <q-item-section avatar>
+                                <div
+                                    :style="{ backgroundColor: listHeaderBackgroundColor, width: '24px', height: '24px', border: '1px solid' }">
+                                </div>
+                            </q-item-section>
+                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                <q-color v-model="listHeaderBackgroundColor" defaultValue="#ffffff"
+                                    formatModel="rgba" />
+                            </q-popup-proxy>
+                        </q-item>
+                        <q-item v-ripple>
+                            <q-item-section>Header text</q-item-section>
+                            <q-item-section avatar>
+                                <div
+                                    :style="{ backgroundColor: listHeaderTextColor, width: '24px', height: '24px', border: '1px solid' }">
+                                </div>
+                            </q-item-section>
+                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                <q-color v-model="listHeaderTextColor" defaultValue="#ffffff" formatModel="rgba" />
+                            </q-popup-proxy>
+                        </q-item>
+                        <q-item v-ripple>
+                            <q-item-section>List background</q-item-section>
+                            <q-item-section avatar>
+                                <div
+                                    :style="{ backgroundColor: listBackgroundColor, width: '24px', height: '24px', border: '1px solid' }">
+                                </div>
+                            </q-item-section>
+                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                <q-color v-model="listBackgroundColor" defaultValue="#ffffff" formatModel="rgba" />
+                            </q-popup-proxy>
+                        </q-item>
+                        <q-item v-ripple>
+                            <q-item-section>List text</q-item-section>
+                            <q-item-section avatar>
+                                <div
+                                    :style="{ backgroundColor: listTextcolor, width: '24px', height: '24px', border: '1px solid' }">
+                                </div>
+                            </q-item-section>
+                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                <q-color v-model="listTextcolor" defaultValue="#ffffff" formatModel="rgba" />
+                            </q-popup-proxy>
+                        </q-item>
 
+                    </q-list>
                 </q-card-section>
 
                 <q-card-actions align="right" class="form_actions">
