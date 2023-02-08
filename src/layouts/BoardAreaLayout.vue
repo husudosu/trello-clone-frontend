@@ -40,7 +40,8 @@
                 <q-btn v-if="$q.screen.xs && board" flat dense round aria-label="Board menu" icon="more_vert">
                     <q-menu>
                         <q-list>
-                            <q-item clickable v-close-popup @click="onNewListClicked">
+                            <q-item clickable v-close-popup @click="onNewListClicked"
+                                :disable="!boardStore.hasPermission(BoardPermission.LIST_CREATE)">
                                 <q-item-section side>
                                     <q-icon name="add"></q-icon>
                                 </q-item-section>
@@ -117,7 +118,8 @@
                         style="color: orange;">(Archived)</span></span>
                 <q-space></q-space>
                 <q-btn v-if="!$q.screen.xs" flat icon="add" align="between" label="List" @click="onNewListClicked"
-                    size=sm text-color="light-green-3"></q-btn>
+                    size=sm text-color="light-green-3"
+                    :disable="!boardStore.hasPermission(BoardPermission.LIST_CREATE)"></q-btn>
                 <q-btn v-if="!$q.screen.xs" flat icon="info" align="between" label="Board details"
                     @click="onBoardDetailsClicked" size=sm></q-btn>
 
@@ -135,7 +137,7 @@ import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useAuthStore } from '@/stores/auth';
 import { useBoardStore } from '@/stores/board';
-import { IDraftBoardList, IBoard } from '@/api/types';
+import { IDraftBoardList, IBoard, BoardPermission } from '@/api/types';
 import { BoardListAPI } from '@/api/boardList';
 import { BoardAPI } from '@/api/board';
 

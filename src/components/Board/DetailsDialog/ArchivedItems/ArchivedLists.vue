@@ -7,8 +7,10 @@
                         {{ item.title }}
                         <div>
                             <q-btn flat size="sm" dense color="primary" @click="onRevertListClick(item.id)"
-                                class="q-mr-md">Revert</q-btn>
-                            <q-btn flat size="sm" dense color="red" @click="onDeleteListClick(item)">Delete</q-btn>
+                                class="q-mr-md"
+                                :disable="!boardStore.hasPermission(BoardPermission.LIST_EDIT)">Revert</q-btn>
+                            <q-btn flat size="sm" dense color="red" @click="onDeleteListClick(item)"
+                                :disable="!boardStore.hasPermission(BoardPermission.LIST_EDIT)">Delete</q-btn>
                         </div>
                     </div>
                 </q-item-label>
@@ -45,7 +47,7 @@
 <script lang="ts" setup>
 
 import { BoardListAPI } from "@/api/boardList";
-import { IArchivedList } from "@/api/types";
+import { BoardPermission, IArchivedList } from "@/api/types";
 import { useArchiveStore } from "@/stores/archive";
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 

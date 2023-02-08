@@ -14,15 +14,6 @@
                     <q-btn flat round icon="more_horiz" style="float: right;">
                         <q-menu>
                             <q-list style="min-width: 100px">
-                                <q-item clickable @click="onDeleteBoardList"
-                                    :disable="!hasPermission(BoardPermission.LIST_DELETE)" v-close-popup>
-                                    <q-item-section side>
-                                        <q-icon name="archive"></q-icon>
-                                    </q-item-section>
-                                    <q-item-section>
-                                        <q-item-label>Archive</q-item-label>
-                                    </q-item-section>
-                                </q-item>
                                 <q-item clickable @click="onListEdit"
                                     :disable="!hasPermission(BoardPermission.LIST_EDIT)" v-close-popup>
                                     <q-item-section side>
@@ -30,6 +21,15 @@
                                     </q-item-section>
                                     <q-item-section>
                                         <q-item-label>Edit list</q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                                <q-item clickable @click="onDeleteBoardList"
+                                    :disable="!hasPermission(BoardPermission.LIST_DELETE)" v-close-popup>
+                                    <q-item-section side>
+                                        <q-icon name="archive"></q-icon>
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <q-item-label>Archive</q-item-label>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -42,7 +42,7 @@
                     itemKey="id" @end="$emit('onCardMoveEnd', $event)" draggable=".listCard" :delayOnTouchOnly="true"
                     :touchStartThreshold="100" :delay="100" v-if="props.boardList.id" :scroll-sensitivity="200"
                     :fallback-tolerance="1" :force-fallback="true" :animation="200" filter=".draftCard"
-                    :move="onCardMove">
+                    :move="onCardMove" :disabled="!boardStore.hasPermission(BoardPermission.LIST_EDIT)">
                     <template #item="{ element }">
                         <list-card :card="element"></list-card>
                     </template>
@@ -128,6 +128,7 @@ const onCardMove = (ev: any) => {
     const listToId: number = parseInt(ev.to.getAttribute("data-id"));
     const listFromId: number = parseInt(ev.from.getAttribute("data-id"));
     // Check target list WIP limit
+
     const list = boardStore.boardLists.find((el) => el.id === listToId);
     if (list) {
         if (list.wip_limit === list.cards.length && listToId !== listFromId) {
@@ -165,7 +166,7 @@ if (!props.boardList.title) {
 }
 
 const onTitleDblClick = () => {
-    if (props.boardList.id) {
+    if (props.boardList.id && hasPermission(BoardPermission.LIST_EDIT)) {
         editListTitle.value = !editListTitle.value;
         // Make clone of title
         newListTitle.value = props.boardList.title.slice();

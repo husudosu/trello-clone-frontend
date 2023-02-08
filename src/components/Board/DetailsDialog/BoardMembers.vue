@@ -2,7 +2,8 @@
     <div>
         <div class="row">
             <q-space></q-space>
-            <q-btn icon="add" color="secondary" class="q-mb-md" @click="onAddMemberClicked">Add member</q-btn>
+            <q-btn icon="add" color="secondary" class="q-mb-md" @click="onAddMemberClicked"
+                :disable="!boardStore.isAdmin">Add member</q-btn>
         </div>
         <q-list padding bordered separator>
             <q-item v-for="member in boardMembers" :key="member.id">
@@ -45,7 +46,7 @@ import { ref, computed } from "vue";
 
 import { useQuasar } from "quasar";
 import { BoardAPI } from "@/api/board";
-import { IBoardAllowedUser, IBoardRole } from "@/api/types";
+import { BoardPermission, IBoardAllowedUser, IBoardRole } from "@/api/types";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AddMemberDialog from "../AddMemberDialog.vue";
 import { useBoardStore } from "@/stores/board";

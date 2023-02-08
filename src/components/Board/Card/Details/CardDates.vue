@@ -2,7 +2,8 @@
     <q-list class="q-mt-md">
         <q-item v-for="dt in card?.dates" :key="dt.id" dense style="padding-left: 0px;">
             <q-item-section avatar top>
-                <q-checkbox v-model="dt.complete" size="sm" @update:model-value="onDateMark(dt)"></q-checkbox>
+                <q-checkbox v-model="dt.complete" size="sm" @update:model-value="onDateMark(dt)"
+                    :disable="!hasPermission(BoardPermission.CARD_EDIT_DATE)"></q-checkbox>
             </q-item-section>
             <q-item-section @click="onDateEditClicked(dt)">
                 <q-item-label :class="{ checklistItemDone: dt.complete }">
@@ -47,11 +48,13 @@ const onDateDelete = async (cardDate: ICardDate) => {
 };
 
 const onDateEditClicked = async (cardDate: ICardDate) => {
-    $q.dialog({
-        component: CardDateDialog,
-        componentProps: { cardDate }
-    }).onOk((data: ICardDate) => {
-        CardAPI.patchCardDate(cardDate.id, data);
-    });
+    if (hasPermission(BoardPermission.CARD_EDIT_DATE)) {
+        $q.dialog({
+            component: CardDateDialog,
+            componentProps: { cardDate }
+        }).onOk((data: ICardDate) => {
+            CardAPI.patchCardDate(cardDate.id, data);
+        });
+    }
 };
 </script>

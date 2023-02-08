@@ -18,7 +18,8 @@
                         </template>
                     </q-toolbar-title>
                     <q-btn flat dense :icon="!card.archived ? 'archive' : 'delete'" @click="onDeleteClicked"
-                        :color="!card.archived ? 'orange' : 'red'"></q-btn>
+                        :color="!card.archived ? 'orange' : 'red'"
+                        :disable="!hasPermission(BoardPermission.CARD_EDIT)"></q-btn>
                     <q-btn flat v-close-popup round dense icon="close" />
                 </q-toolbar>
 
@@ -38,7 +39,7 @@
                         <q-btn size="sm" flat icon="schedule" align="between" label="Date" @click="onAddDateClicked"
                             text-color="light-green-3" :disable="!hasPermission(BoardPermission.CARD_ADD_DATE)"></q-btn>
                         <q-btn size="sm" flat icon="attach_file" align="between" label="File" text-color="light-green-3"
-                            @click="onFileAddClicked"></q-btn>
+                            @click="onFileAddClicked" :disable="!hasPermission(BoardPermission.FILE_UPLOAD)"></q-btn>
                     </div>
                 </template>
                 <template v-else>
@@ -96,7 +97,8 @@
                     <span class="text-center">Archived on: <b>{{
                         card.archived_on.format("YYYY-MM-DD HH:mm")
                     }}</b></span><q-space></q-space>
-                    <q-btn label="Revert" @click="onCardRevertClicked" flat outline color="accent"></q-btn>
+                    <q-btn label="Revert" @click="onCardRevertClicked" flat outline color="accent"
+                        :disable="!hasPermission(BoardPermission.CARD_EDIT)"></q-btn>
                 </q-bar>
                 <q-bar v-if="card.board_list.archived" class="bg-orange-4 text-black text-center">
                     This card is on an archived list: <b>{{ card.board_list.title }}</b>

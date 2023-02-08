@@ -71,11 +71,18 @@ const handleHTTPExc = (err: any) => {
         }
     }
     else if (err.response.status === 500) {
-        router.replace({
+        router.push({
             name: "500",
             query: {
                 traceback: err.response.data.traceback,
             },
+        });
+    }
+    else if (err.response.status === 403) {
+        Notify.create({
+            position: "bottom-right",
+            type: "negative",
+            message: "You don't have permission to edit this entity!",
         });
     }
 };

@@ -5,7 +5,8 @@
             <draggable v-model="boardLists" itemKey="data-id" :delayOnTouchOnly="true" :touchStartThreshold="100"
                 :delay="500" @end="onBoardListSortableMoveEnd" group="board-list" handle=".listHeader"
                 style="display:flex" direction="horizontal" :scroll-sensitivity="170" :fallback-tolerance="1"
-                :force-fallback="true" :animation="200" filter=".draftBoardList">
+                :force-fallback="true" :animation="200" filter=".draftBoardList"
+                :disabled="!boardStore.hasPermission(BoardPermission.LIST_EDIT)">
                 <!-- Board list object and reorder handling of cards.-->
                 <template #item="{ element }">
                     <board-list-vue @on-card-move-end="onCardSortableMoveEnd" :boardList="element">
@@ -17,18 +18,19 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onUnmounted, onMounted, ref } from "vue";
-import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { useQuasar } from 'quasar';
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import draggable from 'vuedraggable';
 
-import { useBoardStore } from "@/stores/board";
-import { CardAPI } from "@/api/card";
-import { BoardListAPI } from '@/api/boardList';
 import { BoardAPI } from "@/api/board";
+import { BoardListAPI } from '@/api/boardList';
+import { CardAPI } from "@/api/card";
+import { useBoardStore } from "@/stores/board";
 
+import { BoardPermission } from "@/api/types";
 import BoardListVue from "@/components/Board/List/BoardList.vue";
-import { useSocketIO, SIOEvent, SIOBoardEventListeners } from "@/socket";
+import { SIOBoardEventListeners, SIOEvent, useSocketIO } from "@/socket";
 import { useCardStore } from "@/stores/card";
 
 const $q = useQuasar();
@@ -93,7 +95,6 @@ const onCardSortableMoveEnd = async (ev: any) => {
         }
     }
 };
-
 
 const loadBoard = async (boardId: number) => {
     $q.loading.show({ delay: 400 });

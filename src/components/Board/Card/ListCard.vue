@@ -27,7 +27,7 @@
                 </template>
                 <li class="title">
                     {{ props.card.title }}
-                    <div class="cardEditButton">
+                    <div class="cardEditButton" v-if="boardStore.hasPermission(BoardPermission.CARD_EDIT)">
                         <q-btn size="xs" dense color="blue-grey-6" @click="onEditClick">
                             <q-icon name="edit"></q-icon>
                         </q-btn>
@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ICard } from '@/api/types';
+import { BoardPermission, ICard } from '@/api/types';
 import { defineProps, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import UserAvatar from '@/components/UserAvatar.vue';
@@ -72,6 +72,7 @@ import { CardAPI } from '@/api/card';
 import CardDetailsDialog from "@/components/CardDetailsDialog.vue";
 import ChecklistStatus from './Status/ChecklistStatus.vue';
 import { useCardStore } from '@/stores/card';
+import { useBoardStore } from '@/stores/board';
 
 const $q = useQuasar();
 const props = defineProps<{ card: ICard; }>();
@@ -79,7 +80,9 @@ const editMode = ref(false);
 const listCardRef = ref();
 const newTitle = ref("");
 
+const boardStore = useBoardStore();
 const cardStore = useCardStore();
+
 
 const onCardClick = () => {
     // Launch card details only if editMode inactive!
