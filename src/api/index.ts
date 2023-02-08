@@ -78,6 +78,13 @@ const handleHTTPExc = (err: any) => {
             },
         });
     }
+    else if (err.response.status === 413) {
+        Notify.create({
+            position: "bottom-right",
+            type: "negative",
+            message: "The file you trying to upload is too large!"
+        });
+    }
     else if (err.response.status === 403) {
         Notify.create({
             position: "bottom-right",

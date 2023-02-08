@@ -1,6 +1,6 @@
 {
     "name": "yamakanban-frontend",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "private": true,
     "scripts": {
         "serve": "vue-cli-service serve",
@@ -10,7 +10,6 @@
     "dependencies": {
         "@quasar/extras": "^1.15.7",
         "axios": "^0.27.2",
-        "colorthief": "^2.3.2",
         "core-js": "^3.8.3",
         "dompurify": "^2.4.1",
         "github-markdown-css": "^5.1.0",

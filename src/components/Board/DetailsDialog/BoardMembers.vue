@@ -46,7 +46,7 @@ import { ref, computed } from "vue";
 
 import { useQuasar } from "quasar";
 import { BoardAPI } from "@/api/board";
-import { BoardPermission, IBoardAllowedUser, IBoardRole } from "@/api/types";
+import { IBoardAllowedUser, IBoardRole } from "@/api/types";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AddMemberDialog from "../AddMemberDialog.vue";
 import { useBoardStore } from "@/stores/board";
