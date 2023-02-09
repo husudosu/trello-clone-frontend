@@ -246,14 +246,11 @@ export interface IChecklistItem {
     id: Readonly<number>;
     checklist_id: Readonly<number>;
     marked_complete_board_user_id?: number;
-    assigned_user_id?: number;
 
     title: string;
-    due_date?: moment.Moment;
     completed: boolean;
     marked_complete_on?: moment.Moment;
     marked_complete_user?: IBoardMemberInfo;
-    assigned_user?: IBoardMemberInfo;
     position?: number;
 }
 
@@ -323,8 +320,6 @@ export enum CardActivityEvent {
     CHECKLIST_UPDATE = "checklist.update",
     CHECKLIST_DELETE = "checklist.delete",
     CHECKLIST_ITEM_MARKED = "checklist.item.marked",
-    CHECKLIST_ITEM_DUE_DATE = "checklist.item.due_date",
-    CHECKLIST_ITEM_USER_ASSIGN = "checklist.item.user_assign",
     CARD_ASSIGN_MEMBER = "card.member.assign",
     CARD_DEASSIGN_MEMBER = "card.member.deassign",
     CARD_ADD_DATE = "card.date.create",

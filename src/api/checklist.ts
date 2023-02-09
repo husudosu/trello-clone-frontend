@@ -10,9 +10,6 @@ export const ChecklistAPI = {
         if (data.marked_complete_on) {
             data.marked_complete_on = moment.utc(data.marked_complete_on).tz(authStore.timezone);
         }
-        if (data.due_date) {
-            data.due_date = moment.utc(data.due_date).tz(authStore.timezone);
-        }
         return data;
     },
     postCardChecklist: async (cardId: number, checklist: Partial<ICardChecklist>): Promise<ICardChecklist> => {
@@ -33,13 +30,7 @@ export const ChecklistAPI = {
     },
     patchChecklistItem: async (itemId: number, item: Partial<IChecklistItem>): Promise<IChecklistItem> => {
         // Make clone of dt before conversion
-        const authStore = useAuthStore();
-        let due_date: undefined | moment.Moment | string = item.due_date;
-        if (item.due_date) {
-            // Convert date to UTC before pushing to API
-            due_date = moment.tz(item.due_date, authStore.timezone).utc().format("YYYY-MM-DD HH:mm:ss");
-        }
-        const { data } = await API.patch<IChecklistItem>(`/checklist/item/${itemId}`, { ...item, due_date });
+        const { data } = await API.patch<IChecklistItem>(`/checklist/item/${itemId}`, item);
         return ChecklistAPI.parseChecklistItem(data);
     },
     assignMemberToChecklistItem: async (itemId: number, member: IBoardAllowedUser) => {
