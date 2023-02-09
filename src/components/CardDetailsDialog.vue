@@ -130,6 +130,9 @@
                                                     :key="member.id" :square="true"
                                                     :show-delete="hasPermission(BoardPermission.CARD_DEASSIGN_MEMBER)"
                                                     @delete="onDeassignMember(member)"></user-avatar>
+                                                <span v-if="card.assigned_members.length === 0">
+                                                    No assigned members.
+                                                </span>
                                             </div>
                                         </q-expansion-item>
                                     </div>
@@ -138,6 +141,10 @@
                                         <q-expansion-item q-expansion-item default-opened icon="schedule " label="Dates"
                                             class="q-mt-md" header-class="cardDetailsExpansionItem">
                                             <card-dates></card-dates>
+                                            <span v-if="card.dates.length === 0">
+                                                No assigned dates.
+                                            </span>
+
                                         </q-expansion-item>
                                     </div>
                                 </div>
