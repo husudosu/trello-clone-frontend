@@ -119,22 +119,46 @@
                     <q-tab-panels v-model="tab" animated>
                         <q-tab-panel name="info" class="fit bg-grey-1">
                             <div>
-                                <template v-if="card.assigned_members.length > 0">
-                                    <div class="row">
-                                        <user-avatar class="q-mr-xs" v-for="member in card.assigned_members" size="md"
-                                            :rounded="false" :user="member.board_user.user" :key="member.id"
-                                            :show-delete="hasPermission(BoardPermission.CARD_DEASSIGN_MEMBER)"
-                                            @delete="onDeassignMember(member)"></user-avatar>
+                                <div class="row q-col-gutter-sm">
+                                    <div class="col-sm-6 col-xs-12">
+                                        <!-- Assigned members -->
+                                        <q-expansion-item q-expansion-item default-opened icon="person" label="Members"
+                                            class="q-mt-md" header-class="cardDetailsExpansionItem">
+                                            <div class="row q-pa-sm">
+                                                <user-avatar class="q-mr-xs" v-for="member in card.assigned_members"
+                                                    size="md" :rounded="false" :user="member.board_user.user"
+                                                    :key="member.id" :square="true"
+                                                    :show-delete="hasPermission(BoardPermission.CARD_DEASSIGN_MEMBER)"
+                                                    @delete="onDeassignMember(member)"></user-avatar>
+                                            </div>
+                                        </q-expansion-item>
                                     </div>
-                                </template>
-
-                                <!-- Card dates -->
-                                <card-dates v-if="card.dates.length > 0"></card-dates>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <!-- Card dates -->
+                                        <q-expansion-item q-expansion-item default-opened icon="schedule " label="Dates"
+                                            class="q-mt-md" header-class="cardDetailsExpansionItem">
+                                            <card-dates></card-dates>
+                                        </q-expansion-item>
+                                    </div>
+                                </div>
 
                                 <!-- Basic card data-->
                                 <q-expansion-item q-expansion-item default-opened icon="info" label="Info"
                                     class="q-mt-md" header-class="cardDetailsExpansionItem">
                                     <q-markup-table dense flat>
+                                        <tr>
+                                            <td class="text-bold">ID:</td>
+                                            <td>
+                                                {{ card.id }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-bold">Title:</td>
+                                            <td>
+                                                {{ card.title }}
+                                            </td>
+                                        </tr>
+
                                         <tr>
                                             <td class="text-bold">Created on:</td>
                                             <td>{{ card.created_on.format("YYYY-MM-DD HH:mm") }}</td>
@@ -146,12 +170,6 @@
                                                     activities[0].activity_on.format("YYYY-MM-DD HH:mm") :
                                                     card.created_on.format("YYYY-MM-DD HH:mm")
                                             }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-bold">Card ID:</td>
-                                            <td>
-                                                {{ card.id }}
-                                            </td>
                                         </tr>
                                     </q-markup-table>
                                 </q-expansion-item>

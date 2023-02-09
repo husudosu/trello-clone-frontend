@@ -1,6 +1,6 @@
 <template>
     <div class="non-selectable">
-        <q-avatar ref="avatar" :size="size" :rounded="rounded" text-color="white"
+        <q-avatar ref="avatar" :size="size" :rounded="rounded" :square="square" text-color="white"
             :style="{ 'background-color': calculateAvatarColor() }">
             {{ initials }}
         </q-avatar>
@@ -24,9 +24,10 @@ interface Props {
     showTooltip?: boolean;
     user: IUserBasicInfo;
     showDelete?: boolean;
+    square?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), { size: "sm", rounded: false, showTooltip: true, showDelete: false });
+const props = withDefaults(defineProps<Props>(), { size: "sm", rounded: false, showTooltip: true, showDelete: false, square: false });
 const avatar = ref();
 const initials = ref("");
 

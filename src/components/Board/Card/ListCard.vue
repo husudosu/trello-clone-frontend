@@ -7,7 +7,7 @@
                         <div class="col">
                             <div class="row">
                                 <user-avatar v-for="member in props.card.assigned_members.slice(0, 2)" :key="member.id"
-                                    size="sm" :user="member.board_user.user">
+                                    :square="true" size="sm" :user="member.board_user.user" class="q-mr-xs">
                                 </user-avatar>
                                 <template v-if="props.card.assigned_members.length > 2">
                                     ...
@@ -16,9 +16,6 @@
                         </div>
                         <div class="col-7 text-right" v-if="props.card.dates.length > 0">
                             <!-- TODO: Check on backend if card dates ordered! -->
-                            <!-- @click="onDateMark($event, props.card.dates[0])" 
-                                Mark on click disabled
-                            -->
                             <card-date-chip :card-date="props.card.dates[0]">
                             </card-date-chip>
                         </div>
@@ -140,10 +137,5 @@ const onEditClick = (ev: Event) => {
     editMode.value = true;
 
 };
-
-// const onDateMark = (ev: Event, cardDate: ICardDate) => {
-//     ev.stopPropagation();
-//     CardAPI.patchCardDate(cardDate.id, { complete: !cardDate.complete });
-// };
 
 </script>

@@ -1,7 +1,8 @@
 <template>
     <q-item dense class="q-mb-md">
         <q-item-section top avatar>
-            <user-avatar :user="props.activity.board_user.user" :show-tooltip="false" size="md"></user-avatar>
+            <user-avatar :user="props.activity.board_user.user" :show-tooltip="false" size="md"
+                :square="true"></user-avatar>
         </q-item-section>
 
         <q-item-section>
@@ -163,10 +164,6 @@ const createActivityText = () => {
                 'completed' :
                 'not complete'
                 }</b>`;
-        case CardActivityEvent.CHECKLIST_ITEM_DUE_DATE:
-            break;
-        case CardActivityEvent.CHECKLIST_ITEM_USER_ASSIGN:
-            break;
         case CardActivityEvent.CARD_ASSIGN_MEMBER:
             return `Assigned card to <b>${boardStore.getBoardUsername(props.activity.changes.to?.board_user_id)
                 }</b>`;
