@@ -1,18 +1,20 @@
 <template>
-    <div class="ui" ref="boardWrapper">
-        <!-- Dragabble object for reordering lists-->
-        <div class="lists" ref="listsWrapper" v-if="board">
-            <draggable v-model="boardLists" itemKey="data-id" :delayOnTouchOnly="true" :touchStartThreshold="100"
-                :delay="500" @end="onBoardListSortableMoveEnd" group="board-list" handle=".listHeader"
-                style="display:flex" direction="horizontal" :scroll-sensitivity="170" :fallback-tolerance="1"
-                :force-fallback="true" :animation="200" filter=".draftBoardList"
-                :disabled="!boardStore.hasPermission(BoardPermission.LIST_EDIT)">
-                <!-- Board list object and reorder handling of cards.-->
-                <template #item="{ element }">
-                    <board-list-vue @on-card-move-end="onCardSortableMoveEnd" :boardList="element">
-                    </board-list-vue>
-                </template>
-            </draggable>
+    <div class="boardContainer">
+        <div class="ui" ref="boardWrapper">
+            <!-- Dragabble object for reordering lists-->
+            <div class="lists" ref="listsWrapper" v-if="board">
+                <draggable v-model="boardLists" itemKey="data-id" :delayOnTouchOnly="true" :touchStartThreshold="100"
+                    :delay="500" @end="onBoardListSortableMoveEnd" group="board-list" handle=".listHeader"
+                    style="display:flex" direction="horizontal" :scroll-sensitivity="170" :fallback-tolerance="1"
+                    :force-fallback="true" :animation="200" filter=".draftBoardList"
+                    :disabled="!boardStore.hasPermission(BoardPermission.LIST_EDIT)">
+                    <!-- Board list object and reorder handling of cards.-->
+                    <template #item="{ element }">
+                        <board-list-vue @on-card-move-end="onCardSortableMoveEnd" :boardList="element">
+                        </board-list-vue>
+                    </template>
+                </draggable>
+            </div>
         </div>
     </div>
 </template>
