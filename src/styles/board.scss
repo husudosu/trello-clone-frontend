@@ -2,10 +2,10 @@
 // Layout
 $appbar-height: 50px;
 $navbar-height: 44px;
-$lists-margin-top: 10px;
+$lists-margin-top: 5px;
 $list-width: 290px;
 $list-gap: 5px;
-$gap: 10px;
+$gap: 8px;
 $scrollbar-thickness: 17px;
 $list-header-height: 36px;
 $list-footer-height: 36px;
@@ -20,17 +20,19 @@ body {
   line-height: 1.3em;
 }
 
+.boardContainer {
+  // background-color: red;
+  background: url("@/assets/test_bg.webp");
+  background-size: cover;
+}
 .ui {
   height: calc(100vh - #{$appbar-height} - #{$navbar-height});
-
+  background-color: #0d344e8a;
   display: grid;
   grid-template-rows: $appbar-height $navbar-height 1fr;
   //grid-template-columns: 100%;
 
   // background-color: $board-bg-color;
-  background: url("@/assets/test_bg.webp");
-  background-size: cover;
-
   color: #eee;
 }
 // TODO: Convert this to quasar variable, but I cannot get working quasar variables here!
@@ -55,28 +57,32 @@ body {
   display: flex;
   overflow-x: auto;
   margin-top: #{$lists-margin-top};
-
-  margin-left: 5px;
+  // margin-left: 5px;
 
   // List elements design
   > div > * {
     flex: 0 0 auto; // 'rigid' lists
 
-    &:not(:last-child) {
-      border-right: 4px solid rgba(255, 255, 255, 0.671);
+    &:first-child {
+      border-left: 3px solid rgba(255, 255, 255, 0.671);
     }
+    // &:not(:last-child) {
+    // border-top: 1px solid rgba(255, 255, 255, 0.671);
+    border-right: 3px solid rgba(255, 255, 255, 0.671);
+    // }
     // margin-right: $list-gap;
   }
 
-  &::after {
-    content: "";
-    flex: 0 0 $gap;
-  }
+  // &::after {
+  //   content: "";
+  //   flex: 0 0 $gap;
+  // }
 }
 
 .listWrapper {
-  height: calc(100% - #{$gap} - #{$scrollbar-thickness});
-  background-color: #0d344e8a;
+  height: calc(100% - #{$scrollbar-thickness});
+  // height: calc(100% - #{$gap} - #{$scrollbar-thickness});
+  // background-color: #0d344e8a;
 }
 .list-group {
   height: calc(100% - 10px);
