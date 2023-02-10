@@ -146,9 +146,9 @@ export const useBoardStore = defineStore('board', {
                 if (listIndex > -1) {
                     const cardIndex = this.board.lists[listIndex].cards.findIndex((el) => el.id == card.id);
                     if (cardIndex === -1) {
-                        this.board.lists[listIndex].cards.push(card);
+                        this.board.lists[listIndex].cards.push(CardAPI.parseCard(card));
                     } else if (this.board) {
-                        this.board.lists[listIndex].cards[cardIndex] = card;
+                        this.board.lists[listIndex].cards[cardIndex] = CardAPI.parseCard(card);
                     }
                 }
             }
