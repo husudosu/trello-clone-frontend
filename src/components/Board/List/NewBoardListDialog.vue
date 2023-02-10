@@ -94,9 +94,9 @@ const boardStore = useBoardStore();
 
 const listTitle = ref("");
 const listWIPLimit = ref(-1);
-const listHeaderTextColor = ref("");
-const listHeaderBackgroundColor = ref("");
-const listTextcolor = ref("");
+const listHeaderTextColor = ref("#fff");
+const listHeaderBackgroundColor = ref("##0d344e");
+const listTextcolor = ref("#fff");
 const listBackgroundColor = ref("");
 
 
