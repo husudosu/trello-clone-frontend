@@ -14,9 +14,10 @@
                             <q-card-section>
                                 <q-form class="q-gutter-md">
                                     <q-input square filled v-model="loginPayload.username" type="email" label="Username"
-                                        autofocus />
+                                        autofocus autocomplete="username" />
                                     <q-input square filled v-model="loginPayload.password" type="password"
-                                        label="Password" @keyup.enter="onLoginClicked" />
+                                        label="Password" @keyup.enter="onLoginClicked"
+                                        autocomplete="current-password" />
                                 </q-form>
                             </q-card-section>
                             <q-card-actions class="q-px-md">

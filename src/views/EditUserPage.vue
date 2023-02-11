@@ -13,13 +13,13 @@
         </div>
         <q-form ref="editForm" class="q-px-sm q-pt-none q-pb-xs" v-if="updateUser">
             <q-input square v-model="updateUser.email" type="email" label="Email"
-                :rules="[requiredTextField, validateFormEmail]" debounce="300">
+                :rules="[requiredTextField, validateFormEmail]" debounce="300" autocomplete="email">
                 <template v-slot:prepend>
                     <q-icon name="email" />
                 </template>
             </q-input>
             <q-input square v-model="updateUser.username" type="text" label="Username"
-                :rules="[requiredTextField, validateFormUsername]" debounce="300">
+                :rules="[requiredTextField, validateFormUsername]" debounce="300" autocomplete="username">
                 <template v-slot:prepend>
                     <q-icon name="person" />
                 </template>
@@ -42,13 +42,14 @@
                     </q-item>
                 </template>
             </q-select>
-            <q-input square v-model="updateUser.password" type="password" label="New password">
+            <q-input square v-model="updateUser.password" type="password" label="New password"
+                autocomplete="new-password">
                 <template v-slot:prepend>
                     <q-icon name="lock" />
                 </template>
             </q-input>
             <q-input square v-model="updateUser.current_password" type="password" label="Current password"
-                :rules="[requiredTextField]" v-if="!adminEdit">
+                autocomplete="current-password" :rules="[requiredTextField]" v-if="!adminEdit">
                 <template v-slot:prepend>
                     <q-icon name="lock" />
                 </template>
