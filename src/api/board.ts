@@ -26,13 +26,13 @@ export const BoardAPI = {
         return data;
     },
     getArchivedCards: async (boardId: number): Promise<IArchivedCard[]> => {
-        const { data } = await API.get<IArchivedCard[]>(`/board/${boardId}/archived-entities`, { params: { "entity_type": "card" } });
+        const { data } = await API.get<IArchivedCard[]>(`/board/${boardId}/archived-cards`);
         // Convert archived_on to moment
         BoardAPI.parseArchivedEntities(data);
         return data;
     },
     getArchivedLists: async (boardId: number): Promise<IArchivedList[]> => {
-        const { data } = await API.get<IArchivedList[]>(`/board/${boardId}/archived-entities`, { params: { "entity_type": "list" } });
+        const { data } = await API.get<IArchivedList[]>(`/board/${boardId}/archived-lists`);
         // Convert archived_on to moment
         BoardAPI.parseArchivedEntities(data);
         return data;
