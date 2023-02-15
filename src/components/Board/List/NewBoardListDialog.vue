@@ -88,7 +88,7 @@ defineEmits([
 ]);
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent();
-const props = withDefaults(defineProps<{ boardList: IBoardList | null; }>(), { boardList: null });
+const props = withDefaults(defineProps<{ boardList?: IBoardList | null; }>(), { boardList: null });
 
 const boardStore = useBoardStore();
 

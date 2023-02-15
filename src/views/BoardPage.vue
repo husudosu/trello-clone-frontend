@@ -10,7 +10,8 @@
                     :disabled="!boardStore.hasPermission(BoardPermission.LIST_EDIT)">
                     <!-- Board list object and reorder handling of cards.-->
                     <template #item="{ element }">
-                        <board-list-vue @on-card-move-end="onCardSortableMoveEnd" :boardList="element">
+                        <board-list-vue @on-card-move-end="onCardSortableMoveEnd" :boardList="element"
+                            @on-card-move="onCardMove">
                         </board-list-vue>
                     </template>
                 </draggable>
@@ -67,7 +68,11 @@ const onBoardListSortableMoveEnd = () => {
     }
 };
 
-//Draggable object events for cards
+/**
+ * On move end event handler for BoardList card.
+ * This saves new card position into API if onCardMove successfull.
+ * @param ev Vue draggable onMoveEnd event.
+ */
 const onCardSortableMoveEnd = async (ev: any) => {
     const cardId: number = parseInt(ev.item.getAttribute("data-id"));
     const listFromId: number = parseInt(ev.from.getAttribute("data-id"));
@@ -94,6 +99,24 @@ const onCardSortableMoveEnd = async (ev: any) => {
         const listTo = board.value?.lists.find((el) => el.id == listToId);
         if (listTo) {
             await BoardListAPI.updateCardsOrder(listTo);
+        }
+    }
+};
+
+/**
+ * On move event handler for Boardlist card.
+ * Detects if the WIP limit reached for the list.
+ * @param ev Sortable move event 
+ */
+const onCardMove = (ev: any) => {
+    const listToId: number = parseInt(ev.to.getAttribute("data-id"));
+    const listFromId: number = parseInt(ev.from.getAttribute("data-id"));
+    // Check target list WIP limit
+
+    const list = boardStore.boardLists.find((el) => el.id === listToId);
+    if (list) {
+        if (list.wip_limit === list.cards.length && listToId !== listFromId) {
+            return false;
         }
     }
 };
