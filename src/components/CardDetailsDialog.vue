@@ -1,5 +1,5 @@
 <template>
-    <q-dialog maximized :fullWidth="true" :fullHeight="true" @hide="onDialogHide" ref="dialogRef">
+    <q-dialog :fullWidth="true" :fullHeight="true" @hide="onDialogHide" ref="dialogRef">
         <q-layout view="hHh lpR lFf" container class="bg-grey-1" v-if="card">
             <q-header class="bg-primary">
                 <q-toolbar>
