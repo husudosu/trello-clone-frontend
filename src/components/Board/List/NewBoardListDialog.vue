@@ -3,7 +3,7 @@
         <q-card style="width: 400px;">
             <q-card-section>
                 <q-toolbar color="primary">
-                    <q-toolbar-title>{{!props.boardList ? 'New list' : 'Update list'}} </q-toolbar-title>
+                    <q-toolbar-title>{{ !props.boardList ? 'New list' : 'Update list' }} </q-toolbar-title>
                     <q-btn flat round dense icon="close" v-close-popup />
                 </q-toolbar>
             </q-card-section>
@@ -14,50 +14,37 @@
                     <q-input v-model="listWIPLimit" label="WIP limit" type="number" :rules=[validateWIPLimit]
                         hint="-1 means no WIP limit set" />
                     <q-list class="non-selectable">
-                        <q-item v-ripple>
+                        <q-item v-ripple clickable @click="selectColor('listHeaderBackgroundColor')">
                             <q-item-section>Header background</q-item-section>
                             <q-item-section avatar>
                                 <div
                                     :style="{ backgroundColor: listHeaderBackgroundColor, width: '24px', height: '24px', border: '1px solid' }">
                                 </div>
                             </q-item-section>
-                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                <q-color v-model="listHeaderBackgroundColor" defaultValue="#ffffff"
-                                    formatModel="rgba" />
-                            </q-popup-proxy>
                         </q-item>
-                        <q-item v-ripple>
+                        <q-item v-ripple clickable @click="selectColor('listHeaderTextColor')">
                             <q-item-section>Header text</q-item-section>
                             <q-item-section avatar>
                                 <div
                                     :style="{ backgroundColor: listHeaderTextColor, width: '24px', height: '24px', border: '1px solid' }">
                                 </div>
                             </q-item-section>
-                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                <q-color v-model="listHeaderTextColor" defaultValue="#ffffff" formatModel="rgba" />
-                            </q-popup-proxy>
                         </q-item>
-                        <q-item v-ripple>
+                        <q-item v-ripple clickable @click="selectColor('listBackgroundColor')">
                             <q-item-section>List background</q-item-section>
                             <q-item-section avatar>
                                 <div
                                     :style="{ backgroundColor: listBackgroundColor, width: '24px', height: '24px', border: '1px solid' }">
                                 </div>
                             </q-item-section>
-                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                <q-color v-model="listBackgroundColor" defaultValue="#ffffff" formatModel="rgba" />
-                            </q-popup-proxy>
                         </q-item>
-                        <q-item v-ripple>
+                        <q-item v-ripple clickable @click="selectColor('listTextcolor')">
                             <q-item-section>List text</q-item-section>
                             <q-item-section avatar>
                                 <div
                                     :style="{ backgroundColor: listTextcolor, width: '24px', height: '24px', border: '1px solid' }">
                                 </div>
                             </q-item-section>
-                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                <q-color v-model="listTextcolor" defaultValue="#ffffff" formatModel="rgba" />
-                            </q-popup-proxy>
                         </q-item>
 
                     </q-list>
@@ -67,7 +54,7 @@
                     <q-btn @click="onDialogCancel">Cancel</q-btn>
                     <q-btn type="submit" color="primary">
                         {{
-                        !props.boardList ? 'Add' : 'Update'
+                            !props.boardList ? 'Add' : 'Update'
                         }}
                     </q-btn>
                 </q-card-actions>
@@ -79,9 +66,12 @@
 <script lang="ts" setup>
 
 import { defineEmits, ref, withDefaults, defineProps, onMounted } from 'vue';
-import { useDialogPluginComponent } from 'quasar';
+import { useDialogPluginComponent, useQuasar } from 'quasar';
 import { useBoardStore } from '@/stores/board';
 import { IBoardList } from '@/api/types';
+import ColorPickerDialog from '@/components/ColorPickerDialog.vue';
+
+const $q = useQuasar();
 
 defineEmits([
     ...useDialogPluginComponent.emits
@@ -94,10 +84,10 @@ const boardStore = useBoardStore();
 
 const listTitle = ref("");
 const listWIPLimit = ref(-1);
-const listHeaderTextColor = ref("#fff");
-const listHeaderBackgroundColor = ref("##0d344e");
-const listTextcolor = ref("#fff");
-const listBackgroundColor = ref("");
+const listHeaderTextColor = ref("rgba(255, 255, 255, 1)");
+const listHeaderBackgroundColor = ref("rgba(13, 52, 78, 1)");
+const listTextcolor = ref("rgba(255, 255, 255, 1)");
+const listBackgroundColor = ref("rgba(0, 0, 0, 0)");
 
 
 const onSubmit = async () => {
@@ -120,6 +110,32 @@ const validateWIPLimit = (val: number): Promise<string | boolean> => {
         if (!props.boardList || val == -1) resolve(true);
         else if (props.boardList.cards.length > val) resolve("You cannot have lower WIP limit than current card count!");
         else resolve(true);
+    });
+};
+
+const selectColor = (model: string) => {
+    $q.dialog(
+        {
+            component: ColorPickerDialog,
+            componentProps: {
+                currentColor: model
+            }
+        }
+    ).onOk((color: string) => {
+        switch (model) {
+            case "listHeaderBackgroundColor":
+                listHeaderBackgroundColor.value = color;
+                break;
+            case "listHeaderTextColor":
+                listHeaderTextColor.value = color;
+                break;
+            case "listBackgroundColor":
+                listBackgroundColor.value = color;
+                break;
+            case "listTextcolor":
+                listTextcolor.value = color;
+                break;
+        }
     });
 };
 
