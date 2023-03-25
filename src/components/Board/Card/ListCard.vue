@@ -48,7 +48,7 @@
         </template>
         <template v-else>
             <q-input v-model="newTitle" type="textarea" label="Card title" autofocus autogrow
-                @keyup.enter="onCardTitleKeyUp" @keyup.escape="onCancelClicked" @blur="saveCard">
+                @keyup.enter="onCardTitleKeyUp" @keyup.escape="onCancelClicked" @blur="onCardTitleBlur">
             </q-input>
             <q-btn class="q-ml-xs q-mr-xs q-mt-sm" size="sm" color="primary" :disable="newTitle.length === 0"
                 @click="saveCard">
@@ -65,7 +65,6 @@
 <script lang="ts" setup>
 import { BoardPermission, ICard } from '@/api/types';
 import { defineProps, ref, defineEmits } from 'vue';
-
 import UserAvatar from '@/components/UserAvatar.vue';
 import CardDateChip from './Status/CardDateChip.vue';
 import ChecklistStatus from './Status/ChecklistStatus.vue';
@@ -90,10 +89,19 @@ const emit = defineEmits(
 );
 
 const onCancelClicked = (ev: Event) => {
-    ev.stopPropagation();
+    console.log("Cancel");
+    ev.stopImmediatePropagation();
     editMode.value = false;
     newTitle.value = props.card.title;
     listCardRef.value.classList.remove("draftCard");
+};
+
+const onCardTitleBlur = async (ev: FocusEvent) => {
+    /*
+    This a hacky way to find out if a button clicked.
+    */
+    if (ev.relatedTarget.tagName === "BUTTON") return;
+    saveCard(ev);
 };
 
 const saveCard = async (ev: Event) => {
@@ -112,10 +120,11 @@ const onCardClick = () => {
     // Launch card details only if editMode inactive!
     /* FIXME: Hacky way to prevent card click event after move.
      The issue only appears when you move card inside a list
-    If you move one list to other it's not an isssued
+    If you move one list to other it's not an isssue
     */
-    if (editMode.value || cardStore.cardMoved) return;
-    emit("click", props.card);
+    if (cardStore.cardMoved) return;
+    if (!editMode.value)
+        emit("click", props.card);
 };
 
 const onEditClick = (ev: Event) => {

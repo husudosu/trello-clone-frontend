@@ -39,14 +39,15 @@
                 </template>
             </header>
             <ul ref="cardsWrapper">
-                <draggable :data-id="props.boardList.id" class="list-group" v-model="cards" group="board-cards"
-                    itemKey="id" @end="$emit('onCardMoveEnd', $event)" draggable=".listCard" :delayOnTouchOnly="true"
+                <draggable :data-id="props.boardList.id" class="list-group" v-model="cards" group="board-cards" itemKey="id"
+                    @end="$emit('onCardMoveEnd', $event)" draggable=".listCard" :delayOnTouchOnly="true"
                     :touchStartThreshold="100" :delay="100" v-if="props.boardList.id" :scroll-sensitivity="200"
                     :fallback-tolerance="1" :force-fallback="true" :animation="200" filter=".draftCard"
-                    :move="onCardMoveLocal" :disabled="!boardStore.hasPermission(BoardPermission.LIST_EDIT)">
+                    :move="onCardMoveLocal" :disabled="!boardStore.hasPermission(BoardPermission.LIST_EDIT)"
+                    :preventOnFilter="false">
                     <template #item="{ element }">
                         <list-card :card="element" @click="onCardClick" @archive="onCardArchiveClicked"
-                            @save="onCardTitleUpdate"></list-card>
+                            @save="onCardTitleUpdate"> </list-card>
                     </template>
                     <template #footer v-if="showAddCard">
                         <draft-card-vue @save="onSaveCard" @cancel="showAddCard = false"></draft-card-vue>
@@ -74,6 +75,7 @@ import { IBoardList, BoardPermission, IDraftCard, ICard } from '@/api/types';
 import { defineProps, ref, nextTick, computed, defineEmits } from 'vue';
 import { useQuasar } from 'quasar';
 import draggable from 'vuedraggable';
+
 
 import ListCard from "@/components/Board/Card/ListCard.vue";
 import DraftCardVue from "@/components/Board/Card/DraftCard.vue";
@@ -111,6 +113,7 @@ const cards = computed({
     }
 });
 const showAddCard = ref(false);
+
 
 const onListSave = async () => {
     try {
